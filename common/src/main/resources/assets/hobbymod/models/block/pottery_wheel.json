@@ -1,8 +1,8 @@
 {
   "textures": {
-    "wood": "minecraft:block/stripped_spruce_log",
-    "metal": "minecraft:block/iron_block",
-    "particle": "minecraft:block/oak_planks"
+    "wood": "minecraft:block/stripped_oak_log",
+    "metal": "minecraft:block/polished_andesite",
+    "particle": "minecraft:block/stripped_oak_log"
   },
   "elements": [
     {

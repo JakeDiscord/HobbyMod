@@ -24,16 +24,17 @@ public final class BonsaiGraph {
         public double distanceSquared(Point b) { return Math.pow(x-b.x,2)+Math.pow(y-b.y,2)+Math.pow(z-b.z,2); }
     }
     private final List<Node> nodes = new ArrayList<>();
+    private List<Node> nodeSnapshot;
     public Species species = Species.OAK;
     public int age, water = 55, health = 100, soilAge, rootAge, nextId = 1;
     public long seed;
-    public List<Node> nodes() { return List.copyOf(nodes); }
+    public List<Node> nodes() { if(nodeSnapshot==null)nodeSnapshot=List.copyOf(nodes);return nodeSnapshot; }
     public boolean planted() { return !nodes.isEmpty(); }
     public void plant(Species species, long seed) {
         if (planted()) return;
         this.species = species; this.seed = seed;
-        nodes.add(new Node(nextId++, 0, .24, .075, 0, 0));
-        nodes.add(new Node(nextId++, 1, .18, .036, 0, .15));
+        nodeSnapshot=null;nodes.add(new Node(nextId++, 0, .24, .075, 0, 0));
+        nodeSnapshot=null;nodes.add(new Node(nextId++, 1, .18, .036, 0, .15));
         for(Node n:nodes)n.growthTicks=0;
     }
     public Node node(int id) { for (Node n : nodes) if (n.id == id) return n; return null; }
@@ -116,7 +117,7 @@ public final class BonsaiGraph {
     public int prune(int id) {
         if(id<=1 || node(id)==null) return 0;
         List<Integer> removed=subtree(id);
-        nodes.removeIf(n -> removed.contains(n.id));
+        nodeSnapshot=null;nodes.removeIf(n -> removed.contains(n.id));
         damage(removed.size()*6);
         for(Node n:nodes) if(n.health>0) n.bud=true;
         return removed.size();
@@ -167,9 +168,9 @@ public final class BonsaiGraph {
         Point endpoint=end(child);
         if(endpoint.x<.08 || endpoint.x>.92 || endpoint.z<.08 || endpoint.z>.92 || endpoint.y>.94){parent.bud=false;return;}
         child.growthTicks=0;
-        nodes.add(child);
+        nodeSnapshot=null;nodes.add(child);
     }
-    public void clearForLoad(){nodes.clear();}
+    public void clearForLoad(){nodes.clear();nodeSnapshot=null;}
     public boolean acceptLoaded(Node n) {
         if(nodes.size()>=MAX_NODES || n.id<=0 || n.id>1_000_000 || node(n.id)!=null ||
                 (nodes.isEmpty()?n.parent!=0 || n.id!=1:n.parent==0 || n.parent>=n.id || node(n.parent)==null) ||
@@ -179,6 +180,6 @@ public final class BonsaiGraph {
         n.age=Math.max(0,Math.min(1_000_000,n.age));n.health=Math.max(0,Math.min(100,n.health));
         n.bend=Math.max(0,Math.min(72,n.bend));n.growthTicks=Math.max(0,Math.min(GROWTH_TICKS,n.growthTicks));
         if(n.id==1)n.radius=Math.max(.075,n.radius);
-        nodes.add(n);nextId=Math.max(nextId,n.id+1);return true;
+        nodeSnapshot=null;nodes.add(n);nextId=Math.max(nextId,n.id+1);return true;
     }
 }

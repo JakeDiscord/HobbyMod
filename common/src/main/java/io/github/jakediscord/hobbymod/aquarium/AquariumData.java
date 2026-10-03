@@ -58,11 +58,12 @@ public final class AquariumData {
     public boolean schooling(Species s){return s==Species.NEON_TETRA || s==Species.ZEBRA_DANIO || s==Species.CHERRY_BARB;}
     public String habitatTip(Fish f){if(schooling(f.species) && fish.stream().filter(a->a.species==f.species).count()<3)return "Keep a group of 3 or more.";if(plants<2)return "Add plants for shelter.";return "Comfortable habitat.";}
     private final List<Fish> fish=new ArrayList<>();
+    private List<Fish> fishSnapshot;
     public Size size=Size.SMALL;
     public long seed,nextId=1;
     public int quality=100,cycle,food,algae,plants,rocks,wood,steps,selected;
     public boolean filled,warm=true,substrate,filter;
-    public List<Fish> fish(){return List.copyOf(fish);}
+    public List<Fish> fish(){if(fishSnapshot==null)fishSnapshot=List.copyOf(fish);return fishSnapshot;}
     public int load(){return fish.stream().mapToInt(f->f.species.load).sum();}
     public int capacity(){return Math.min(MAX_FISH,size.volume());}
     public Fish selected(){return fish.isEmpty()?null:fish.get(Math.floorMod(selected,fish.size()));}
@@ -83,8 +84,8 @@ public final class AquariumData {
         for(Fish a:fish)if(!compatible(a,f))return "Incompatible with "+a.species.label+".";
         return "";
     }
-    public boolean add(Fish f){if(!canAdd(f).isEmpty())return false;f.acclimation=2;fish.add(f);discovered|=1<<f.species.ordinal();selected=fish.size()-1;return true;}
-    public Fish capture(){Fish f=selected();if(f!=null){fish.remove(f);selected=Math.max(0,Math.min(selected,fish.size()-1));}return f;}
+    public boolean add(Fish f){if(!canAdd(f).isEmpty())return false;f.acclimation=2;fishSnapshot=null;fish.add(f);discovered|=1<<f.species.ordinal();selected=fish.size()-1;return true;}
+    public Fish capture(){Fish f=selected();if(f!=null){fishSnapshot=null;fish.remove(f);selected=Math.max(0,Math.min(selected,fish.size()-1));}return f;}
     public Fish newFish(Species species){
         Random random=new Random(seed+nextId*7919);
         Fish f=new Fish(new UUID(seed,nextId++),species);
@@ -140,7 +141,7 @@ public final class AquariumData {
                 child.formA=random.nextBoolean()?mother.formA:mother.formB;
                 child.formB=random.nextBoolean()?father.formA:father.formB;child.female=random.nextBoolean();
                 if(canAdd(child).isEmpty()){
-                    fish.add(child);mother.cooldown=6;father.cooldown=6;births++;this.births=Math.min(1_000_000,this.births+1);
+                    fishSnapshot=null;fish.add(child);mother.cooldown=6;father.cooldown=6;births++;this.births=Math.min(1_000_000,this.births+1);
                 }
                 break;
             }
@@ -148,11 +149,11 @@ public final class AquariumData {
     }
     private static boolean ready(Fish f){return f.age>=6 && f.health>=80 && f.acclimation==0 && f.cooldown==0;}
     public static int clamp(int n,int max){return Math.max(0,Math.min(max,n));}
-    public void clearForLoad(){fish.clear();}
+    public void clearForLoad(){fish.clear();fishSnapshot=null;}
     public boolean acceptLoaded(Fish f){
         if(f==null || f.id==null || f.species==null || fish.size()>=MAX_FISH || fish.stream().anyMatch(a->a.id.equals(f.id)))return false;
         f.colorA=clamp(f.colorA,15);f.colorB=clamp(f.colorB,15);f.formA=clamp(f.formA,3);f.formB=clamp(f.formB,3);
         f.age=clamp(f.age,1_000_000);f.health=clamp(f.health,100);f.acclimation=clamp(f.acclimation,2);f.cooldown=clamp(f.cooldown,6);
-        f.name=f.name==null?"":f.name.substring(0,Math.min(32,f.name.length()));fish.add(f);discovered|=1<<f.species.ordinal();return true;
+        f.name=f.name==null?"":f.name.substring(0,Math.min(32,f.name.length()));fishSnapshot=null;fish.add(f);discovered|=1<<f.species.ordinal();return true;
     }
 }

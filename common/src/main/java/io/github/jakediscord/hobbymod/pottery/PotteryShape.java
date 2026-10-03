@@ -13,6 +13,8 @@ public final class PotteryShape {
     private double height=.24,wall=.06,mass;
     private boolean open;
     private MarbleMesh mesh;
+    private final MarbleMesh[] detailMeshes=new MarbleMesh[2];
+    private void invalidateMeshes(){mesh=null;Arrays.fill(detailMeshes,null);}
     public PotteryShape() {
         for(int i=0;i<SAMPLES;i++)radius[i]=.22-.025*Math.pow(i/(double)(SAMPLES-1)-.45,2)*4;
         mass=volume(wall);
@@ -53,7 +55,7 @@ public final class PotteryShape {
         if(open)return false;
         height*=1.4;for(int i=0;i<SAMPLES;i++)radius[i]*=1.15;open=true;
         if(!balance())throw new IllegalStateException("Initial clay cannot form a hollow pot");
-        mesh=null;return true;
+        invalidateMeshes();return true;
     }
     /** Wet shaping conserves clay; an impossible, too-thin wall rejects the whole stroke. */
     public boolean throwClay(double t,double push,double lift,boolean smooth) {
@@ -70,7 +72,7 @@ public final class PotteryShape {
         if(!balance()){restore(before);return false;}
         double[] after=data();boolean changed=false;
         for(int i=0;i<after.length;i++)if(i!=2 && i!=3 && Math.abs(after[i]-before[i])>=.000001){changed=true;break;}
-        if(changed)mesh=null;else restore(before);return changed;
+        if(changed)invalidateMeshes();else restore(before);return changed;
     }
     public boolean trim(double t) {
         if(!open || !Double.isFinite(t) || t<0 || t>.28)return false;
@@ -80,7 +82,7 @@ public final class PotteryShape {
             double next=Math.max(wall+.025,radius[i]-.003*Math.exp(-Math.pow((f-t)/.07,2)));
             if(next<radius[i]){radius[i]=next;changed=true;}
         }
-        if(changed){mass=volume(wall);mesh=null;}return changed;
+        if(changed){mass=volume(wall);invalidateMeshes();}return changed;
     }
     public void shrink(double amount) {
         if(!Double.isFinite(amount) || amount<.9 || amount>1)throw new IllegalArgumentException("Invalid shrinkage");
@@ -88,7 +90,7 @@ public final class PotteryShape {
         // Keep saved geometry within its supported range even after both firings.
         height=Math.max(.16,height);wall=Math.max(MIN_WALL,wall);
         for(int i=0;i<SAMPLES;i++)radius[i]=Math.max(.075,radius[i]);
-        mass=volume(wall);mesh=null;
+        mass=volume(wall);invalidateMeshes();
     }
     private void restore(double[] d){height=d[0];wall=d[1];mass=d[2];System.arraycopy(d,4,radius,0,SAMPLES);}
     private boolean balance() {
@@ -107,9 +109,13 @@ public final class PotteryShape {
         if(open)result+=2*Math.PI*(radius(1)-thickness/2)*Math.PI*thickness*thickness/8;
         return result;
     }
-    public MarbleMesh mesh() {
-        if(mesh!=null)return mesh;
-        var faces=new ArrayList<MarbleMesh.Quad>();int rings=48,sides=64;
+    public MarbleMesh mesh(){return mesh(0);}
+    /** Display LOD only. Collision, picking, saves and sculpting always use the full mesh. */
+    public MarbleMesh mesh(int detail){
+        if(detail<0 || detail>2)throw new IllegalArgumentException("Invalid pottery detail");
+        MarbleMesh cached=detail==0?mesh:detailMeshes[detail-1];if(cached!=null)return cached;
+        int rings=detail==0?48:detail==1?24:12,sides=detail==0?64:detail==1?32:16,lipRings=detail==0?8:detail==1?6:4;
+        var faces=new ArrayList<MarbleMesh.Quad>();
         for(int j=0;j<rings;j++)for(int i=0;i<sides;i++) {
             double t=j/(double)rings,u=(j+1)/(double)rings,a=i*Math.PI*2/sides,b=(i+1)*Math.PI*2/sides;
             faces.add(new MarbleMesh.Quad(side(t,a,false),side(u,a,false),side(u,b,false),side(t,b,false)));
@@ -125,8 +131,8 @@ public final class PotteryShape {
             if(open) {
                 var floor=new MarbleMesh.Vertex(.5,FLOOR*height,.5,0,1,0,false);
                 faces.add(new MarbleMesh.Quad(flat(FLOOR,a,radius(FLOOR)-wall,1),floor,floor,flat(FLOOR,b,radius(FLOOR)-wall,1)));
-                for(int k=0;k<8;k++) {
-                    double c=k*Math.PI/8,d=(k+1)*Math.PI/8;
+                for(int k=0;k<lipRings;k++) {
+                    double c=k*Math.PI/lipRings,d=(k+1)*Math.PI/lipRings;
                     faces.add(new MarbleMesh.Quad(lip(a,c),lip(a,d),lip(b,d),lip(b,c)));
                 }
             }else {
@@ -134,7 +140,7 @@ public final class PotteryShape {
                 faces.add(new MarbleMesh.Quad(flat(1,a,radius(1),1),top,top,flat(1,b,radius(1),1)));
             }
         }
-        return mesh=new MarbleMesh(java.util.List.copyOf(faces));
+        var result=new MarbleMesh(java.util.List.copyOf(faces));if(detail==0)mesh=result;else detailMeshes[detail-1]=result;return result;
     }
     private MarbleMesh.Vertex flat(double t,double angle,double r,double ny){return new MarbleMesh.Vertex(.5+r*Math.cos(angle),height*t,.5+r*Math.sin(angle),0,ny,0,false);}
     private MarbleMesh.Vertex side(double t,double a,boolean inside) {

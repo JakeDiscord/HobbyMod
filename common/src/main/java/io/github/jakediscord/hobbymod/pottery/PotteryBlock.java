@@ -52,9 +52,19 @@ public final class PotteryBlock extends BaseEntityBlock {
             success=true;
         }else if(pot.piece!=null && stack.is(Items.WATER_BUCKET) && pot.piece.rewet()) {
             if(!player.getAbilities().instabuild)player.setItemInHand(hand,new ItemStack(Items.BUCKET));pot.changed();success=true;
+        }else if(!wheel && pot.piece!=null && pot.piece.stage==PotteryPiece.Stage.FINISHED && stack.is(Items.WATER_BUCKET)) {
+            if(pot.containsWater)player.displayClientMessage(Component.literal("This pot already contains water."),true);
+            else if(!pot.piece.shape.open())player.displayClientMessage(Component.literal("This pot needs an open center to hold water."),true);
+            else {pot.containsWater=true;if(!player.getAbilities().instabuild)player.setItemInHand(hand,new ItemStack(Items.BUCKET));pot.changed();}
+            return ItemInteractionResult.CONSUME;
+        }else if(!wheel && pot.containsWater && stack.is(Items.BUCKET)) {
+            if(!pot.flower.isEmpty())player.displayClientMessage(Component.literal("Remove the flower before emptying the water."),true);
+            else {pot.containsWater=false;if(!player.getAbilities().instabuild){stack.shrink(1);give(player,new ItemStack(Items.WATER_BUCKET));}pot.changed();}
+            return ItemInteractionResult.CONSUME;
         }else if(!wheel && pot.piece!=null && stack.getItem() instanceof GlazeItem glaze && pot.piece.glaze(glaze.color)) {
             consume(stack,player);pot.changed();success=true;
         }else if(!wheel && pot.piece!=null && pot.piece.stage==PotteryPiece.Stage.FINISHED && pot.flower.isEmpty() && stack.is(ItemTags.SMALL_FLOWERS)) {
+            if(!pot.containsWater){player.displayClientMessage(Component.literal("Add water with a water bucket before placing a flower."),true);return ItemInteractionResult.CONSUME;}
             pot.flower=stack.copyWithCount(1);consume(stack,player);pot.changed();success=true;
         }else if(!wheel && !pot.flower.isEmpty() && stack.is(Items.SHEARS)) {
             give(player,pot.flower);pot.flower=ItemStack.EMPTY;pot.changed();success=true;

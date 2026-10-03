@@ -86,11 +86,13 @@ public final class PotteryGameTests {
         for(int i=0;i<KilnBlockEntity.FIRING_TICKS+KilnBlockEntity.COOLING_TICKS;i++)KilnBlockEntity.tick(h.getLevel(),k.getBlockPos(),k.getBlockState(),k);
         var finished=PotteryPotItem.piece(k.extract());h.assertTrue(finished.stage==PotteryPiece.Stage.FINISHED && finished.glaze==DyeColor.CYAN,"Second firing preserves the glaze color");
         h.assertTrue(Math.abs(finished.shape.radius(.5)-original*.97)<.000002,"The original profile shrinks instead of being replaced");
-        pot.piece=finished;pot.changed();var flower=new ItemStack(Items.POPPY);use(h,p,POS,flower);
+        pot.piece=finished;pot.changed();var rejected=new ItemStack(Items.POPPY);use(h,p,POS,rejected);
+        h.assertTrue(pot.flower.isEmpty() && rejected.getCount()==1,"A dry finished pot refuses a flower without consuming it");
+        use(h,p,POS,new ItemStack(Items.WATER_BUCKET));h.assertTrue(pot.containsWater && p.getMainHandItem().is(Items.BUCKET),"Filling the finished pot returns the bucket");var flower=new ItemStack(Items.POPPY);use(h,p,POS,flower);
         h.assertTrue(pot.flower.is(Items.POPPY) && flower.isEmpty(),"Finished pottery holds a real consumed flower");
         var saved=PotteryBlock.preserved(pot);var tag=saved.get(net.minecraft.core.component.DataComponents.BLOCK_ENTITY_DATA).copyTag();
         var restored=new PotteryBlockEntity(pot.getBlockPos(),pot.getBlockState());restored.loadWithComponents(tag,h.getLevel().registryAccess());
-        h.assertTrue(restored.flower.is(Items.POPPY) && restored.piece.glaze==DyeColor.CYAN,"Decoration and glaze survive pickup");
+        h.assertTrue(restored.flower.is(Items.POPPY) && restored.containsWater && restored.piece.glaze==DyeColor.CYAN,"Decoration and glaze survive pickup");
         pass(h,"glazeSecondFireAndDisplayFlower");
     }
     @GameTest(template="empty") public static void kilnAndWheelStateSurviveReload(GameTestHelper h){
@@ -136,9 +138,11 @@ public final class PotteryGameTests {
     }
     @GameTest(template="empty") public static void flowersRemoveByHandAndPotOffsetsPersist(GameTestHelper h){
         h.setBlock(POS,PotteryContent.POT.get());var pot=(PotteryBlockEntity)h.getLevel().getBlockEntity(h.absolutePos(POS));var p=player(h);pot.piece.shape.openCenter();pot.piece.stage=PotteryPiece.Stage.FINISHED;
-        use(h,p,POS,new ItemStack(Items.POPPY));p.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+        use(h,p,POS,new ItemStack(Items.WATER_BUCKET));use(h,p,POS,new ItemStack(Items.POPPY));p.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
         var hit=new BlockHitResult(Vec3.atCenterOf(pot.getBlockPos()),Direction.UP,pot.getBlockPos(),false);h.getBlockState(POS).useWithoutItem(h.getLevel(),p,hit);
         h.assertTrue(pot.flower.isEmpty() && p.getInventory().items.stream().anyMatch(s->s.is(Items.POPPY)),"Empty hand returns the real flower and leaves the pot placed");
+        h.assertTrue(pot.containsWater,"Removing the flower keeps the pot water");
+        use(h,p,POS,new ItemStack(Items.BUCKET));h.assertTrue(!pot.containsWater && p.getInventory().items.stream().anyMatch(s->s.is(Items.WATER_BUCKET)),"An empty bucket recovers water after the flower is removed");
         pot.offsetX=.15;pot.offsetZ=-.15;pot.offsetY=-.5;pot.changed();
         var copy=(PotteryBlockEntity)BlockEntity.loadStatic(pot.getBlockPos(),pot.getBlockState(),pot.saveWithFullMetadata(h.getLevel().registryAccess()),h.getLevel().registryAccess());
         h.assertTrue(copy.offsetX==.15 && copy.offsetZ==-.15 && copy.offsetY==-.5,"Off-center placement survives reload");

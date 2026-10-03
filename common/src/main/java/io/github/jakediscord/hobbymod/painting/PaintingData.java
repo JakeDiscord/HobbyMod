@@ -14,7 +14,7 @@ public final class PaintingData {
     public static final int LINEN=0xF1E9D2,MAX_PIXELS=32768;
     public static final int[] RESOLUTIONS={16,32,64,128};
     public UUID id=UUID.randomUUID();public final Shape shape;
-    public int resolution,revision;public boolean signed;public String title="",author="";
+    public int resolution,revision;public boolean signed,configured;public String title="",author="";
     private int[] pixels;
     public PaintingData(Shape shape,int resolution){this.shape=Objects.requireNonNull(shape);this.resolution=validResolution(resolution)?resolution:32;pixels=new int[width()*height()];Arrays.fill(pixels,LINEN);}
     public static boolean validResolution(int r){return r==16 || r==32 || r==64 || r==128;}
@@ -22,13 +22,14 @@ public final class PaintingData {
     public int pixel(int x,int y){return pixels[y*width()+x];}
     public int[] pixels(){return pixels.clone();}
     public boolean inside(int x,int y){if(x<0 || y<0 || x>=width() || y>=height())return false;if(shape!=Shape.ROUND)return true;double a=(x+.5)/width()*2-1,b=(y+.5)/height()*2-1;return a*a+b*b<=1;}
-    public PaintingData copy(){var d=new PaintingData(shape,resolution);d.id=id;d.revision=revision;d.signed=signed;d.title=title;d.author=author;d.pixels=pixels.clone();return d;}
+    public PaintingData copy(){var d=new PaintingData(shape,resolution);d.id=id;d.revision=revision;d.signed=signed;d.configured=configured;d.title=title;d.author=author;d.pixels=pixels.clone();return d;}
     public boolean resize(int r){if(!validResolution(r) || r==resolution || signed)return false;int oldW=width(),oldH=height();var old=pixels;resolution=r;pixels=new int[width()*height()];for(int y=0;y<height();y++)for(int x=0;x<width();x++)pixels[y*width()+x]=old[Math.min(oldH-1,y*oldH/height())*oldW+Math.min(oldW-1,x*oldW/width())];revision++;return true;}
     public static int mix(int a,int b,int percent){int out=0;for(int shift:new int[]{0,8,16})out|=(((a>>shift)&255)*(100-percent)+((b>>shift)&255)*percent)/100<<shift;return out;}
     public boolean validPoints(float[] xy){if(xy==null || xy.length<2 || xy.length>64 || xy.length%2!=0)return false;for(int i=0;i<xy.length;i++)if(!Float.isFinite(xy[i]) || xy[i]<0 || xy[i]>((i%2==0?width():height())-1))return false;return true;}
     /** tool 0 round brush, 1 square brush, 2 pencil, 3 bounded flood fill, 4 soft brush. */
     public int paint(float[] xy,int color,int diameter,int opacity,int tool){
         if(signed || !validPoints(xy) || diameter<1 || diameter>16 || opacity<1 || opacity>100 || tool<0 || tool>4)return 0;
+        if(tool==2 || diameter==1 && tool!=3){xy=xy.clone();for(int i=0;i<xy.length;i++)xy[i]=Math.round(xy[i]);}
         color&=0xFFFFFF;int changed=0;
         if(tool==3){int sx=Math.round(xy[0]),sy=Math.round(xy[1]);if(!inside(sx,sy))return 0;int original=pixel(sx,sy),replacement=mix(original,color,opacity);if(original==replacement)return 0;
             int[] queue=new int[pixels.length];int read=0,write=0;int start=sy*width()+sx;queue[write++]=start;pixels[start]=replacement;

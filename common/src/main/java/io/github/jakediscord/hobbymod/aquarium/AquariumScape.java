@@ -10,14 +10,15 @@ public final class AquariumScape {
     }
     public record Bounds(double x,double y,double z,double X,double Y,double Z){}
     private final List<Piece> pieces=new ArrayList<>();
-    public List<Piece> pieces(){return List.copyOf(pieces);}
+    private List<Piece> snapshot;
+    public List<Piece> pieces(){if(snapshot==null)snapshot=List.copyOf(pieces);return snapshot;}
     public boolean add(Material material,double x,double z,int rotation){return add(new Piece(material,x,z,Math.floorMod(rotation,4)));}
     public boolean add(Piece p){
         if(!valid(p) || pieces.size()>=28 || pieces.stream().anyMatch(a->a.id.equals(p.id)))return false;
         long plants=pieces.stream().filter(a->a.material==Material.SEAGRASS || a.material==Material.KELP).count();
         long count=pieces.stream().filter(a->a.material==p.material).count();
         if((p.material==Material.SEAGRASS || p.material==Material.KELP)?plants>=16:count>=(p.material==Material.ROCK?8:p.material==Material.WOOD?4:28))return false;
-        pieces.add(p);return true;
+        snapshot=null;pieces.add(p);return true;
     }
     public static boolean valid(Piece p){
         return p!=null && p.material!=null && p.id!=null && p.block!=null && p.block.length()<=128
@@ -41,11 +42,11 @@ public final class AquariumScape {
     public boolean transform(UUID id,AquariumData.Size size,double x,double y,double z,int rotation,double sx,double sy,double sz){
         for(int i=0;i<pieces.size();i++)if(pieces.get(i).id.equals(id)){
             var old=pieces.get(i);var p=new Piece(old.material,x,z,rotation,y,sx,sy,sz,id,old.block);
-            if(!valid(p))return false;pieces.set(i,fit(p,size));return true;
+            if(!valid(p))return false;snapshot=null;pieces.set(i,fit(p,size));return true;
         }
         return false;
     }
-    public void fitAll(AquariumData.Size s){for(int i=0;i<pieces.size();i++)pieces.set(i,fit(pieces.get(i),s));}
+    public void fitAll(AquariumData.Size s){snapshot=null;for(int i=0;i<pieces.size();i++)pieces.set(i,fit(pieces.get(i),s));}
     public static Bounds bounds(Piece p,AquariumData.Size s){
         double ax=(s.blocksWide()-.16)/(s.width-2),ay=(s.blocksHigh()*.88-.24)/(s.height-2),az=(s.blocksDeep()-.16)/(s.depth-2);
         double cx=.08+p.x*(s.blocksWide()-.16),cz=.08+p.z*(s.blocksDeep()-.16),y=.1+(.08+p.y*(s.height-2))*ay;
@@ -53,7 +54,7 @@ public final class AquariumScape {
         double rz=(p.rotation%2==0?baseDepth(p.material)*p.scaleZ:baseWidth(p.material)*p.scaleX)*az/2;
         return new Bounds(cx-rx,y,cz-rz,cx+rx,y+baseHeight(p.material,s)*p.scaleY*ay,cz+rz);
     }
-    public Piece remove(int index){return index>=0 && index<pieces.size()?pieces.remove(index):null;}
-    public void clear(){pieces.clear();}
+    public Piece remove(int index){if(index<0 || index>=pieces.size())return null;snapshot=null;return pieces.remove(index);}
+    public void clear(){pieces.clear();snapshot=null;}
     public int count(Material m){return (int)pieces.stream().filter(p->p.material==m).count();}
 }

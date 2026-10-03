@@ -9,7 +9,8 @@ No code or artwork from that mod is included.
 1. Craft an **easel**, a **canvas**, a **painter's palette**, and a **paintbrush**.
    The easel needs a solid floor and two blocks of headroom. Both its lower and
    upper sections accept interaction.
-2. Right-click the easel with a canvas to mount it and open the studio. Carry your
+2. Right-click the easel with a canvas to mount it. A new canvas first asks for
+   its resolution in a small panel. Existing canvases reopen directly in the studio. Carry your
    palette and paintbrush; the palette also works from your offhand.
 3. Choose the pixel resolution with **Pixels**. The short edge cycles through
    **16, 32, 64 and 128** pixels. Shape and physical frame size stay independent
@@ -35,6 +36,13 @@ fill, sampling, display and PNG export to the circular shape.
 
 ## Studio controls
 
+- The canvas and **Palette & tools** are separate movable panels. Drag either
+  header to reposition it. **Palette** hides or shows the tools without closing
+  the canvas. The world remains visible without blur or a dark fullscreen layer.
+- Every mouse movement previews pending strokes immediately, before the server
+  responds. Hovering shows the actual brush result with the selected shape,
+  size, opacity and soft edges; the crosshair stays under the pointer. One-pixel
+  tools select the nearest pixel, while larger brushes use continuous coordinates.
 - **Brush:** round brush with sizes 1, 2, 4, 8 or 16 pixels.
 - **Box:** square brush using the selected size.
 - **Pen:** one-pixel precision, independent of the brush size.
@@ -62,13 +70,19 @@ player's name, and locks further painting. Choose **Edit** on the easel to reope
 it for changes. Signing is optional for displaying a canvas.
 
 Choose **Take** to recover the exact canvas and leave the easel ready for another
-project. Place the canvas against a solid wall to hang it. The actual artwork is
+project. Place the canvas against a solid wall to hang it as a Minecraft hanging
+entity. Square and round canvases use a 1 × 1 block wall area, landscape 3 × 2,
+portrait 2 × 3, and panoramic 4 × 2. The complete wall area must be supported and
+free of other hanging paintings. Pixel resolution does not affect physical size.
+The actual artwork is
 visible on the easel, on the wall, in your inventory, in your hand and in item
 frames. The rear of a canvas is plain linen. Right-click a hanging painting to
-view it; move it back to an easel to edit. **Shift-right-click with an empty hand**
-or use **Take** to recover it. Breaking an easel returns its canvas as well as the
+see its title and artist; move it back to an easel to edit. **Shift-right-click with an empty hand**
+recovers it. Punching it uses normal Minecraft painting drops (creative removes
+it without a drop). Breaking an easel returns its canvas as well as the
 easel; breaking a wall display preserves the canvas. Removing the supporting
-wall drops the artwork normally.
+wall drops the artwork on Minecraft's periodic hanging-entity support check.
+Previously placed block displays remain readable and recoverable.
 
 **PNG** exports the full selected resolution to `hobbymod-paintings/<canvas-id>.png`
 inside Minecraft's game directory. Round exports have transparent corners.
@@ -120,3 +134,14 @@ Actual client captures: [studio](painting-studio.png),
 [wall display](painting-gallery.png), [round studio](painting-round.png),
 and [round easel](painting-round-easel.png).
 [Example PNG export](painting-export-example.png).
+
+Revised workspace captures: [movable studio](painting-movable-studio.png),
+[first-canvas resolution selection](painting-resolution-choice.png),
+the [corrected easel](painting-revised-easel.png),
+and [hanging gallery painting](painting-hanging-gallery.png).
+
+The revised workspace was play-tested at GUI scales 2 and 3, including panel
+dragging, resolution selection, connected strokes and actual hanging-entity
+placement. All 37 shared tests and all 39 GameTests passed. The pottery tests
+now include water-before-flower enforcement, bucket returns, water recovery
+and persistence.

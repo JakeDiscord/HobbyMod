@@ -8,6 +8,7 @@ public record MarbleMesh(List<Quad> quads) {
     public record Vertex(double x,double y,double z,double nx,double ny,double nz,boolean polished) {}
     public record Quad(Vertex a,Vertex b,Vertex c,Vertex d) {
         public Vertex[] vertices() { return new Vertex[]{a,b,c,d}; }
+        public Vertex vertex(int i){return switch(i){case 0->a;case 1->b;case 2->c;case 3->d;default->throw new IndexOutOfBoundsException(i);};}
     }
     public record Hit(double x,double y,double z,double distance) {}
     private static final int[][] EDGES={{0,1},{2,3},{4,5},{6,7},{0,2},{1,3},{4,6},{5,7},{0,4},{1,5},{2,6},{3,7}};

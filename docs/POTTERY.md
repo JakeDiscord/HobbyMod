@@ -53,11 +53,22 @@ shape the whole circumference as the wheel turns; there are no finished presets.
    sixteen dye colors are supported. Use a glaze on the bisque pot, then pick it
    up and put it back into the kiln. The **second firing and cooling** produce
    the finished glazed pot. Unglazed bisque does not undergo this second firing.
-9. Place the finished pot as a decoration. Use a small flower on it to plant a
+9. Place the finished pot as a decoration. Fill its open center with a **water
+   bucket** first; survival returns an empty bucket. Use a small flower on it to plant a
    real flower, rendered with its world block model. Right-click with an empty
    hand to remove the flower; shears also work. Sneak-right-click with an empty
    hand picks up the whole pot, preserving its flower. Mining or picking up the pot preserves
-   its profile, glaze, stage, and flower.
+   its profile, glaze, stage, flower and water. Removing the flower leaves the
+   water. Use an empty bucket afterward to recover the water. A pot with a flower
+   refuses draining, and a pot that is already full does not waste another bucket.
+   This stored water is separate from moisture used when throwing wet clay.
+
+The wheel has a timber base and stone head. The clay rotates with the head while
+working and retains its stopped orientation; a subtle clay grain makes its
+rotation visible even on a symmetric pot.
+
+Revised client captures: [wheel and rotating clay](pottery-rotating-clay.png)
+and [water-filled flower pot](pottery-water-flower.png).
 
 A dry pot shrinks slightly, and each firing shrinks its original geometry. The
 kiln preserves the design rather than exchanging it for a generic pot. Fuel is

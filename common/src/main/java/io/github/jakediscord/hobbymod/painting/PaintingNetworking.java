@@ -32,7 +32,7 @@ public final class PaintingNetworking {
         if(a.kind==4){if(d.signed)return "Choose Edit before signing this painting again.";d.title=PaintingNbt.clean(a.title,48);d.author=p.getName().getString();d.signed=true;d.revision++;b.changed();return "Painting signed. Take it to hang on a wall.";}
         if(a.kind==5){d.signed=false;d.revision++;b.changed();return "Canvas ready to edit.";}
         if(d.signed)return "Choose Edit before adding paint.";
-        if(a.kind==2){if(!d.resize(a.resolution))return "Choose 16, 32, 64 or 128 pixels on the short edge.";b.changed();return "Resolution: "+d.width()+" × "+d.height()+". Artwork preserved.";}
+        if(a.kind==2){if(!PaintingData.validResolution(a.resolution) || d.signed)return "Choose 16, 32, 64 or 128 pixels on the short edge.";if(!d.resize(a.resolution))d.revision++;d.configured=true;b.changed();return "Resolution: "+d.width()+" × "+d.height()+". Artwork preserved.";}
         if(a.kind!=0 || a.first<0 || a.first>15 || a.second<0 || a.second>15 || a.mix<0 || a.mix>100 || a.size<1 || a.size>16 || a.opacity<1 || a.opacity>100 || a.tool<0 || a.tool>4 || !d.validPoints(a.points))return "Invalid brush stroke.";
         if(!p.getInventory().contains(new net.minecraft.world.item.ItemStack(PaintingContent.BRUSH.get())) && !p.getOffhandItem().is(PaintingContent.BRUSH.get()))return "Carry a paintbrush to paint.";
         int color=PaintPalette.color(a.first,a.second,a.mix);if(a.sample>=0){if(a.sample>=d.width()*d.height() || !d.inside(a.sample%d.width(),a.sample/d.width()))return "Sample a point on the canvas.";color=d.pixel(a.sample%d.width(),a.sample/d.width());}

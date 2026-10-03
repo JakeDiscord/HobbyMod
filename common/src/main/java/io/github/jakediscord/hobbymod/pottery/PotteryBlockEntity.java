@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public final class PotteryBlockEntity extends BlockEntity {
     public PotteryPiece piece;
     public ItemStack flower=ItemStack.EMPTY;
+    public boolean containsWater;
     public int revision;
     public double offsetX,offsetY,offsetZ;
     /** Counts received snapshots as well as changed revisions, acknowledging rejected/no-op work. */
@@ -47,7 +48,7 @@ public final class PotteryBlockEntity extends BlockEntity {
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.saveAdditional(tag,registries);if(piece!=null)tag.put("piece",piece.save());tag.putInt("revision",revision);
         tag.putDouble("offset_x",offsetX);tag.putDouble("offset_y",offsetY);tag.putDouble("offset_z",offsetZ);
-        tag.putLong("spin_until",spinUntil);if(!flower.isEmpty())tag.put("flower",flower.save(registries));
+        tag.putBoolean("water",containsWater);tag.putLong("spin_until",spinUntil);if(!flower.isEmpty())tag.put("flower",flower.save(registries));
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.loadAdditional(tag,registries);snapshots++;
@@ -57,7 +58,7 @@ public final class PotteryBlockEntity extends BlockEntity {
         piece=next;
         offsetX=finiteOffset(tag.getDouble("offset_x"),-.43,.43);offsetY=finiteOffset(tag.getDouble("offset_y"),-.5,0);offsetZ=finiteOffset(tag.getDouble("offset_z"),-.43,.43);
         if(!wheel() && piece!=null){double edge=.5-piece.shape.maxRadius();offsetX=Math.clamp(offsetX,-edge,edge);offsetZ=Math.clamp(offsetZ,-edge,edge);}
-        revision=Math.max(0,tag.getInt("revision"));spinUntil=tag.getLong("spin_until");flower=ItemStack.parseOptional(registries,tag.getCompound("flower"));
+        revision=Math.max(0,tag.getInt("revision"));spinUntil=tag.getLong("spin_until");flower=ItemStack.parseOptional(registries,tag.getCompound("flower"));containsWater=piece!=null && piece.stage==PotteryPiece.Stage.FINISHED && (tag.getBoolean("water") || !tag.contains("water") && !flower.isEmpty());
     }
     private static double finiteOffset(double n,double min,double max){return Double.isFinite(n)?Math.clamp(n,min,max):0;}
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries){return saveWithoutMetadata(registries);}

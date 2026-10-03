@@ -15,6 +15,7 @@ import net.minecraft.world.inventory.InventoryMenu;
 
 @Environment(EnvType.CLIENT)
 public final class SculptureRenderer implements BlockEntityRenderer<SculptureBlockEntity> {
+    private final io.github.jakediscord.hobbymod.rendering.client.GeometryRenderCache<SculptureBlockEntity> cache=new io.github.jakediscord.hobbymod.rendering.client.GeometryRenderCache<>();
     public SculptureRenderer(BlockEntityRendererProvider.Context context) {}
     @Override public int getViewDistance() { return 48; }
     @Override public void render(SculptureBlockEntity sculpture,float partialTick,PoseStack poses,MultiBufferSource buffers,int light,int overlay) {
@@ -22,22 +23,13 @@ public final class SculptureRenderer implements BlockEntityRenderer<SculptureBlo
         var atlas=Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
         var raw=atlas.apply(ResourceLocation.withDefaultNamespace("block/calcite"));
         var polished=atlas.apply(ResourceLocation.withDefaultNamespace("block/quartz_block_side"));
-        for (MarbleMesh.Quad face:sculpture.mesh().quads()) {
-            double nx=face.a().nx()+face.b().nx()+face.c().nx()+face.d().nx();
-            double ny=face.a().ny()+face.b().ny()+face.c().ny()+face.d().ny();
-            double nz=face.a().nz()+face.b().nz()+face.c().nz()+face.d().nz();
-            int axis=Math.abs(ny)>Math.abs(nx)?1:0;if(Math.abs(nz)>Math.abs(axis==0?nx:ny))axis=2;
-            int finished=(face.a().polished()?1:0)+(face.b().polished()?1:0)+(face.c().polished()?1:0)+(face.d().polished()?1:0);
-            // A quad must use one atlas sprite: mixed sprite UVs sample unrelated atlas textures.
-            var sprite=finished>=2?polished:raw;
-            for (MarbleMesh.Vertex p:face.vertices()) {
-                float shade=(float)(0.72+0.18*p.ny()+0.08*p.nx()+0.04*p.nz());
-                // Joined surface-net vertices can extend slightly beyond this section's local bounds.
-                float u=(float)Math.clamp(axis==0?p.z():p.x(),0,1),v=(float)Math.clamp(axis==1?p.z():1-p.y(),0,1);
-                vertices.addVertex(pose,(float)p.x(),(float)p.y(),(float)p.z()).setColor(shade,shade,shade,1)
-                        .setUv(sprite.getU(u),sprite.getV(v)).setOverlay(overlay).setLight(light)
-                        .setNormal(pose,(float)p.nx(),(float)p.ny(),(float)p.nz());
-            }
+        cache.world(sculpture.getLevel());
+        var data=cache.get(sculpture,sculpture.mesh(),io.github.jakediscord.hobbymod.rendering.MeshVertexData::marble).data();
+        for(int i=0;i<data.length;i+=io.github.jakediscord.hobbymod.rendering.MeshVertexData.STRIDE){
+            var sprite=data[i+10]>0?polished:raw;float shade=data[i+8];
+            vertices.addVertex(pose,data[i],data[i+1],data[i+2]).setColor(shade,shade,shade,1)
+                    .setUv(sprite.getU(data[i+6]),sprite.getV(data[i+7])).setOverlay(overlay).setLight(light)
+                    .setNormal(pose,data[i+3],data[i+4],data[i+5]);
         }
         SculptureOrbit.drawBrush(sculpture,poses,buffers);
     }

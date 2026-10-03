@@ -165,7 +165,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for thirty-six tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, three blueprint serialization/validation tests, seven aquarium layout/care/persistence tests, and six painting raster/shape/persistence tests. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for forty tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, three blueprint serialization/validation tests, seven aquarium layout/care/persistence tests, seven painting raster/shape/persistence tests, and three rendering geometry/cache tests. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -187,3 +187,5 @@ GameTests and their structure template live in `neoforge/src/gametest` and are
 included only with `-Pgametest`. A normal `./gradlew build` produces a release jar
 without test classes, structures, or JUnit. Visual client play-testing remains
 separate from dedicated-server tests.
+
+Rendering optimizations and measured results are documented in [PERFORMANCE.md](docs/PERFORMANCE.md).

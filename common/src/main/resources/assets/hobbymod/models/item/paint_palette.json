@@ -1,11 +1,11 @@
 {
   "textures": {
-    "wood": "minecraft:block/oak_planks",
-    "particle": "minecraft:block/oak_planks",
-    "red": "minecraft:block/red_wool",
-    "blue": "minecraft:block/blue_wool",
-    "yellow": "minecraft:block/yellow_wool",
-    "white": "minecraft:block/white_wool"
+    "wood": "minecraft:block/stripped_oak_log",
+    "particle": "minecraft:block/stripped_oak_log",
+    "red": "minecraft:block/red_concrete",
+    "blue": "minecraft:block/blue_concrete",
+    "yellow": "minecraft:block/yellow_concrete",
+    "white": "minecraft:block/white_concrete"
   },
   "elements": [
     {
