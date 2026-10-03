@@ -11,8 +11,11 @@ place water in the world.
 | Medium | 2 × 1 | 1 block | 30 load |
 | Large | 4 × 2 | 2 blocks | 32 residents / 84 load |
 
-Placement extends along positive X/Z from the clicked corner and reserves only
-these cells. Occupied space, entities, world borders and unloaded chunks are
+Placement follows the horizontal direction you are facing. East/west swaps
+the width and depth; north/south keeps their footprint and turns the contents.
+The clicked corner remains the minimum X/Z corner, and only the rotated
+footprint is reserved. Existing tanks retain their original orientation.
+Picking up a tank keeps its contents; placing it again uses your new facing. Occupied space, entities, world borders and unloaded chunks are
 checked before consuming the item. The extra cells are aquarium parts rather
 than independent glass blocks. Right-click **any part** to open its screen.
 
@@ -34,10 +37,12 @@ seagrass, kelp, cobblestone, a stick or another block in your inventory, then cl
 to place it. Scroll to choose 0°, 90°, 180° or 270° rotation. Toggle
 **Add mode / Remove mode** and click a decoration to recover its exact original material.
 Layout, plant types, substrate type and rotations survive chunk reloads and
-carrying the tank. **Edit in 3D** opens an orbit camera: click a piece, left-drag
-to move it, or select Stretch and X/Y/Z to change its size independently.
-Select Y or hold Shift while moving to lift a piece. Right-drag to orbit and
-scroll to zoom. Rotate turns the selected piece 90°; Reset size restores its
+carrying the tank. **Edit in 3D** opens an orbit camera: click a piece to show its 3D handles.
+Drag a colored arrow to move along that axis; drag a cube endpoint outward
+to enlarge that axis or inward to shrink it. Red is X, green is Y and blue is Z.
+Handles turn with the piece, remain visible through the glass and follow the
+camera. The green arrow lifts a decoration. Right-drag to orbit and scroll to zoom.
+Dragging the piece directly moves it across the tank floor; Shift-drag lifts it. Rotate turns the selected piece 90°; Reset size restores its
 original proportions. Edits are constrained to the tank interior and saved on
 release. Each decoration has its own persistent identity, so another player
 removing a different piece cannot redirect your edit.
@@ -151,11 +156,12 @@ care, compatibility, genetics, caps, footprint sizes and unloading clocks.
 Compile AquariumData, AquariumScape, AquariumClock, AquariumMotion and AquariumChecks, then
 run `java AquariumChecks` with their output directory on the classpath.
 
-Eight Minecraft GameTests in `neoforge/src/gametest` cover contained fill/drain,
+Nine Minecraft GameTests in `neoforge/src/gametest` cover contained fill/drain,
 compact placement with no world water, part routing/dismantling, occupied-space
 preservation, persistence/captured fish, exact aquascape item returns, starter
 consumption, feeding, occupied-tank drain protection, full model bounds and
-transformed block-decoration persistence in update tags and carried kits. Run with
+transformed block-decoration persistence in update tags and carried kits, and
+all four placement directions including obstruction checks and dismantling. Run with
 `./gradlew --no-daemon -Pgametest :neoforge:runServer`, then `test runall`;
 follow README server shutdown instructions. Development tests stay outside normal
 release jars.
@@ -202,3 +208,21 @@ The normal release build passed. Audio was unavailable in this cloud session.
 ![Move and independently stretch a selected block in 3D](aquarium-3d-editor.png)
 
 ![Tank remains rendered when its origin block is outside the view](aquarium-offscreen-origin.png)
+
+Placement rotation was additionally checked with actual kit placement in the
+Minecraft client. An east-facing tank’s 3D camera, decoration picking and drag
+movement were inspected through captured screenshots. All 30 shared tests and
+34 server GameTests passed with the rotation change.
+
+Generic block models render in the same opaque pass as other aquascape contents,
+before the glass/water surfaces. Grass, dirt and oak planks were placed through
+the actual inventory screen and inspected from outside a filled tank. Selected
+decorations now use on-object arrow and cube handles rather than Move/Stretch
+buttons. In-client checks covered lifting with an arrow, scaling with a cube,
+and orbiting while the selection and handles remained attached.
+
+The final shaded cube handles were rechecked after a fresh client launch,
+including independent X/Y/Z scaling, arrow movement, orbiting and GUI scales
+2 and 3. The test world's saved edits survived the client restart.
+
+![Generic blocks visible through a filled aquarium](aquarium-blocks-visible.png)

@@ -14,11 +14,11 @@ import net.minecraft.world.phys.BlockHitResult;
 public final class AquariumPartBlock extends Block {
     public AquariumPartBlock(Properties properties){super(properties);}
     public static AquariumBlockEntity find(Level level,BlockPos cell){
-        for(int y=0;y<2;y++)for(int x=0;x<4;x++)for(int z=0;z<2;z++){
+        for(int y=0;y<2;y++)for(int x=0;x<4;x++)for(int z=0;z<4;z++){
             BlockPos origin=cell.offset(-x,-y,-z);
             if(!level.hasChunkAt(origin))continue;
-            if(level.getBlockEntity(origin) instanceof AquariumBlockEntity tank && x<tank.data.size.blocksWide()
-                    && y<tank.data.size.blocksHigh() && z<tank.data.size.blocksDeep())return tank;
+            if(level.getBlockEntity(origin) instanceof AquariumBlockEntity tank && x<tank.blocksWide()
+                    && y<tank.data.size.blocksHigh() && z<tank.blocksDeep())return tank;
         }
         return null;
     }

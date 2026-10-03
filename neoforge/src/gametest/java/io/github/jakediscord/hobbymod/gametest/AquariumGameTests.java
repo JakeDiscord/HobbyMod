@@ -120,4 +120,28 @@ public final class AquariumGameTests {
         h.assertTrue(restored.scape.pieces().getFirst().equals(original),"Carried kit must retain 3D transforms");pass(h,"largeBoundsAndThreeDimensionalPersistence");
     }
 
+    @GameTest(template="aquarium_empty") public static void facingPlacementAndDismantling(GameTestHelper h){
+        h.setBlock(POS.below(),Blocks.STONE);
+        for(var facing:Direction.Plane.HORIZONTAL){
+            Player p=player(h);p.setYRot(facing.toYRot());
+            p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(AquariumContent.KITS.get(AquariumData.Size.LARGE).get()));
+            int width=facing.getAxis()==Direction.Axis.X?2:4,depth=facing.getAxis()==Direction.Axis.X?4:2;
+            var far=POS.offset(width-1,1,depth-1);
+            h.setBlock(far,Blocks.DIAMOND_BLOCK);
+            h.assertTrue(!place(h,p).consumesAction(),"Rotated occupied footprint must refuse placement: "+facing);
+            h.assertBlockPresent(Blocks.DIAMOND_BLOCK,far);h.assertBlockPresent(Blocks.AIR,POS);
+            h.setBlock(far,Blocks.AIR);
+            h.assertTrue(place(h,p).consumesAction(),"Facing kit should place: "+facing);
+            var tank=(AquariumBlockEntity)h.getLevel().getBlockEntity(h.absolutePos(POS));
+            h.assertTrue(tank.facing()==facing && tank.blocksWide()==width && tank.blocksDeep()==depth,"Facing and footprint disagree");
+            h.assertTrue(tank.getRenderBoundingBox().getXsize()==width && tank.getRenderBoundingBox().getZsize()==depth,"Rotated render bounds wrong");
+            var local=new Vec3(.37,.6,.82);h.assertTrue(tank.toLocal(tank.toWorld(local)).distanceTo(local)<1e-8,"Editor transforms must invert");
+            h.assertTrue(tank.inspect()==AquariumBlockEntity.Condition.EMPTY,"Rotated shell invalid");
+            h.assertTrue(AquariumPartBlock.find(h.getLevel(),h.absolutePos(far))==tank,"Rotated far part must route to controller");
+            h.getLevel().destroyBlock(h.absolutePos(far),true);
+            for(int x=0;x<width;x++)for(int y=0;y<2;y++)for(int z=0;z<depth;z++)h.assertBlockPresent(Blocks.AIR,POS.offset(x,y,z));
+        }
+        pass(h,"facingPlacementAndDismantling");
+    }
+
 }
