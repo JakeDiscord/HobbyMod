@@ -23,6 +23,7 @@ public final class BonsaiRenderer implements BlockEntityRenderer<BonsaiBlockEnti
         boolean distant=Minecraft.getInstance().gameRenderer.getMainCamera().getPosition()
                 .distanceToSqr(Vec3.atCenterOf(tree.getBlockPos()))>24*24;
         VertexConsumer out=buffers.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
+        soil(out,poses.last(),sprite("dirt"),graph.soilColor(),light,overlay);
         TextureAtlasSprite bark=sprite(switch(graph.species) {
             case OAK->"oak_log";case BIRCH->"birch_log";case CHERRY->"cherry_log";
         });
@@ -30,16 +31,15 @@ public final class BonsaiRenderer implements BlockEntityRenderer<BonsaiBlockEnti
             case OAK->"oak_leaves";case BIRCH->"birch_leaves";case CHERRY->"cherry_leaves";
         });
         var nodes=graph.nodes();
-        java.util.Set<Integer> parents=new java.util.HashSet<>();
-        for(BonsaiGraph.Node node:nodes)parents.add(node.parent);
         for(BonsaiGraph.Node node:nodes) {
+            double growth=graph.growth(node,partial);
+            if(growth<=0)continue;
             BonsaiGraph.Point a=graph.start(node,partial),b=graph.end(node,partial);
             Vec3 start=new Vec3(a.x(),a.y(),a.z()),end=new Vec3(b.x(),b.y(),b.z());
             Vec3 axis=end.subtract(start).normalize();
             Vec3 u=axis.cross(Math.abs(axis.y)>.9?new Vec3(1,0,0):new Vec3(0,1,0)).normalize();
             Vec3 v=axis.cross(u).normalize();
-            double growth=graph.growth(node,partial);
-            double radius=node.radius*(.35+.65*growth);
+            double radius=node.radius*Math.pow(growth,.65);
             double baseRadius=radius*(node.id==1?1.35:1);
             int sides=distant?5:8;
             for(int i=0;i<sides;i++) {
@@ -57,11 +57,12 @@ public final class BonsaiRenderer implements BlockEntityRenderer<BonsaiBlockEnti
                             c.add(side).add(up),c.subtract(side).add(up),0xFFFFFF,light,overlay);
                 }
             }
-            if(node.health>0 && (node.bud || !parents.contains(node.id))) {
+            double foliage=graph.foliageGrowth(node,partial);
+            if(foliage>0) {
                 int color=graph.species==BonsaiGraph.Species.CHERRY?0xFFFFFF:
                         graph.species==BonsaiGraph.Species.BIRCH?0x80A755:0x659846;
                 if(node.health<35)color=0xA58A45;
-                double size=.08*(.15+.85*growth);
+                double size=.08*foliage;
                 int clusters=distant?1:3;
                 for(int cluster=0;cluster<clusters;cluster++) {
                     double angle=node.id*2.399+cluster*2.1;
@@ -70,6 +71,15 @@ public final class BonsaiRenderer implements BlockEntityRenderer<BonsaiBlockEnti
                 }
             }
         }
+    }
+    private static void soil(VertexConsumer out,PoseStack.Pose pose,TextureAtlasSprite dirt,int color,int light,int overlay) {
+        // Match the pot model's 3..13-pixel top face; a tiny offset avoids z-fighting.
+        double min=3/16.0,max=13/16.0,y=3/16.0+.0005;
+        Vec3 normal=new Vec3(0,1,0);
+        vertex(out,pose,new Vec3(min,y,min),dirt.getU((float)min),dirt.getV((float)min),color,normal,light,overlay);
+        vertex(out,pose,new Vec3(min,y,max),dirt.getU((float)min),dirt.getV((float)max),color,normal,light,overlay);
+        vertex(out,pose,new Vec3(max,y,max),dirt.getU((float)max),dirt.getV((float)max),color,normal,light,overlay);
+        vertex(out,pose,new Vec3(max,y,min),dirt.getU((float)max),dirt.getV((float)min),color,normal,light,overlay);
     }
     private static void foliage(VertexConsumer out,PoseStack.Pose pose,TextureAtlasSprite leaves,
                                 Vec3 center,double size,double rotation,boolean distant,int color,int light,int overlay) {

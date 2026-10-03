@@ -13,8 +13,8 @@ public final class BonsaiPotItem extends BlockItem {
         super.appendHoverText(stack,context,tooltip,flag);
         var saved=stack.get(DataComponents.BLOCK_ENTITY_DATA);
         if(saved!=null){var tag=saved.copyTag();if(!tag.getList("Branches",10).isEmpty())tooltip.add(Component.literal(tag.getString("Species")+" | Age "+tag.getInt("Age")+" | Health "+tag.getInt("Health")+"%").withStyle(ChatFormatting.GREEN));}
-        tooltip.add(Component.literal("Plant oak, birch or cherry; water with a bucket.").withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.literal("Aim shears to prune; copper to wire; sneak to reverse.").withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.literal("Sneak + shears: root prune. Dirt: repot.").withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.literal("Oak, birch or cherry · Water bucket · Dirt").withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.literal("Shears: leaves, then branch · Copper: bend").withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.literal("Sneak: reverse bend / prune roots").withStyle(ChatFormatting.GRAY));
     }
 }

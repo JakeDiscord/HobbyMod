@@ -14,7 +14,7 @@ public final class BonsaiGraph {
         public double length, radius, yaw, pitch;
         public int age, health = 100, bend;
         public int growthTicks = GROWTH_TICKS;
-        public boolean bud = true, wired;
+        public boolean bud = true, wired, leavesRemoved;
         public Node(int id, int parent, double length, double radius, double yaw, double pitch) {
             this.id = id; this.parent = parent; this.length = length; this.radius = radius;
             this.yaw = yaw; this.pitch = pitch;
@@ -48,7 +48,7 @@ public final class BonsaiGraph {
         return Math.max(0,Math.min(1,(n.growthTicks+partial)/GROWTH_TICKS));
     }
     public double visibleLength(Node n, double partial) {
-        return n.length*(.05+.95*growth(n,partial));
+        return n.length*growth(n,partial);
     }
     public Point start(Node n) { return start(n,0); }
     public Point start(Node n, double partial) {
@@ -71,6 +71,7 @@ public final class BonsaiGraph {
     public int nearest(Point hit) {
         int id=0; double best=.12*.12;
         for (Node n : nodes) {
+            if(visibleLength(n,0)==0)continue;
             Point a=start(n), b=end(n);
             double dx=b.x-a.x,dy=b.y-a.y,dz=b.z-a.z;
             double t=Math.max(0,Math.min(1,((hit.x-a.x)*dx+(hit.y-a.y)*dy+(hit.z-a.z)*dz)/(visibleLength(n,0)*visibleLength(n,0))));
@@ -79,10 +80,42 @@ public final class BonsaiGraph {
         }
         return id;
     }
+    public record ShearResult(boolean leavesRemoved,int branchesCut) {
+        public boolean changed(){return leavesRemoved || branchesCut>0;}
+    }
+    /** Defoliation is saved on the node, so a second click cuts the same branch. */
+    public ShearResult shear(int id) {
+        Node n=node(id);
+        if(n==null)return new ShearResult(false,0);
+        if(!n.leavesRemoved){
+            List<Integer> ids=subtree(id);
+            for(Node child:nodes)if(ids.contains(child.id))child.leavesRemoved=true;
+            damage(2);
+            return new ShearResult(true,0);
+        }
+        return new ShearResult(false,prune(id));
+    }
+    public boolean hasLeaves(Node n) {
+        return !n.leavesRemoved && n.health>0
+                && (n.bud || nodes.stream().noneMatch(child->child.parent==n.id));
+    }
+    /** Return the remaining foliage size, including growth of later-generation buds. */
+    public double foliageGrowth(Node n,double partial) {
+        return hasLeaves(n)?growth(n,partial):0;
+    }
+    /** Darken the existing dirt texture continuously as water content rises. */
+    public int soilColor() {
+        int shade=planted()?255-(int)Math.round(Math.max(0,Math.min(100,water))*1.2):255;
+        return (shade<<16)|(shade<<8)|shade;
+    }
+    private List<Integer> subtree(int id) {
+        List<Integer> ids=new ArrayList<>();ids.add(id);
+        for(Node n:nodes)if(ids.contains(n.parent))ids.add(n.id);
+        return ids;
+    }
     public int prune(int id) {
         if(id<=1 || node(id)==null) return 0;
-        List<Integer> removed=new ArrayList<>(); removed.add(id);
-        for(Node n:nodes) if(removed.contains(n.parent)) removed.add(n.id);
+        List<Integer> removed=subtree(id);
         nodes.removeIf(n -> removed.contains(n.id));
         damage(removed.size()*6);
         for(Node n:nodes) if(n.health>0) n.bud=true;
@@ -112,7 +145,7 @@ public final class BonsaiGraph {
         if(!goodLight)causes.add("needs light");
         if(soilAge>40)causes.add("repot needed");
         if(rootAge>60)causes.add("root pruning needed");
-        return causes.isEmpty()?(health==100?"Healthy (+2/min, capped at 100%)":"Recovering +2/min"):String.join(", ",causes)+" (-4/min)";
+        return causes.isEmpty()?(health==100?"Healthy":"Recovering"):String.join(", ",causes);
     }
     public void advance(boolean goodLight, boolean rain) {
         if(!planted()) return;
