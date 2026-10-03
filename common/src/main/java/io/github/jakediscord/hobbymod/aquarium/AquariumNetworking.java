@@ -34,11 +34,25 @@ public final class AquariumNetworking {
         public static final StreamCodec<RegistryFriendlyByteBuf,Decor> CODEC=StreamCodec.of((b,p)->{b.writeBlockPos(p.pos);b.writeInt(p.slot);b.writeInt(p.index);b.writeDouble(p.x);b.writeDouble(p.z);b.writeInt(p.rotation);},b->new Decor(b.readBlockPos(),b.readInt(),b.readInt(),b.readDouble(),b.readDouble(),b.readInt()));
         public Type<Decor> type(){return TYPE;}
     }
+    public record Transform(BlockPos pos,java.util.UUID id,double x,double y,double z,int rotation,double sx,double sy,double sz) implements CustomPacketPayload {
+        public static final Type<Transform> TYPE=new Type<>(ResourceLocation.fromNamespaceAndPath("hobbymod","aquarium_transform"));
+        public static final StreamCodec<RegistryFriendlyByteBuf,Transform> CODEC=StreamCodec.of((b,p)->{b.writeBlockPos(p.pos);b.writeUUID(p.id);b.writeDouble(p.x);b.writeDouble(p.y);b.writeDouble(p.z);b.writeInt(p.rotation);b.writeDouble(p.sx);b.writeDouble(p.sy);b.writeDouble(p.sz);},b->new Transform(b.readBlockPos(),b.readUUID(),b.readDouble(),b.readDouble(),b.readDouble(),b.readInt(),b.readDouble(),b.readDouble(),b.readDouble()));
+        public Type<Transform> type(){return TYPE;}
+    }
     private static final java.util.Map<ServerPlayer,Long> LAST=new java.util.WeakHashMap<>();
     public static void register(){
+        NetworkManager.registerReceiver(NetworkManager.Side.C2S,Transform.TYPE,Transform.CODEC,(a,c)->c.queue(()->{
+            if(!(c.getPlayer() instanceof ServerPlayer player) || !player.level().hasChunkAt(a.pos)
+                    || !io.github.jakediscord.hobbymod.pottery.PotteryNetworking.permitted(player,a.pos)
+                    || !(player.level().getBlockEntity(a.pos) instanceof AquariumBlockEntity tank))return;
+            long now=player.level().getGameTime();Long last=LAST.get(player);if(last!=null && now>=last && now-last<2)return;LAST.put(player,now);
+            if(tank.data.scape.transform(a.id,tank.data.size,a.x,a.y,a.z,a.rotation,a.sx,a.sy,a.sz)){tank.changed();}
+            else NetworkManager.sendToPlayer(player,new Notice("Decoration changed or transform is invalid. Select it again."));
+            player.connection.send(tank.getUpdatePacket());
+        }));
         NetworkManager.registerReceiver(NetworkManager.Side.C2S,Decor.TYPE,Decor.CODEC,(a,c)->c.queue(()->{
             if(!(c.getPlayer() instanceof ServerPlayer player) || !player.level().hasChunkAt(a.pos) || !io.github.jakediscord.hobbymod.pottery.PotteryNetworking.permitted(player,a.pos) || !(player.level().getBlockEntity(a.pos) instanceof AquariumBlockEntity tank))return;
-            long now=player.level().getGameTime();Long last=LAST.get(player);if(last!=null && now-last<2)return;LAST.put(player,now);
+            long now=player.level().getGameTime();Long last=LAST.get(player);if(last!=null && now>=last && now-last<2)return;LAST.put(player,now);
             if(!Double.isFinite(a.x) || !Double.isFinite(a.z))return;
             tank.data.ensureScape();
             if(a.slot>=0 && a.slot<36)AquariumContent.CONTROLLER.get().addDecor(player,tank,player.getInventory().getItem(a.slot),a.x,a.z,a.rotation);

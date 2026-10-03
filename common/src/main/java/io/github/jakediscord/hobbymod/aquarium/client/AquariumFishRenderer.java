@@ -1,0 +1,49 @@
+package io.github.jakediscord.hobbymod.aquarium.client;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.jakediscord.hobbymod.aquarium.AquariumData;
+import java.util.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.*;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.Level;
+
+/** Vanilla fish models, pixel textures and animated tails. Visual proxies never enter the world. */
+public final class AquariumFishRenderer {
+    private final Map<UUID,AbstractFish> models=new LinkedHashMap<>(256,.75f,true){
+        @Override protected boolean removeEldestEntry(Map.Entry<UUID,AbstractFish> entry){return size()>256;}
+    };
+    private Level world;
+    public void render(AquariumData.Fish resident,Level level,double ticks,float partial,float yaw,PoseStack poses,MultiBufferSource buffers,int light){
+        if(world!=level){models.clear();world=level;}
+        AbstractFish fish=models.computeIfAbsent(resident.id,id->resident.species==AquariumData.Species.CORYDORAS
+                ?new Cod(EntityType.COD,level){@Override public boolean isInWater(){return true;}}
+                :new TropicalFish(EntityType.TROPICAL_FISH,level){@Override public boolean isInWater(){return true;}});
+        fish.setNoAi(true);fish.tickCount=(int)Math.floor(ticks);fish.setYRot(yaw);fish.yRotO=yaw;fish.yBodyRot=yaw;fish.yBodyRotO=yaw;fish.yHeadRot=yaw;fish.yHeadRotO=yaw;
+        if(fish instanceof TropicalFish tropical){
+            var pattern=switch(resident.species){
+                case BETTA->TropicalFish.Pattern.BETTY;case ANGELFISH->TropicalFish.Pattern.BLOCKFISH;
+                case GOLDFISH->TropicalFish.Pattern.FLOPPER;case NEON_TETRA,ZEBRA_DANIO->TropicalFish.Pattern.SUNSTREAK;
+                case CHERRY_BARB->TropicalFish.Pattern.BRINELY;default->resident.formA%2==0?TropicalFish.Pattern.KOB:TropicalFish.Pattern.SPOTTY;
+            };
+            DyeColor base=closest(resident.color());
+            DyeColor marking=switch(resident.species){case NEON_TETRA->DyeColor.LIGHT_BLUE;case ZEBRA_DANIO,ANGELFISH->DyeColor.BLACK;case GOLDFISH->DyeColor.YELLOW;default->DyeColor.byId((base.getId()+resident.colorB)%16);};
+            var tag=new CompoundTag();tag.putInt("Variant",new TropicalFish.Variant(pattern,base,marking).getPackedId());tropical.readAdditionalSaveData(tag);
+        }
+        float scale=(float)(resident.size()*(resident.species==AquariumData.Species.GOLDFISH?.7:.55));
+        poses.pushPose();poses.scale(scale,scale,scale);
+        Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(fish).render(fish,yaw,partial,poses,buffers,light);
+        poses.popPose();
+    }
+    private static DyeColor closest(int rgb){
+        DyeColor best=DyeColor.WHITE;long distance=Long.MAX_VALUE;
+        for(var color:DyeColor.values()){
+            int c=color.getTextureDiffuseColor();long r=((rgb>>16)&255)-((c>>16)&255),g=((rgb>>8)&255)-((c>>8)&255),b=(rgb&255)-(c&255);
+            long d=r*r+g*g+b*b;if(d<distance){distance=d;best=color;}
+        }
+        return best;
+    }
+}

@@ -2,7 +2,6 @@ package io.github.jakediscord.hobbymod.neoforge.aquarium;
 
 import io.github.jakediscord.hobbymod.HobbyMod;
 import io.github.jakediscord.hobbymod.aquarium.AquariumContent;
-import io.github.jakediscord.hobbymod.aquarium.client.AquariumRenderer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -19,5 +18,5 @@ public final class AquariumClientEvents {
             return 0xFF000000|(fish==null?entry.getKey().color:fish.color());
         },entry.getValue().get());
     }
-    @SubscribeEvent public static void register(EntityRenderersEvent.RegisterRenderers event){event.registerBlockEntityRenderer(AquariumContent.TANK_ENTITY.get(),AquariumRenderer::new);}
+    @SubscribeEvent public static void register(EntityRenderersEvent.RegisterRenderers event){event.registerBlockEntityRenderer(AquariumContent.TANK_ENTITY.get(),NeoForgeAquariumRenderer::new);}
 }

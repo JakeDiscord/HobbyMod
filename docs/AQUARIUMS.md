@@ -30,11 +30,19 @@ Residents are identified by UUID when actions reach the server, so another
 player moving a fish does not make your action capture the wrong resident.
 
 **Aquascape** lets you build your own habitat. Add sand or gravel, select
-seagrass, kelp, cobblestone or a stick in your inventory, then click the top view
+seagrass, kelp, cobblestone, a stick or another block in your inventory, then click the top view
 to place it. Scroll to choose 0°, 90°, 180° or 270° rotation. Toggle
 **Add mode / Remove mode** and click a decoration to recover its exact original material.
 Layout, plant types, substrate type and rotations survive chunk reloads and
-carrying the tank. Kelp and seagrass differ in height. Driftwood has branches;
+carrying the tank. **Edit in 3D** opens an orbit camera: click a piece, left-drag
+to move it, or select Stretch and X/Y/Z to change its size independently.
+Select Y or hold Shift while moving to lift a piece. Right-drag to orbit and
+scroll to zoom. Rotate turns the selected piece 90°; Reset size restores its
+original proportions. Edits are constrained to the tank interior and saved on
+release. Each decoration has its own persistent identity, so another player
+removing a different piece cannot redirect your edit.
+
+Kelp and seagrass differ in height. Driftwood has branches;
 rocks stack into small formations. Plants sway in the water.
 
 **Fish guide** explains all eight species, water temperatures, stocking loads,
@@ -63,7 +71,7 @@ punishment for keeping fewer than three.
 | Fish Food | Reserve +20; excess feeding at 80% or above lowers quality |
 | Shears | Clean glass: algae −30, quality +10; uses durability |
 | Sand / gravel | Lay substrate; remove mode returns the same kind |
-| Seagrass / kelp, cobblestone / stick | Select and place in Aquascape |
+| Seagrass / kelp, cobblestone / stick, other blocks | Select and place in Aquascape; move/stretch in 3D |
 | Aquarium Filter | Install filter; remove mode returns it |
 | Filter Bacteria Starter | Cycle a filled, installed filter; returns glass bottle |
 | Magma cream / snowball | Set warm / cool water |
@@ -122,12 +130,16 @@ surrounding builds during conversion.
 ## Rendering and development
 
 The renderer uses dark oak trim, Minecraft glass and a light contained-water
-tint. Fish have blocky bodies, species markings, fins and animated tails. Their
-physical size stays consistent when you move them into a larger tank. Tetras,
-danios and barbs use schooling paths; corydoras swim near the substrate. Feeding
+surface and blue-green tint. Fish use Minecraft’s native tropical-fish and cod
+models, textures, markings and tail animations. Cached client-only visual
+proxies never enter the world or run entity AI. Their physical size stays
+consistent when moved into a larger tank. Individually seeded, smooth waypoint
+paths vary direction, speed and height; corydoras swim near the substrate. Feeding
 attracts residents to the surface and shows pellets. Filters produce bubbles.
 Fish are saved residents, with bounded animation rather than independent entity
-AI. Geometry simplifies past 24 blocks and renders within 48 blocks. All layout
+AI. NeoForge receives bounds for the entire tank footprint from its renderer,
+so the model remains visible when the origin cell leaves the camera frustum.
+Geometry simplifies past 24 blocks and renders within 48 blocks. All layout
 and care actions validate actual inventory items and player permissions.
 
 Fintastic's public source was reviewed during the initial implementation;
@@ -139,10 +151,11 @@ care, compatibility, genetics, caps, footprint sizes and unloading clocks.
 Compile AquariumData, AquariumScape, AquariumClock, AquariumMotion and AquariumChecks, then
 run `java AquariumChecks` with their output directory on the classpath.
 
-Seven Minecraft GameTests in `neoforge/src/gametest` cover contained fill/drain,
+Eight Minecraft GameTests in `neoforge/src/gametest` cover contained fill/drain,
 compact placement with no world water, part routing/dismantling, occupied-space
 preservation, persistence/captured fish, exact aquascape item returns, starter
-consumption, feeding and occupied-tank drain protection. Run with
+consumption, feeding, occupied-tank drain protection, full model bounds and
+transformed block-decoration persistence in update tags and carried kits. Run with
 `./gradlew --no-daemon -Pgametest :neoforge:runServer`, then `test runall`;
 follow README server shutdown instructions. Development tests stay outside normal
 release jars.
@@ -169,3 +182,23 @@ as well. Audio was unavailable in the cloud graphical session.
 ![Fish guide and the tank’s species journal](aquarium-fish-guide.png)
 
 ![Fish gather near the surface after feeding](aquarium-feeding.png)
+
+## Native fish and 3D editor verification
+
+The updated client was launched under Xvfb with Java 21 and Mesa llvmpipe.
+Screenshots were captured and opened for inspection at 1280 × 800 (GUI scale 3)
+and 854 × 480 (GUI scale 2). Gameplay checks included real inventory-backed
+placement of rock, kelp and oak planks; moving, rotating, stretching each axis
+and lifting a decoration; reopening the editor; saving and reloading the tank;
+and naturally born fry. Water, native fish colors and transparency were checked
+from front, side and rear. A close-up with the origin block outside the viewport
+reproduced the disappearance, then passed after the NeoForge renderer bounds fix.
+
+All 30 shared tests and all 33 server GameTests passed (eight aquarium tests).
+The normal release build passed. Audio was unavailable in this cloud session.
+
+![Native Minecraft fish and visible contained water](aquarium-native-fish-water.png)
+
+![Move and independently stretch a selected block in 3D](aquarium-3d-editor.png)
+
+![Tank remains rendered when its origin block is outside the view](aquarium-offscreen-origin.png)
