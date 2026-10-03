@@ -1,6 +1,13 @@
 {
   "block.hobbymod.marble": "Marble",
   "block.hobbymod.marble_statue": "Marble Statue",
-  "item.hobbymod.chisel": "Chisel",
-  "itemGroup.hobbymod.hobbies": "HobbyMod"
+  "item.hobbymod.chisel": "Detail Chisel",
+  "itemGroup.hobbymod.hobbies": "HobbyMod",
+  "block.hobbymod.marble_sculpture": "Marble Sculpture",
+  "item.hobbymod.point_chisel": "Point Chisel",
+  "item.hobbymod.roughing_mallet": "Roughing Mallet",
+  "item.hobbymod.polishing_rasp": "Polishing Rasp",
+  "tooltip.hobbymod.carving_tool": "Use on marble to orbit and carve it in the world.",
+  "tooltip.hobbymod.polish": "Smooth high spots and polish the marble surface.",
+  "tooltip.hobbymod.chip": "Rounded cut width: %s%% of a block. Each stroke wears the tool."
 }
