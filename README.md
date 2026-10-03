@@ -3,6 +3,16 @@
 A Minecraft **1.21.1 / NeoForge** mod combining marble sculpture, astronomy,
 vineries, painting, cameras, woodworking, and other creative hobbies.
 
+## Painting
+
+Paint on a two-block easel using a dye-loaded palette and paintbrush. Square,
+portrait, landscape, panoramic and round canvases each support selectable
+16/32/64/128-pixel short edges. The studio includes round, square, pencil and
+soft brushes, flood fill, opacity, dye mixing, a color picker, zoom and pan.
+Sign, hang, carry and export your artwork; the actual painting appears on
+canvases in the world, in your inventory and in your hand.
+See [the painting guide](docs/PAINTING.md) for crafting and controls.
+
 ## Marble sculpting
 
 Craft four marble blocks from two calcite and two quartz in a checkerboard.
@@ -155,7 +165,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for twenty-seven tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, three blueprint serialization/validation tests, and four aquarium layout/care/persistence tests. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for thirty-six tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, three blueprint serialization/validation tests, seven aquarium layout/care/persistence tests, and six painting raster/shape/persistence tests. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -165,8 +175,9 @@ terminal. After readiness, enter `test runall`. Fourteen GameTests cover opening
 blank, survival and symmetry, creative and smoothing, stale revisions and permanent cuts, persistence and update tags, mining and replacement, invalid
 coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
 Nine additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
-Seven aquarium GameTests cover placement, item returns, care, aquascaping and persistence.
-Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, and seven `AQUARIUM_TEST_PASS` entries in the server log; the vanilla
+Eight aquarium GameTests cover placement, item returns, care, aquascaping and persistence.
+Six painting GameTests cover supplies, strokes, signatures, canvas saves, wall support and the two-block easel.
+Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, eight `AQUARIUM_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
 above. Do not rebuild without `-Pgametest` while these tests are starting: that
 removes test classes from the development output. If also launching a client,

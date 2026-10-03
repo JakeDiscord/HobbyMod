@@ -30,6 +30,7 @@ ignored Minecraft worlds, Gradle caches, or machine-specific configuration.
 Keep portable gameplay in `common`, using Architectury APIs where appropriate.
 Keep NeoForge-specific integrations in `neoforge`. Use Java 21 and the Gradle
 wrapper. In cloud tasks, source `/workspace/.hobbymod-tools/activate.sh` first.
-Read README.md and docs/POTTERY.md for build commands, fourteen sculpting and
-nine pottery, two blueprint and seven aquarium GameTests, shared geometry tests, and safe test-server shutdown. Preserve existing changes and keep development tests out of release
+Read README.md, docs/POTTERY.md and docs/PAINTING.md for build commands, fourteen
+sculpting, nine pottery, two blueprint, eight aquarium and six painting
+GameTests, shared geometry/raster tests, and safe test-server shutdown. Preserve existing changes and keep development tests out of release
 jars. Do not describe client visuals as tested without a graphical play-test.
