@@ -14,6 +14,7 @@ public final class HobbyMod {
 
     public static void init() {
         HobbyContent.register();
+        io.github.jakediscord.hobbymod.bonsai.BonsaiContent.register();
         LOGGER.info("HobbyMod initialized on {}", Platform.isNeoForge() ? "NeoForge" : "another loader");
     }
 }
