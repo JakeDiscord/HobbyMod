@@ -14,6 +14,7 @@ public final class HobbyMod {
 
     public static void init() {
         HobbyContent.register();
+        io.github.jakediscord.hobbymod.bonsai.BonsaiContent.register();
         io.github.jakediscord.hobbymod.sculpting.SculptureNetworking.register();
         dev.architectury.utils.EnvExecutor.runInEnv(dev.architectury.utils.Env.CLIENT,
                 () -> io.github.jakediscord.hobbymod.sculpting.client.SculptureClient::init);
