@@ -94,3 +94,28 @@ if its JVM remains alive. Do not kill unrelated displays or Java processes.
 Those provide a comparison, but another chat must still play-test its own
 changes. Report build, gameplay, and visual verification separately. If a client
 cannot run, state the exact blocker and do not describe visuals as verified.
+
+## Prepared cloud session
+
+The October 2026 aquarium session successfully used Java 21, cached Gradle
+dependencies and all 3,911 Minecraft asset records, Xvfb, Mesa llvmpipe,
+xdotool input and ImageMagick screenshots. Required downloads succeeded in
+that environment; inspect policy again if a new environment blocks them.
+
+For the tested launch, create a private runtime directory and use:
+
+```bash
+mkdir -p /tmp/hobbymod-runtime
+chmod 700 /tmp/hobbymod-runtime
+export DISPLAY=:99
+export XDG_RUNTIME_DIR=/tmp/hobbymod-runtime
+export LIBGL_ALWAYS_SOFTWARE=1
+export ALSOFT_DRIVERS=null
+./gradlew --no-daemon :neoforge:runClient
+```
+
+`ALSOFT_DRIVERS=null` permits a headless session without an audio device;
+this does not verify sound. Environment-local tools and caches still need to
+be installed or restored in another environment. The attempt to update the
+managed environment's saved start instructions was rejected because its draft
+was no longer editable; these instructions preserve the verified launch steps.

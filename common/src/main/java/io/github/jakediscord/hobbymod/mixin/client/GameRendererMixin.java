@@ -17,9 +17,9 @@ import org.joml.Matrix4f;
 abstract class GameRendererMixin implements GameRendererAccess {
     @Invoker("getFov") public abstract double hobby$getFov(Camera camera,float partialTick,boolean useSetting);
     @Inject(method={"bobView","bobHurt"},at=@At("HEAD"),cancellable=true)
-    private void hobby$stableCamera(PoseStack poses,float partialTick,CallbackInfo ci) { if(SculptureOrbit.active() || io.github.jakediscord.hobbymod.pottery.client.PotteryOrbit.active())ci.cancel(); }
+    private void hobby$stableCamera(PoseStack poses,float partialTick,CallbackInfo ci) { if(SculptureOrbit.active() || io.github.jakediscord.hobbymod.pottery.client.PotteryOrbit.active() || io.github.jakediscord.hobbymod.aquarium.client.AquariumOrbit.active())ci.cancel(); }
     @Inject(method="shouldRenderBlockOutline",at=@At("HEAD"),cancellable=true)
-    private void hobby$surfaceBrush(CallbackInfoReturnable<Boolean> ci) { if(SculptureOrbit.active() || io.github.jakediscord.hobbymod.pottery.client.PotteryOrbit.active())ci.setReturnValue(false); }
+    private void hobby$surfaceBrush(CallbackInfoReturnable<Boolean> ci) { if(SculptureOrbit.active() || io.github.jakediscord.hobbymod.pottery.client.PotteryOrbit.active() || io.github.jakediscord.hobbymod.aquarium.client.AquariumOrbit.active())ci.setReturnValue(false); }
     @Inject(method="renderItemInHand",at=@At("HEAD"),cancellable=true)
-    private void hobby$clearView(Camera camera,float partialTick,Matrix4f projection,CallbackInfo ci) { if(SculptureOrbit.active() || io.github.jakediscord.hobbymod.pottery.client.PotteryOrbit.active())ci.cancel(); }
+    private void hobby$clearView(Camera camera,float partialTick,Matrix4f projection,CallbackInfo ci) { if(SculptureOrbit.active() || io.github.jakediscord.hobbymod.pottery.client.PotteryOrbit.active() || io.github.jakediscord.hobbymod.aquarium.client.AquariumOrbit.active())ci.cancel(); }
 }

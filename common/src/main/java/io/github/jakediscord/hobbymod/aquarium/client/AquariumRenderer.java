@@ -11,8 +11,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
 /** Custom glass enclosure, contained water, aquascape and independently lit residents. */
-public final class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity> {
+public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity> {
     private static final ResourceLocation WHITE=ResourceLocation.fromNamespaceAndPath("hobbymod","textures/entity/aquarium_white.png");
+    private final AquariumFishRenderer fishModels=new AquariumFishRenderer();
     public AquariumRenderer(BlockEntityRendererProvider.Context context){}
     @Override public int getViewDistance(){return 48;}
     @Override public boolean shouldRenderOffScreen(AquariumBlockEntity tank){return true;}
@@ -38,13 +39,20 @@ public final class AquariumRenderer implements BlockEntityRenderer<AquariumBlock
         d.ensureScape();
         for(var piece:d.scape.pieces()){
             double x=1+piece.x()*(s.width-2),z=1+piece.z()*(s.depth-2);
-            poses.pushPose();poses.translate(x,1.08,z);poses.mulPose(Axis.YP.rotationDegrees(piece.rotation()*90));
+            poses.pushPose();poses.translate(x,1.08+piece.y()*(s.height-2),z);poses.mulPose(Axis.YP.rotationDegrees(piece.rotation()*90));poses.scale((float)piece.scaleX(),(float)piece.scaleY(),(float)piece.scaleZ());
             if(piece.material()==AquariumScape.Material.ROCK){
                 box(out,poses.last(),sprite("cobblestone"),-.25,0,-.23,.25,.28,.23,0xFFFFFF,light,overlay);
                 box(out,poses.last(),sprite("stone"),-.18,.28,-.17,.14,.45,.17,0xFFFFFF,light,overlay);
             }else if(piece.material()==AquariumScape.Material.WOOD){
                 box(out,poses.last(),sprite("oak_log"),-.4,0,-.10,.35,.17,.10,0xFFFFFF,light,overlay);
                 box(out,poses.last(),sprite("oak_log"),-.10,.10,-.08,.08,.5,.08,0xFFFFFF,light,overlay);
+            }else if(piece.material()==AquariumScape.Material.BLOCK){
+                var id=ResourceLocation.tryParse(piece.block());
+                if(id!=null){
+                    poses.translate(-.25,0,-.25);poses.scale(.5f,.5f,.5f);
+                    Minecraft.getInstance().getBlockRenderer().renderSingleBlock(net.minecraft.core.registries.BuiltInRegistries.BLOCK.get(id).defaultBlockState(),poses,buffers,light,overlay);
+                    out=buffers.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
+                }
             }else{
                 var plant=sprite(piece.material()==AquariumScape.Material.KELP?"kelp":"seagrass");double h=(piece.material()==AquariumScape.Material.KELP?.7:.35)*(s.height-2);
                 double sway=Math.sin((tank.getLevel().getGameTime()+partial)*.035+x*3+z)*.07;
@@ -76,42 +84,28 @@ public final class AquariumRenderer implements BlockEntityRenderer<AquariumBlock
             double fy=.10+(p.y()-1)/(s.height-2)*(H-.24);
             double feeding=Math.clamp((time-tank.fedAt)/160.0,0,1),attraction= d.filled && feeding>0 && feeding<1?Math.sin(feeding*Math.PI):0;
             fx=fx*(1-attraction*.75)+W*.5*attraction*.75;fz=fz*(1-attraction*.75)+D*.5*attraction*.75;fy=fy*(1-attraction)+Math.max(.3,H-.32)*attraction;
-            poses.translate(fx,fy,fz);poses.mulPose(Axis.YP.rotation((float)p.yaw()));
+            poses.translate(fx,fy-.10*fish.size(),fz);
             if(!d.filled)poses.mulPose(Axis.XP.rotationDegrees(65));
-            float scale=(float)fish.size();poses.scale(scale,scale,scale);
-            double length=fish.species==AquariumData.Species.GOLDFISH?.15:.10;
-            double height=switch(fish.species){case ANGELFISH->.13;case BETTA->.08;case NEON_TETRA,ZEBRA_DANIO->.04;default->.055;};
-            height*=1+(fish.formA+fish.formB-3)*.08;
-            int color=fish.health<35?0xA58F7A:fish.color();
-            body(out,poses.last(),length,height,color,light,overlay);
-            int stripe=fish.species==AquariumData.Species.NEON_TETRA?0x39DDF5:fish.species==AquariumData.Species.ZEBRA_DANIO?0x344668:fish.species==AquariumData.Species.ANGELFISH?0x484851:color;
-            if(stripe!=color)for(int side:new int[]{-1,1})quad(out,poses.last(),texture,new Vec3(-length,0,side*.041),new Vec3(length,0,side*.041),new Vec3(length,.035,side*.041),new Vec3(-length,.035,side*.041),stripe,light,overlay);
-            double fan=fish.species==AquariumData.Species.BETTA || fish.species==AquariumData.Species.GUPPY?.09:.06;
-            fan*=1+(fish.formA+fish.formB)*.05;
-            quad(out,poses.last(),texture,new Vec3(-length,0,0),new Vec3(-length-.075,-fan,p.tail()),new Vec3(-length-.075,fan,p.tail()),new Vec3(-length,0,0),color,light,overlay);
-            if(!distant){
-                quad(out,poses.last(),texture,new Vec3(- .06,height,0),new Vec3( .06,height,0),new Vec3(-.02,height+.07,0),new Vec3(- .06,height,0),color,light,overlay);
-                for(int side:new int[]{-1,1})box(out,poses.last(),texture,length-.04,.01,side*.041-.005,length-.015,.035,side*.041+.005,0x101010,light,overlay);
-            }
+            fishModels.render(fish,tank.getLevel(),time,partial,(float)(-90-Math.toDegrees(p.yaw())),poses,buffers,light);
             poses.popPose();
         }
 
+        if(AquariumOrbit.active() && AquariumOrbit.tank()==tank && AquariumOrbit.selected!=null){
+            for(var piece:d.scape.pieces())if(piece.id().equals(AquariumOrbit.selected)){
+                var b=AquariumScape.bounds(piece,s);LevelRenderer.renderLineBox(poses,buffers.getBuffer(RenderType.lines()),b.x(),b.y(),b.z(),b.X(),b.Y(),b.Z(),1,.8f,.2f,1);
+            }
+        }
         if(d.filled && time-tank.fedAt>=0 && time-tank.fedAt<160){out=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));for(int i=0;i<7;i++){double px=W*.5+Math.sin(i*2.4)*.12,pz=D*.5+Math.cos(i*2.4)*.1,py=H-.14-(time-tank.fedAt)*.001;box(out,poses.last(),null,px,py,pz,px+.018,py+.012,pz+.018,0xAD7541,light,overlay);}}
         // Draw transparent shells after the opaque contents: their depth writes
         // must not hide the substrate, decorations or residents.
         if(d.filled && d.filter){var bubble=buffers.getBuffer(RenderType.entityTranslucent(WHITE));for(int i=0;i<5;i++){double by=.16+((time*.008+i*.19)%(H-.28));double bx=.15+Math.sin(time*.04+i)*.015;box(bubble,poses.last(),null,bx,by,.16,bx+.018,by+.018,.178,0x779ACEE5,light,overlay);}}
-        if(d.filled)box(buffers.getBuffer(RenderType.entityTranslucent(WHITE)),poses.last(),null,.05,.105,.05,W-.05,H-.13,D-.05,d.quality<50?0x244F794E:0x143696C4,light,overlay);
+        if(d.filled)box(buffers.getBuffer(RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS)),poses.last(),sprite("water_still"),.05,.105,.05,W-.05,H-.13,D-.05,d.quality<50?0x88577748:0x804878CD,light,overlay);
         var glass=buffers.getBuffer(RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS));var glassTexture=sprite("glass");
         box(glass,poses.last(),glassTexture,.04,.10,.04,W-.04,H-.07,.047,0x99FFFFFF,light,overlay);
         box(glass,poses.last(),glassTexture,.04,.10,D-.047,W-.04,H-.07,D-.04,0x99FFFFFF,light,overlay);
         box(glass,poses.last(),glassTexture,.04,.10,.047,.047,H-.07,D-.047,0x99FFFFFF,light,overlay);
         box(glass,poses.last(),glassTexture,W-.047,.10,.047,W-.04,H-.07,D-.047,0x99FFFFFF,light,overlay);
 
-    }
-    private static void body(VertexConsumer out,PoseStack.Pose pose,double length,double height,int color,int light,int overlay){
-        box(out,pose,null,-length,-height,-.04,length*.75,height,.04,color,light,overlay);
-        box(out,pose,null,length*.75,-height*.7,-.033,length,height*.7,.033,color,light,overlay);
-        box(out,pose,null,-length-.02,-height*.55,-.026,-length,height*.55,.026,color,light,overlay);
     }
     private static void box(VertexConsumer out,PoseStack.Pose pose,TextureAtlasSprite sprite,double x,double y,double z,double X,double Y,double Z,int color,int light,int overlay){
         Vec3 a=new Vec3(x,y,z),b=new Vec3(X,y,z),c=new Vec3(X,Y,z),d=new Vec3(x,Y,z);

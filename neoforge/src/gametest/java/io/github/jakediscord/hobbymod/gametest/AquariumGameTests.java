@@ -102,4 +102,22 @@ public final class AquariumGameTests {
         pass(h,"starterFeedingAndDrainProtection");
     }
 
+    @GameTest(template="aquarium_empty") public static void largeBoundsAndThreeDimensionalPersistence(GameTestHelper h){
+        h.setBlock(POS.below(),Blocks.STONE);Player p=player(h);
+        p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(AquariumContent.KITS.get(AquariumData.Size.LARGE).get()));
+        h.assertTrue(place(h,p).consumesAction(),"Large kit must place");
+        var tank=(AquariumBlockEntity)h.getLevel().getBlockEntity(h.absolutePos(POS));
+        var bounds=tank.getRenderBoundingBox();
+        h.assertTrue(bounds.getXsize()==4 && bounds.getYsize()==2 && bounds.getZsize()==2,"Render bounds must include every part, not only the origin");
+        tank.data.scape.add(new AquariumScape.Piece(AquariumScape.Material.BLOCK,.5,.5,1,.2,1.5,.8,1.2,UUID.randomUUID(),"minecraft:oak_planks"));
+        var original=tank.data.scape.pieces().getFirst();
+        var registries=h.getLevel().registryAccess();
+        var copy=new AquariumBlockEntity(tank.getBlockPos(),tank.getBlockState());copy.loadWithComponents(tank.getUpdateTag(registries),registries);
+        h.assertTrue(copy.data.scape.pieces().getFirst().equals(original),"Update packet must retain 3D transform and block identity");
+        var drops=Block.getDrops(tank.getBlockState(),h.getLevel(),tank.getBlockPos(),tank);
+        var saved=drops.getFirst().get(net.minecraft.core.component.DataComponents.BLOCK_ENTITY_DATA);
+        var restored=new AquariumData();AquariumNbt.load(restored,saved.copyTag().getCompound("Aquarium"));
+        h.assertTrue(restored.scape.pieces().getFirst().equals(original),"Carried kit must retain 3D transforms");pass(h,"largeBoundsAndThreeDimensionalPersistence");
+    }
+
 }

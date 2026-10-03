@@ -14,6 +14,11 @@ public final class AquariumBlockEntity extends BlockEntity {
     public Condition condition=Condition.EMPTY;
     private final AquariumClock clock=new AquariumClock();
     public AquariumBlockEntity(BlockPos pos,BlockState state){super(AquariumContent.TANK_ENTITY.get(),pos,state);}
+    // Full model bounds supplied by the platform renderer; the shared entity stays loader-neutral.
+    public net.minecraft.world.phys.AABB getRenderBoundingBox(){
+        return new net.minecraft.world.phys.AABB(worldPosition.getX(),worldPosition.getY(),worldPosition.getZ(),
+                worldPosition.getX()+data.size.blocksWide(),worldPosition.getY()+data.size.blocksHigh(),worldPosition.getZ()+data.size.blocksDeep());
+    }
     public BlockPos maximum(){return worldPosition.offset(data.size.blocksWide()-1,data.size.blocksHigh()-1,data.size.blocksDeep()-1);}
     public void changed(){setChanged();if(level!=null)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
     public Condition inspect(){

@@ -116,19 +116,26 @@ public final class AquariumControllerBlock extends BaseEntityBlock {
     }
     public static AquariumScape.Material material(ItemStack s){
         if(s.is(Items.SEAGRASS))return AquariumScape.Material.SEAGRASS;if(s.is(Items.KELP))return AquariumScape.Material.KELP;
-        if(s.is(Items.COBBLESTONE))return AquariumScape.Material.ROCK;if(s.is(Items.STICK))return AquariumScape.Material.WOOD;return null;
+        if(s.is(Items.COBBLESTONE))return AquariumScape.Material.ROCK;if(s.is(Items.STICK))return AquariumScape.Material.WOOD;
+        if(s.getItem() instanceof BlockItem && !(s.getItem() instanceof AquariumKitItem))return AquariumScape.Material.BLOCK;return null;
     }
-    public static Item decorItem(AquariumScape.Material m){return switch(m){case SEAGRASS->Items.SEAGRASS;case KELP->Items.KELP;case ROCK->Items.COBBLESTONE;case WOOD->Items.STICK;};}
+    public static Item decorItem(AquariumScape.Material m){return switch(m){case SEAGRASS->Items.SEAGRASS;case KELP->Items.KELP;case ROCK->Items.COBBLESTONE;case WOOD->Items.STICK;case BLOCK->Items.STONE;};}
+    public static Item decorItem(AquariumScape.Piece piece){
+        if(piece.material()!=AquariumScape.Material.BLOCK)return decorItem(piece.material());
+        var id=net.minecraft.resources.ResourceLocation.tryParse(piece.block());
+        return id==null?Items.STONE:net.minecraft.core.registries.BuiltInRegistries.BLOCK.get(id).asItem();
+    }
     public static boolean addDecor(Player player,AquariumBlockEntity tank,ItemStack stack,double x,double z,int rotation){
         var kind=material(stack);var d=tank.data;d.ensureScape();
         if(kind==null)return false;
         if((kind==AquariumScape.Material.SEAGRASS || kind==AquariumScape.Material.KELP) && !d.substrate){message(player,"Lay sand or gravel before planting.");return false;}
-        if(!d.scape.add(kind,x,z,rotation)){message(player,"Decoration limit reached, or position outside the tank.");return false;}
-        d.syncScape();consume(stack,player);tank.changed();message(player,"Placed "+decorItem(kind).getDescription().getString()+".");return true;
+        String block=kind==AquariumScape.Material.BLOCK?net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(((BlockItem)stack.getItem()).getBlock()).toString():"";
+        if(!d.scape.add(new AquariumScape.Piece(kind,x,z,Math.floorMod(rotation,4),0,1,1,1,java.util.UUID.randomUUID(),block))){message(player,"Decoration limit reached, or position outside the tank.");return false;}
+        d.scape.fitAll(d.size);d.syncScape();consume(stack,player);tank.changed();message(player,"Placed "+stack.getHoverName().getString()+".");return true;
     }
     public static boolean removeDecor(Player player,AquariumBlockEntity tank,int index){
         tank.data.ensureScape();var piece=tank.data.scape.remove(index);if(piece==null)return false;
-        tank.data.syncScape();refund(player,decorItem(piece.material()));tank.changed();message(player,"Decoration returned to your inventory.");return true;
+        tank.data.syncScape();refund(player,decorItem(piece));tank.changed();message(player,"Decoration returned to your inventory.");return true;
     }
     @Override protected InteractionResult useWithoutItem(BlockState state,Level level,BlockPos pos,Player player,BlockHitResult hit){
         open(level,pos,player);
