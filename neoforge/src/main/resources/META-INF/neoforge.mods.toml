@@ -31,3 +31,6 @@ type="required"
 versionRange="[13.0.8,14)"
 ordering="AFTER"
 side="BOTH"
+
+[[mixins]]
+config="hobbymod.mixins.json"

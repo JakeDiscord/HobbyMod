@@ -2,8 +2,7 @@ package io.github.jakediscord.hobbymod.sculpting.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import io.github.jakediscord.hobbymod.sculpting.MarbleVolume;
-import io.github.jakediscord.hobbymod.sculpting.SculptureBlockEntity;
+import io.github.jakediscord.hobbymod.sculpting.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -11,7 +10,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 
@@ -19,28 +17,27 @@ import net.minecraft.world.inventory.InventoryMenu;
 public final class SculptureRenderer implements BlockEntityRenderer<SculptureBlockEntity> {
     public SculptureRenderer(BlockEntityRendererProvider.Context context) {}
     @Override public int getViewDistance() { return 48; }
-    @Override public void render(SculptureBlockEntity sculpture, float partialTick, PoseStack poses,
-                                 MultiBufferSource buffers, int light, int overlay) {
-        VertexConsumer vertices = buffers.getBuffer(RenderType.solid());
-        var pose = poses.last();
-        TextureAtlasSprite raw = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-                .apply(ResourceLocation.withDefaultNamespace("block/calcite"));
-        TextureAtlasSprite smooth = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-                .apply(ResourceLocation.withDefaultNamespace("block/quartz_block_side"));
-        for (MarbleVolume.Face face : sculpture.volume().faces()) {
-            int axis = face.side() / 2;
-            float sign = face.side() % 2 == 1 ? 1 : -1;
-            float nx = axis == 0 ? sign : 0, ny = axis == 1 ? sign : 0, nz = axis == 2 ? sign : 0;
-            float shade = axis == 1 ? (sign > 0 ? 1 : 0.6F) : (axis == 0 ? 0.8F : 0.9F);
-            float inset = (sign > 0 ? MarbleVolume.SIZE - face.plane() : face.plane()) / (float) MarbleVolume.SIZE;
-            shade *= 1 - inset * 0.45F;
-            TextureAtlasSprite sprite = face.polished() ? smooth : raw;
-            for (double[] p : face.vertices()) {
-                vertices.addVertex(pose, (float) p[0], (float) p[1], (float) p[2])
-                        .setColor(shade, shade, shade, 1)
-                        .setUv(sprite.getU((float) p[(axis + 1) % 3]), sprite.getV((float) p[(axis + 2) % 3]))
-                        .setOverlay(overlay).setLight(light).setNormal(pose, nx, ny, nz);
+    @Override public void render(SculptureBlockEntity sculpture,float partialTick,PoseStack poses,MultiBufferSource buffers,int light,int overlay) {
+        VertexConsumer vertices=buffers.getBuffer(RenderType.solid());var pose=poses.last();
+        var atlas=Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
+        var raw=atlas.apply(ResourceLocation.withDefaultNamespace("block/calcite"));
+        var polished=atlas.apply(ResourceLocation.withDefaultNamespace("block/quartz_block_side"));
+        for (MarbleMesh.Quad face:sculpture.volume().mesh().quads()) {
+            double nx=face.a().nx()+face.b().nx()+face.c().nx()+face.d().nx();
+            double ny=face.a().ny()+face.b().ny()+face.c().ny()+face.d().ny();
+            double nz=face.a().nz()+face.b().nz()+face.c().nz()+face.d().nz();
+            int axis=Math.abs(ny)>Math.abs(nx)?1:0;if(Math.abs(nz)>Math.abs(axis==0?nx:ny))axis=2;
+            int finished=(face.a().polished()?1:0)+(face.b().polished()?1:0)+(face.c().polished()?1:0)+(face.d().polished()?1:0);
+            // A quad must use one atlas sprite: mixed sprite UVs sample unrelated atlas textures.
+            var sprite=finished>=2?polished:raw;
+            for (MarbleMesh.Vertex p:face.vertices()) {
+                float shade=(float)(0.72+0.18*p.ny()+0.08*p.nx()+0.04*p.nz());
+                float u=(float)(axis==0?p.z():p.x()),v=(float)(axis==1?p.z():1-p.y());
+                vertices.addVertex(pose,(float)p.x(),(float)p.y(),(float)p.z()).setColor(shade,shade,shade,1)
+                        .setUv(sprite.getU(u),sprite.getV(v)).setOverlay(overlay).setLight(light)
+                        .setNormal(pose,(float)p.nx(),(float)p.ny(),(float)p.nz());
             }
         }
+        SculptureOrbit.drawBrush(sculpture,poses,buffers);
     }
 }

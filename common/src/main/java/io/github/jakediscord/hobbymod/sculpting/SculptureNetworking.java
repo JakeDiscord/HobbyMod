@@ -24,12 +24,11 @@ public final class SculptureNetworking {
                 (buffer, packet) -> buffer.writeBlockPos(packet.pos), buffer -> new OpenEditor(buffer.readBlockPos()));
         @Override public Type<OpenEditor> type() { return TYPE; }
     }
-    public record Stroke(BlockPos pos, int revision, int cell, int tool, boolean mirror, boolean undo) implements CustomPacketPayload {
+    public record Stroke(BlockPos pos, int revision, double x, double y, double z, boolean mirror, boolean undo) implements CustomPacketPayload {
         public static final Type<Stroke> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("hobbymod", "carve"));
         public static final StreamCodec<RegistryFriendlyByteBuf, Stroke> CODEC = StreamCodec.of((buffer, packet) -> {
-            buffer.writeBlockPos(packet.pos); buffer.writeVarInt(packet.revision); buffer.writeVarInt(packet.cell);
-            buffer.writeVarInt(packet.tool); buffer.writeBoolean(packet.mirror); buffer.writeBoolean(packet.undo);
-        }, buffer -> new Stroke(buffer.readBlockPos(), buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt(), buffer.readBoolean(), buffer.readBoolean()));
+            buffer.writeBlockPos(packet.pos); buffer.writeVarInt(packet.revision); buffer.writeDouble(packet.x); buffer.writeDouble(packet.y); buffer.writeDouble(packet.z); buffer.writeBoolean(packet.mirror); buffer.writeBoolean(packet.undo);
+        }, buffer -> new Stroke(buffer.readBlockPos(), buffer.readVarInt(), buffer.readDouble(), buffer.readDouble(), buffer.readDouble(), buffer.readBoolean(), buffer.readBoolean()));
         @Override public Type<Stroke> type() { return TYPE; }
     }
 
@@ -41,17 +40,14 @@ public final class SculptureNetworking {
                 }));
     }
 
-    public static ItemStack findTool(net.minecraft.world.entity.player.Player player, int id) {
-        if (id < 0 || id >= CarvingTool.values().length) return ItemStack.EMPTY;
-        CarvingTool tool = CarvingTool.values()[id];
-        if (player.getMainHandItem().getItem() instanceof ChiselItem item && item.tool() == tool) return player.getMainHandItem();
-        if (player.getOffhandItem().getItem() instanceof ChiselItem item && item.tool() == tool) return player.getOffhandItem();
-        for (ItemStack stack : player.getInventory().items) if (stack.getItem() instanceof ChiselItem item && item.tool() == tool) return stack;
+    public static ItemStack heldTool(net.minecraft.world.entity.player.Player player) {
+        if (player.getMainHandItem().getItem() instanceof ChiselItem) return player.getMainHandItem();
+        if (player.getOffhandItem().getItem() instanceof ChiselItem) return player.getOffhandItem();
         return ItemStack.EMPTY;
     }
 
     public static boolean permitted(net.minecraft.world.entity.player.Player player, BlockPos pos, ItemStack tool) {
-        return !tool.isEmpty() && !player.isSpectator() && player.isAlive()
+        return tool.getItem() instanceof ChiselItem && !player.isSpectator() && player.isAlive()
                 && player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 36
                 && player.level().mayInteract(player, pos) && player.mayUseItemAt(pos, Direction.UP, tool);
     }
@@ -59,7 +55,7 @@ public final class SculptureNetworking {
     private static void handle(ServerPlayer player, Stroke packet) {
         if (!player.serverLevel().hasChunkAt(packet.pos)) return;
         if (!(player.level().getBlockEntity(packet.pos) instanceof SculptureBlockEntity sculpture)) return;
-        ItemStack stack = findTool(player, packet.tool);
+        ItemStack stack = heldTool(player);
         if (!permitted(player, packet.pos, stack)) return;
         // Limit editing rate per player across sculptures, while allowing ordinary server lag.
         long now = player.level().getGameTime();
@@ -68,13 +64,13 @@ public final class SculptureNetworking {
             sculpture.undo(player, packet.revision);
         } else {
             boolean polishes = stack.getItem() instanceof ChiselItem item && item.tool().polishes;
-            int changed = sculpture.carve(player, stack, packet.cell, packet.mirror, packet.revision);
+            int changed = sculpture.carve(player, stack, packet.x, packet.y, packet.z, packet.mirror, packet.revision);
             if (changed > 0) {
                 player.level().playSound(null, packet.pos, polishes
                         ? SoundEvents.GRINDSTONE_USE : SoundEvents.STONE_BREAK, SoundSource.BLOCKS, 0.5F, 1.15F);
-                double x = packet.pos.getX() + (MarbleVolume.x(packet.cell) + 0.5) / MarbleVolume.SIZE;
-                double y = packet.pos.getY() + (MarbleVolume.y(packet.cell) + 0.5) / MarbleVolume.SIZE;
-                double z = packet.pos.getZ() + (MarbleVolume.z(packet.cell) + 0.5) / MarbleVolume.SIZE;
+                double x = packet.pos.getX() + packet.x;
+                double y = packet.pos.getY() + packet.y;
+                double z = packet.pos.getZ() + packet.z;
                 player.serverLevel().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, io.github.jakediscord.hobbymod.registry.HobbyContent.MARBLE.get().defaultBlockState()),
                         x, y, z, 5, 0.04, 0.04, 0.04, 0.02);
             }

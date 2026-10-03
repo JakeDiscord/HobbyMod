@@ -1,167 +1,153 @@
 package io.github.jakediscord.hobbymod.sculpting;
 
-import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.List;
 
-/** Loader-independent marble volume. Each editable cell is 1/32 of a block. */
+/** A quantized signed-distance field, not a collection of rendered cubes. */
 public final class MarbleVolume {
-    public static final int SIZE = 32;
-    public static final int CELLS = SIZE * SIZE * SIZE;
-    public static final int WORDS = CELLS / Long.SIZE;
-    private final BitSet marble;
+    public static final int SIZE = 32, CELLS = SIZE * SIZE * SIZE, WORDS = CELLS / 64;
+    public static final int GRID = SIZE + 3, NODES = GRID * GRID * GRID;
+    private final byte[] density;
     private final BitSet polished;
-    private List<Face> mesh;
+    private MarbleMesh mesh;
+    private int count = -1;
 
     public MarbleVolume() {
-        marble = new BitSet(CELLS);
-        marble.set(0, CELLS);
-        polished = new BitSet(CELLS);
+        density = new byte[NODES]; polished = new BitSet(NODES);
+        for (int z=0;z<GRID;z++) for (int y=0;y<GRID;y++) for (int x=0;x<GRID;x++) {
+            double px=(x-1)/(double)SIZE, py=(y-1)/(double)SIZE, pz=(z-1)/(double)SIZE;
+            density[nodeIndex(x,y,z)]=quantize(Math.min(Math.min(Math.min(px,1-px),Math.min(py,1-py)),Math.min(pz,1-pz)));
+        }
     }
-
-    private MarbleVolume(BitSet marble, BitSet polished) {
-        this.marble = marble;
-        this.polished = polished;
-        this.polished.and(marble);
-    }
-
-    public MarbleVolume copy() { return new MarbleVolume((BitSet) marble.clone(), (BitSet) polished.clone()); }
-    public int count() { return marble.cardinality(); }
-    public int polishedCount() { return polished.cardinality(); }
-    public long[] marbleBits() { return marble.toLongArray(); }
+    private MarbleVolume(byte[] density, BitSet polished) { this.density=density; this.polished=polished; }
+    public MarbleVolume copy() { return new MarbleVolume(density.clone(),(BitSet)polished.clone()); }
+    public byte[] densityBytes() { return density.clone(); }
     public long[] polishBits() { return polished.toLongArray(); }
+    public int polishedCount() { return polished.cardinality(); }
+    public static int nodeIndex(int x,int y,int z) { return x+GRID*(y+GRID*z); }
+    public int node(int x,int y,int z) { return density[nodeIndex(x,y,z)]; }
+    public static int index(int x,int y,int z) { return x+SIZE*(y+SIZE*z); }
+    public static int x(int i) { return i%SIZE; }
+    public static int y(int i) { return i/SIZE%SIZE; }
+    public static int z(int i) { return i/(SIZE*SIZE); }
+    private static byte quantize(double value) { return (byte)Math.clamp(Math.round(value*1024),-127,127); }
+    private void invalidate() { mesh=null; count=-1; }
 
-    public static MarbleVolume read(long[] cells, long[] polish) {
-        if (cells.length > WORDS || polish.length > WORDS) return new MarbleVolume();
-        BitSet solid = BitSet.valueOf(cells);
-        // An empty or malformed saved volume must not create invisible unbreakable blocks.
-        if (solid.isEmpty()) return new MarbleVolume();
-        return new MarbleVolume(solid, BitSet.valueOf(polish));
+    public static MarbleVolume read(byte[] data,long[] finish) {
+        if (data.length!=NODES || finish.length>(NODES+63)/64) return new MarbleVolume();
+        MarbleVolume v=new MarbleVolume(data.clone(),BitSet.valueOf(finish));
+        // Enforce a negative outside shell even for malformed item/chunk data.
+        for (int z=0;z<GRID;z++) for (int y=0;y<GRID;y++) for (int x=0;x<GRID;x++)
+            if (x==0 || y==0 || z==0 || x==GRID-1 || y==GRID-1 || z==GRID-1) v.density[nodeIndex(x,y,z)]=-32;
+        v.pruneDetached();
+        return v.count()==0 ? new MarbleVolume() : v;
     }
 
-    public static int index(int x, int y, int z) { return x + SIZE * (y + SIZE * z); }
-    public static int x(int index) { return index % SIZE; }
-    public static int y(int index) { return index / SIZE % SIZE; }
-    public static int z(int index) { return index / (SIZE * SIZE); }
-    public boolean has(int x, int y, int z) {
-        return x >= 0 && y >= 0 && z >= 0 && x < SIZE && y < SIZE && z < SIZE && marble.get(index(x, y, z));
-    }
-    public boolean surface(int x, int y, int z) {
-        return has(x, y, z) && (!has(x - 1, y, z) || !has(x + 1, y, z)
-                || !has(x, y - 1, z) || !has(x, y + 1, z) || !has(x, y, z - 1) || !has(x, y, z + 1));
-    }
-
-    /** Brushes operate on an exposed cell; never add material or erase the final cell. */
-    public int stroke(int target, CarvingTool tool) {
-        if (target < 0 || target >= CELLS || !surface(x(target), y(target), z(target))) return 0;
-        int cx = x(target), cy = y(target), cz = z(target), r = tool.radius;
-        BitSet affected = new BitSet(CELLS);
-        for (int dx = -r; dx <= r; dx++) for (int dy = -r; dy <= r; dy++) for (int dz = -r; dz <= r; dz++) {
-            if (dx * dx + dy * dy + dz * dz > r * r) continue;
-            int x = cx + dx, y = cy + dy, z = cz + dz;
-            if (has(x, y, z) && (!tool.polishes || surface(x, y, z))) affected.set(index(x, y, z));
+    /** Migrate old voxel saves to an interpolated field without resetting the carving. */
+    public static MarbleVolume read(long[] cells,long[] finish) {
+        if (cells.length>WORDS || finish.length>WORDS) return new MarbleVolume();
+        BitSet stone=BitSet.valueOf(cells), oldFinish=BitSet.valueOf(finish);
+        if (stone.isEmpty()) return new MarbleVolume();
+        if (stone.cardinality()==CELLS && oldFinish.isEmpty()) return new MarbleVolume();
+        MarbleVolume v=new MarbleVolume();
+        for (int gz=1;gz<GRID-1;gz++) for (int gy=1;gy<GRID-1;gy++) for (int gx=1;gx<GRID-1;gx++) {
+            int solid=0, total=0; boolean smooth=false;
+            for (int dz=-1;dz<=0;dz++) for (int dy=-1;dy<=0;dy++) for (int dx=-1;dx<=0;dx++) {
+                int x=gx-1+dx,y=gy-1+dy,z=gz-1+dz;
+                if (x<0 || y<0 || z<0 || x>=SIZE || y>=SIZE || z>=SIZE) continue;
+                total++; if (stone.get(index(x,y,z))) solid++;
+                smooth |= oldFinish.get(index(x,y,z));
+            }
+            int i=nodeIndex(gx,gy,gz);
+            v.density[i]=(byte)Math.min(v.density[i],Math.round((solid/(double)total-0.5)*32));
+            if (smooth) v.polished.set(i);
         }
-        if (tool.polishes) {
-            affected.andNot(polished);
-            polished.or(affected);
-        } else {
-            if (affected.cardinality() >= count()) return 0;
-            marble.andNot(affected);
-            polished.and(marble);
-        }
-        int changed = affected.cardinality();
-        if (changed > 0) mesh = null;
+        v.pruneDetached(); return v.count()==0 ? new MarbleVolume() : v;
+    }
+
+    public double field(double x,double y,double z) {
+        double gx=Math.clamp(x*SIZE+1,0,GRID-1.000001),gy=Math.clamp(y*SIZE+1,0,GRID-1.000001),gz=Math.clamp(z*SIZE+1,0,GRID-1.000001);
+        int ix=(int)gx,iy=(int)gy,iz=(int)gz;
+        double fx=gx-ix,fy=gy-iy,fz=gz-iz, result=0;
+        for (int dz=0;dz<2;dz++) for (int dy=0;dy<2;dy++) for (int dx=0;dx<2;dx++)
+            result+=node(ix+dx,iy+dy,iz+dz)*(dx==0?1-fx:fx)*(dy==0?1-fy:fy)*(dz==0?1-fz:fz);
+        return result/1024;
+    }
+    public double[] normal(double x,double y,double z) {
+        double e=1.0/64;
+        double nx=field(x-e,y,z)-field(x+e,y,z),ny=field(x,y-e,z)-field(x,y+e,z),nz=field(x,y,z-e)-field(x,y,z+e);
+        double length=Math.sqrt(nx*nx+ny*ny+nz*nz);
+        return length<1e-10 ? new double[]{0,1,0} : new double[]{nx/length,ny/length,nz/length};
+    }
+    public boolean polishedAt(double x,double y,double z) {
+        return polished.get(nodeIndex(Math.clamp((int)Math.round(x*SIZE)+1,1,GRID-2),Math.clamp((int)Math.round(y*SIZE)+1,1,GRID-2),Math.clamp((int)Math.round(z*SIZE)+1,1,GRID-2)));
+    }
+    public boolean has(int x,int y,int z) {
+        return x>=0 && y>=0 && z>=0 && x<SIZE && y<SIZE && z<SIZE && field((x+0.5)/SIZE,(y+0.5)/SIZE,(z+0.5)/SIZE)>0;
+    }
+    public int count() {
+        if (count<0) { count=0; for (int z=0;z<SIZE;z++) for (int y=0;y<SIZE;y++) for (int x=0;x<SIZE;x++) if (has(x,y,z)) count++; }
+        return count;
+    }
+    public boolean exposed(double x,double y,double z) {
+        return Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+                && x>=0 && y>=0 && z>=0 && x<=1 && y<=1 && z<=1 && Math.abs(field(x,y,z))<=1.0/SIZE;
+    }
+
+    /** Rounded subtractive cuts; a rasp only removes high spots, never adds material. */
+    public int stroke(double x,double y,double z,CarvingTool tool) { return stroke(x,y,z,tool,false); }
+    public int stroke(double x,double y,double z,CarvingTool tool,boolean mirror) {
+        if (!exposed(x,y,z)) return 0;
+        boolean mirrored=mirror && Math.abs(x-0.5)>0.001 && exposed(1-x,y,z);
+        double[] n=normal(x,y,z), reflected=mirrored?normal(1-x,y,z):null;
+        int changed=applyBrush(x,y,z,tool,n);
+        if (mirrored) changed+=applyBrush(1-x,y,z,tool,reflected);
+        return changed;
+    }
+    private int applyBrush(double x,double y,double z,CarvingTool tool,double[] n) {
+        double radius=tool.cutRadius;
+        double cx=x-n[0]*radius*0.15, cy=y-n[1]*radius*0.15, cz=z-n[2]*radius*0.15;
+        byte[] before=tool.polishes ? density.clone() : null;
+        int changed=0;
+        for (int gz=Math.max(1,(int)((cz-radius)*SIZE)+1);gz<=Math.min(GRID-2,(int)((cz+radius)*SIZE)+2);gz++)
+            for (int gy=Math.max(1,(int)((cy-radius)*SIZE)+1);gy<=Math.min(GRID-2,(int)((cy+radius)*SIZE)+2);gy++)
+                for (int gx=Math.max(1,(int)((cx-radius)*SIZE)+1);gx<=Math.min(GRID-2,(int)((cx+radius)*SIZE)+2);gx++) {
+                    double dx=(gx-1)/(double)SIZE-cx,dy=(gy-1)/(double)SIZE-cy,dz=(gz-1)/(double)SIZE-cz;
+                    double distance=Math.sqrt(dx*dx+dy*dy+dz*dz);
+                    if (distance>radius) continue;
+                    int i=nodeIndex(gx,gy,gz); byte old=density[i], next;
+                    if (tool.polishes) {
+                        int sum=before[i-1]+before[i+1]+before[i-GRID]+before[i+GRID]+before[i-GRID*GRID]+before[i+GRID*GRID];
+                        // Limit erosion per pass; smooth the local high spots in the actual geometry.
+                        next=(byte)Math.min(old,Math.max(old-3,Math.round(old*0.75F+sum/24F)));
+                        if (!polished.get(i) && Math.abs(old)<=48) { polished.set(i); changed++; }
+                    } else next=(byte)Math.min(old,quantize(distance-radius));
+                    if (next!=old) { density[i]=next; changed++; }
+                }
+        if (changed>0) invalidate();
         return changed;
     }
 
-    public record Hit(int cell, int side, double distance) {}
-
-    /** Orthographic/perspective ray picking through empty carved space using voxel DDA. */
-    public Hit pick(double[] origin, double[] direction) {
-        double enter = 0, exit = Double.POSITIVE_INFINITY;
-        int side = 0;
-        for (int axis = 0; axis < 3; axis++) {
-            if (Math.abs(direction[axis]) < 1e-10) {
-                if (origin[axis] < 0 || origin[axis] > 1) return null;
-                continue;
+    /** Keep the largest component touching the lowest surviving stone: detached chips disappear. */
+    public int pruneDetached() {
+        BitSet visited=new BitSet(NODES), keep=new BitSet(NODES);
+        int[] queue=new int[NODES]; int bestY=GRID, bestSize=0;
+        for (int seed=0;seed<NODES;seed++) {
+            if (density[seed]<0 || visited.get(seed)) continue;
+            int head=0,tail=1,minY=GRID; queue[0]=seed; visited.set(seed);
+            while (head<tail) {
+                int i=queue[head++],x=i%GRID,y=i/GRID%GRID,z=i/(GRID*GRID); minY=Math.min(minY,y);
+                int[] neighbors={x>0?i-1:-1,x<GRID-1?i+1:-1,y>0?i-GRID:-1,y<GRID-1?i+GRID:-1,z>0?i-GRID*GRID:-1,z<GRID-1?i+GRID*GRID:-1};
+                for (int next:neighbors) if (next>=0 && density[next]>=0 && !visited.get(next)) { visited.set(next);queue[tail++]=next; }
             }
-            double a = -origin[axis] / direction[axis], b = (1 - origin[axis]) / direction[axis];
-            double near = Math.min(a, b), far = Math.max(a, b);
-            if (near > enter) { enter = near; side = axis * 2 + (direction[axis] < 0 ? 1 : 0); }
-            exit = Math.min(exit, far);
-        }
-        if (exit < enter || exit < 0) return null;
-        int[] cell = new int[3], step = new int[3];
-        double[] next = new double[3], delta = new double[3];
-        for (int axis = 0; axis < 3; axis++) {
-            cell[axis] = Math.clamp((int) Math.floor((origin[axis] + direction[axis] * (enter + 1e-8)) * SIZE), 0, SIZE - 1);
-            step[axis] = direction[axis] >= 0 ? 1 : -1;
-            delta[axis] = Math.abs(direction[axis]) < 1e-10 ? Double.POSITIVE_INFINITY : 1.0 / SIZE / Math.abs(direction[axis]);
-            next[axis] = Math.abs(direction[axis]) < 1e-10 ? Double.POSITIVE_INFINITY
-                    : ((cell[axis] + (step[axis] > 0 ? 1 : 0)) / (double) SIZE - origin[axis]) / direction[axis];
-        }
-        double distance = enter;
-        for (int i = 0; i < 3 * SIZE + 3; i++) {
-            if (has(cell[0], cell[1], cell[2])) return new Hit(index(cell[0], cell[1], cell[2]), side, distance);
-            int axis = next[0] < next[1] ? 0 : 1;
-            if (next[2] < next[axis]) axis = 2;
-            distance = next[axis];
-            if (distance > exit + 1e-8) return null;
-            cell[axis] += step[axis];
-            if (cell[axis] < 0 || cell[axis] >= SIZE) return null;
-            side = axis * 2 + (step[axis] < 0 ? 1 : 0);
-            next[axis] += delta[axis];
-        }
-        return null;
-    }
-
-    /** Greedy surface meshing: untouched marble renders as six quads, not 32,768 cubes. */
-    public List<Face> faces() {
-        if (mesh != null) return mesh;
-        List<Face> result = new ArrayList<>();
-        for (int side = 0; side < 6; side++) {
-            int axis = side / 2, uAxis = (axis + 1) % 3, vAxis = (axis + 2) % 3;
-            boolean positive = side % 2 == 1;
-            for (int layer = 0; layer < SIZE; layer++) {
-                int[] mask = new int[SIZE * SIZE];
-                for (int v = 0; v < SIZE; v++) for (int u = 0; u < SIZE; u++) {
-                    int[] p = new int[3]; p[axis] = layer; p[uAxis] = u; p[vAxis] = v;
-                    if (!has(p[0], p[1], p[2])) continue;
-                    int id = index(p[0], p[1], p[2]);
-                    p[axis] += positive ? 1 : -1;
-                    if (!has(p[0], p[1], p[2])) mask[u + v * SIZE] = polished.get(id) ? 2 : 1;
-                }
-                for (int v = 0; v < SIZE; v++) for (int u = 0; u < SIZE; u++) {
-                    int material = mask[u + v * SIZE];
-                    if (material == 0) continue;
-                    int width = 1, height = 1;
-                    while (u + width < SIZE && mask[u + width + v * SIZE] == material) width++;
-                    outer: while (v + height < SIZE) {
-                        for (int du = 0; du < width; du++) if (mask[u + du + (v + height) * SIZE] != material) break outer;
-                        height++;
-                    }
-                    for (int dv = 0; dv < height; dv++) for (int du = 0; du < width; du++) mask[u + du + (v + dv) * SIZE] = 0;
-                    result.add(new Face(side, layer + (positive ? 1 : 0), u, v, width, height, material == 2));
-                }
+            if (minY<bestY || (minY==bestY && tail>bestSize)) {
+                bestY=minY;bestSize=tail;keep.clear();for (int j=0;j<tail;j++) keep.set(queue[j]);
             }
         }
-        mesh = List.copyOf(result);
-        return mesh;
+        int removed=0;
+        for (int i=0;i<NODES;i++) if (density[i]>=0 && !keep.get(i)) { density[i]=-32;polished.clear(i);removed++; }
+        if (removed>0) invalidate();
+        return removed;
     }
-
-    public record Face(int side, int plane, int u, int v, int width, int height, boolean polished) {
-        public double[][] vertices() {
-            int axis = side / 2, ua = (axis + 1) % 3, va = (axis + 2) % 3;
-            int[][] corners = side % 2 == 1
-                    ? new int[][]{{u,v},{u+width,v},{u+width,v+height},{u,v+height}}
-                    : new int[][]{{u,v},{u,v+height},{u+width,v+height},{u+width,v}};
-            double[][] points = new double[4][3];
-            for (int i = 0; i < 4; i++) {
-                points[i][axis] = plane / (double) SIZE;
-                points[i][ua] = corners[i][0] / (double) SIZE;
-                points[i][va] = corners[i][1] / (double) SIZE;
-            }
-            return points;
-        }
-    }
+    public MarbleMesh mesh() { if (mesh==null) mesh=MarbleMesh.build(this); return mesh; }
+    public MarbleMesh.Hit pick(double[] origin,double[] direction) { return mesh().pick(origin,direction); }
 }

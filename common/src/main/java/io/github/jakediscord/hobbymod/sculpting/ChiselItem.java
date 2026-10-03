@@ -42,7 +42,7 @@ public final class ChiselItem extends Item {
 
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("tooltip.hobbymod.carving_tool").withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable(tool.polishes ? "tooltip.hobbymod.polish" : "tooltip.hobbymod.chip", tool.radius * 2 + 1)
+        tooltip.add(Component.translatable(tool.polishes ? "tooltip.hobbymod.polish" : "tooltip.hobbymod.chip", Math.round(tool.cutRadius * 200))
                 .withStyle(ChatFormatting.DARK_GRAY));
     }
 }

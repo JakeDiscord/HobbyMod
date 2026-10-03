@@ -7,8 +7,7 @@
   "item.hobbymod.point_chisel": "Point Chisel",
   "item.hobbymod.roughing_mallet": "Roughing Mallet",
   "item.hobbymod.polishing_rasp": "Polishing Rasp",
-  "screen.hobbymod.sculpture": "Marble Atelier",
-  "tooltip.hobbymod.carving_tool": "Use on marble to open the carving workspace.",
-  "tooltip.hobbymod.polish": "Finish exposed surfaces without removing stone.",
-  "tooltip.hobbymod.chip": "Chip width: %s. Each stroke wears the tool."
+  "tooltip.hobbymod.carving_tool": "Use on marble to orbit and carve it in the world.",
+  "tooltip.hobbymod.polish": "Smooth high spots and polish the marble surface.",
+  "tooltip.hobbymod.chip": "Rounded cut width: %s%% of a block. Each stroke wears the tool."
 }

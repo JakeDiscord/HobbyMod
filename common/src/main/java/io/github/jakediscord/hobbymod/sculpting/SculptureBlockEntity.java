@@ -29,17 +29,14 @@ public final class SculptureBlockEntity extends BlockEntity {
     public int revision() { return revision; }
 
     /** Server-side transaction. Stale operations cannot overwrite another artist's work. */
-    public int carve(Player player, ItemStack toolStack, int cell, boolean mirror, int expectedRevision) {
+    public int carve(Player player, ItemStack toolStack, double x, double y, double z, boolean mirror, int expectedRevision) {
         if (level == null || level.isClientSide || expectedRevision != revision
-                || !(toolStack.getItem() instanceof ChiselItem item) || cell < 0 || cell >= MarbleVolume.CELLS
-                || !volume.surface(MarbleVolume.x(cell), MarbleVolume.y(cell), MarbleVolume.z(cell))) return 0;
+                || !(toolStack.getItem() instanceof ChiselItem item) || !volume.exposed(x,y,z)) return 0;
         MarbleVolume before = volume.copy();
-        int changed = volume.stroke(cell, item.tool());
-        if (mirror && cell >= 0 && cell < MarbleVolume.CELLS) {
-            int opposite = MarbleVolume.index(MarbleVolume.SIZE - 1 - MarbleVolume.x(cell), MarbleVolume.y(cell), MarbleVolume.z(cell));
-            if (opposite != cell) changed += volume.stroke(opposite, item.tool());
-        }
+        int changed = volume.stroke(x,y,z,item.tool(),mirror);
         if (changed == 0) return 0;
+        volume.pruneDetached();
+        if (volume.count() == 0) { volume=before; return 0; }
         history.addLast(new History(player.getUUID(), before));
         while (history.size() > 12) history.removeFirst();
         if (!player.getAbilities().instabuild) {
@@ -89,13 +86,16 @@ public final class SculptureBlockEntity extends BlockEntity {
 
     @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putLongArray("marble", volume.marbleBits());
+        tag.putInt("sculpture_format", 2);
+        tag.putByteArray("density", volume.densityBytes());
         tag.putLongArray("polish", volume.polishBits());
         tag.putInt("revision", revision);
     }
     @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        volume = tag.contains("marble") ? MarbleVolume.read(tag.getLongArray("marble"), tag.getLongArray("polish")) : new MarbleVolume();
+        volume = tag.contains("density", net.minecraft.nbt.Tag.TAG_BYTE_ARRAY)
+                ? MarbleVolume.read(tag.getByteArray("density"), tag.getLongArray("polish"))
+                : tag.contains("marble") ? MarbleVolume.read(tag.getLongArray("marble"), tag.getLongArray("polish")) : new MarbleVolume();
         revision = tag.getInt("revision");
         history.clear();
         shape = null;
