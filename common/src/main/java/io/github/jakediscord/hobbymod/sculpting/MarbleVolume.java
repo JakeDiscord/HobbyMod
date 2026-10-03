@@ -30,16 +30,17 @@ public final class MarbleVolume {
     public static int y(int i) { return i/SIZE%SIZE; }
     public static int z(int i) { return i/(SIZE*SIZE); }
     private static byte quantize(double value) { return (byte)Math.clamp(Math.round(value*1024),-127,127); }
-    private void invalidate() { mesh=null; count=-1; }
+    void invalidate() { mesh=null; count=-1; }
 
-    public static MarbleVolume read(byte[] data,long[] finish) {
+    public static MarbleVolume read(byte[] data,long[] finish) { return read(data,finish,true); }
+    public static MarbleVolume read(byte[] data,long[] finish,boolean prune) {
         if (data.length!=NODES || finish.length>(NODES+63)/64) return new MarbleVolume();
         MarbleVolume v=new MarbleVolume(data.clone(),BitSet.valueOf(finish));
         // Enforce a negative outside shell even for malformed item/chunk data.
         for (int z=0;z<GRID;z++) for (int y=0;y<GRID;y++) for (int x=0;x<GRID;x++)
             if (x==0 || y==0 || z==0 || x==GRID-1 || y==GRID-1 || z==GRID-1) v.density[nodeIndex(x,y,z)]=-32;
-        v.pruneDetached();
-        return v.count()==0 ? new MarbleVolume() : v;
+        if (prune) v.pruneDetached();
+        return prune && v.count()==0 ? new MarbleVolume() : v;
     }
 
     /** Migrate old voxel saves to an interpolated field without resetting the carving. */
@@ -103,7 +104,7 @@ public final class MarbleVolume {
         if (mirrored) changed+=applyBrush(1-x,y,z,tool,reflected);
         return changed;
     }
-    private int applyBrush(double x,double y,double z,CarvingTool tool,double[] n) {
+    int applyBrush(double x,double y,double z,CarvingTool tool,double[] n) {
         double radius=tool.cutRadius;
         double cx=x-n[0]*radius*0.15, cy=y-n[1]*radius*0.15, cz=z-n[2]*radius*0.15;
         byte[] before=tool.polishes ? density.clone() : null;
@@ -148,6 +149,7 @@ public final class MarbleVolume {
         if (removed>0) invalidate();
         return removed;
     }
+    void removeNode(int index) { density[index]=-32; polished.clear(index); }
     public MarbleMesh mesh() { if (mesh==null) mesh=MarbleMesh.build(this); return mesh; }
     public MarbleMesh.Hit pick(double[] origin,double[] direction) { return mesh().pick(origin,direction); }
 }

@@ -31,7 +31,10 @@ public final class ChiselItem extends Item {
         boolean blank = level.getBlockState(pos).is(HobbyContent.MARBLE.get());
         if (!blank && !level.getBlockState(pos).is(HobbyContent.SCULPTURE.get())) return InteractionResult.PASS;
         if (!level.isClientSide) {
-            if (blank && !level.setBlock(pos, HobbyContent.SCULPTURE.get().defaultBlockState(), Block.UPDATE_ALL)) return InteractionResult.FAIL;
+            var column=MarbleColumn.positions(level,pos);
+            for(BlockPos section:column) if(!SculptureNetworking.mayEdit(player,section,context.getItemInHand()))return InteractionResult.FAIL;
+            for(BlockPos section:column) if(level.getBlockState(section).is(HobbyContent.MARBLE.get()))
+                if(!level.setBlock(section,HobbyContent.SCULPTURE.get().defaultBlockState(),Block.UPDATE_ALL))return InteractionResult.FAIL;
             if (player instanceof ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof SculptureBlockEntity sculpture) {
                 serverPlayer.connection.send(sculpture.getUpdatePacket());
                 dev.architectury.networking.NetworkManager.sendToPlayer(serverPlayer, new SculptureNetworking.OpenEditor(pos));

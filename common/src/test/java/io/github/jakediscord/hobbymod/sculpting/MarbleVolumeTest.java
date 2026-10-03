@@ -21,7 +21,9 @@ class MarbleVolumeTest {
         assertTrue(detail.count()>point.count() && point.count()>rough.count());
         byte[] before=rough.densityBytes();var hit=front(rough);
         assertTrue(rough.stroke(hit.x(),hit.y(),hit.z(),CarvingTool.POLISH)>0);
-        byte[] after=rough.densityBytes();for(int i=0;i<before.length;i++)assertTrue(after[i]<=before[i]);
+        byte[] after=rough.densityBytes();boolean eroded=false;
+        for(int i=0;i<before.length;i++){assertTrue(after[i]<=before[i]);eroded |= after[i]<before[i];}
+        assertTrue(eroded,"Rasp smooths the geometry, rather than only changing its texture");
         assertTrue(rough.polishedCount()>0);
     }
     @Test void overlappingMirroredCutsRemainSymmetric() {

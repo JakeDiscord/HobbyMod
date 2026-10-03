@@ -70,15 +70,13 @@ public final class SculptingGameTests {
         h.assertTrue(p.getMainHandItem().getDamageValue()==0,"Creative preserves tools");
         pass(h,"creativeAndPolishing");
     }
-    @GameTest(template="empty") public static void stalePacketsAndUndoOwnership(GameTestHelper h) {
-        var s=blank(h); Player artist=player(h,false), guest=player(h,false);
+    @GameTest(template="empty") public static void stalePacketsPreservePermanentCuts(GameTestHelper h) {
+        var s=blank(h); Player artist=player(h,false),guest=player(h,false);
         s.carve(artist,artist.getMainHandItem(),0.4,0.5,1,false,0);
+        byte[] cut=s.volume().densityBytes();
         h.assertTrue(s.carve(guest,guest.getMainHandItem(),0,0.5,0.5,false,0)==0,"Stale revisions must not carve");
-        h.assertTrue(!s.undo(guest,1),"Another player cannot undo the artist's work");
-        h.assertTrue(s.undo(artist,1),"Artist can undo the most recent stroke");
-        h.assertTrue(s.volume().count()==MarbleVolume.CELLS,"Undo restores the stone");
-        h.assertTrue(artist.getMainHandItem().getDamageValue()==1,"Undo must not repair tools");
-        pass(h,"stalePacketsAndUndoOwnership");
+        h.assertTrue(java.util.Arrays.equals(cut,s.volume().densityBytes()),"Cut stays permanent after rejected edits");
+        pass(h,"stalePacketsPreservePermanentCuts");
     }
     @GameTest(template="empty") public static void persistenceAndUpdateTag(GameTestHelper h) {
         var s=blank(h); Player p=player(h,true);
@@ -136,7 +134,6 @@ public final class SculptingGameTests {
         h.assertTrue(hit!=null && s.carve(p,p.getMainHandItem(),hit.x(),hit.y(),hit.z(),false,0)>0,"A real stroke severs the neck");
         h.assertTrue(s.volume().field(14.0/32,18.0/32,14.0/32)<0,"Detached upper stone must break away");
         h.assertTrue(s.volume().field(14.0/32,5.0/32,14.0/32)>0,"Connected base remains");
-        h.assertTrue(s.undo(p,1) && s.volume().field(14.0/32,18.0/32,14.0/32)>0,"Undo restores the top together with its connection");
         pass(h,"severedPartsCannotFloat");
     }
     @GameTest(template="empty") public static void inventoryToolsMustBeHeld(GameTestHelper h) {
@@ -156,5 +153,57 @@ public final class SculptingGameTests {
         h.assertBlockPresent(Blocks.STONE,POS);
         h.assertTrue(p.getMainHandItem().getDamageValue()==0,"Wrong targets must not wear tools");
         pass(h,"unrelatedStoneStaysUntouched");
+    }
+    @GameTest(template="empty") public static void stackedMarbleSharesCutsAndPersists(GameTestHelper h) {
+        h.setBlock(POS,HobbyContent.MARBLE.get());h.setBlock(POS.above(),HobbyContent.MARBLE.get());
+        Player p=player(h,false);h.assertTrue(open(h,p).consumesAction(),"Opening joins the column");
+        var lower=(SculptureBlockEntity)h.getLevel().getBlockEntity(h.absolutePos(POS));
+        var upper=(SculptureBlockEntity)h.getLevel().getBlockEntity(h.absolutePos(POS.above()));
+        h.assertTrue(upper!=null,"Upper marble becomes editable too");
+        p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(HobbyContent.MALLET.get()));
+        h.assertTrue(lower.carve(p,p.getMainHandItem(),0.5,1,1,false,0)>0,"Seam stroke succeeds");
+        h.assertTrue(lower.volume().field(0.5,0.97,0.98)<0 && upper.volume().field(0.5,0.03,0.98)<0,"Cut spans both sections");
+        h.assertTrue(p.getMainHandItem().getDamageValue()==1,"Column stroke wears once");
+        h.assertTrue(lower.revision()==1 && upper.revision()==1,"Both sections synchronize");
+        var restored=new SculptureBlockEntity(upper.getBlockPos(),upper.getBlockState());
+        restored.loadWithComponents(upper.getUpdateTag(h.getLevel().registryAccess()),h.getLevel().registryAccess());
+        h.assertTrue(java.util.Arrays.equals(restored.volume().densityBytes(),upper.volume().densityBytes()),"Joined shape survives loading");
+        pass(h,"stackedMarbleSharesCutsAndPersists");
+    }
+    @GameTest(template="empty") public static void dragStrokeFillsGapsWithoutExtraWear(GameTestHelper h) {
+        var s=blank(h);Player p=player(h,false);
+        s.carve(p,p.getMainHandItem(),0.25,0.5,1,false,0);
+        var previous=new Vec3(s.getBlockPos().getX()+0.25,s.getBlockPos().getY()+0.5,s.getBlockPos().getZ()+1);
+        h.assertTrue(s.carvePath(p,p.getMainHandItem(),0.65,0.5,1,false,1,previous)>0,"Drag continues");
+        for(double x=0.30;x<0.65;x+=0.025)h.assertTrue(s.volume().field(x,0.5,0.99)<0,"Interpolated drag has no untouched gaps");
+        h.assertTrue(p.getMainHandItem().getDamageValue()==2,"Interpolation wears once per packet");
+        pass(h,"dragStrokeFillsGapsWithoutExtraWear");
+    }
+    @GameTest(template="empty") public static void addingMarbleJoinsExistingPillar(GameTestHelper h) {
+        blank(h);h.setBlock(POS.above(),HobbyContent.MARBLE.get());
+        h.runAfterDelay(3,()-> {
+            h.assertBlockPresent(HobbyContent.SCULPTURE.get(),POS.above());
+            pass(h,"addingMarbleJoinsExistingPillar");
+        });
+    }
+    @GameTest(template="empty") public static void severingPillarRemovesUpperBlock(GameTestHelper h) {
+        var lower=blank(h);h.setBlock(POS.above(),HobbyContent.SCULPTURE.get());
+        var upper=(SculptureBlockEntity)h.getLevel().getBlockEntity(h.absolutePos(POS.above()));
+        byte[] a=new byte[MarbleVolume.NODES],b=new byte[MarbleVolume.NODES];
+        java.util.Arrays.fill(a,(byte)-32);java.util.Arrays.fill(b,(byte)-32);
+        for(int z=10;z<=20;z++)for(int x=10;x<=20;x++) {
+            for(int y=2;y<=10;y++)a[MarbleVolume.nodeIndex(x,y,z)]=32;
+            for(int y=1;y<=22;y++)b[MarbleVolume.nodeIndex(x,y,z)]=32;
+        }
+        for(int y=11;y<=33;y++)a[MarbleVolume.nodeIndex(15,y,15)]=32;
+        var tag=new net.minecraft.nbt.CompoundTag();tag.putInt("sculpture_format",3);tag.putByteArray("density",a);
+        lower.loadWithComponents(tag,h.getLevel().registryAccess());tag.putByteArray("density",b);
+        upper.loadWithComponents(tag,h.getLevel().registryAccess());
+        Player p=player(h,true);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(HobbyContent.POINT_CHISEL.get()));
+        var hit=lower.volume().pick(new double[]{2,14.0/32,14.0/32},new double[]{-1,0,0});
+        h.assertTrue(hit!=null && lower.carve(p,p.getMainHandItem(),hit.x(),hit.y(),hit.z(),false,0)>0,"Stroke severs the lower neck");
+        h.assertBlockPresent(Blocks.AIR,POS.above());
+        h.assertTrue(lower.volume().count()>0,"Grounded base remains after the upper block breaks away");
+        pass(h,"severingPillarRemovesUpperBlock");
     }
 }

@@ -1,8 +1,6 @@
 package io.github.jakediscord.hobbymod.sculpting;
 
 import io.github.jakediscord.hobbymod.registry.HobbyContent;
-import java.util.ArrayDeque;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -18,9 +16,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public final class SculptureBlockEntity extends BlockEntity {
     private MarbleVolume volume = new MarbleVolume();
     private int revision;
-    private final ArrayDeque<History> history = new ArrayDeque<>();
     private VoxelShape shape;
-    private record History(UUID artist, MarbleVolume before) {}
+    private MarbleMesh joinedMesh;
+    private MarbleVolume meshOwn,meshBelow,meshAbove;
+    private int meshRevision=-1,belowRevision=-1,aboveRevision=-1;
 
     public SculptureBlockEntity(BlockPos pos, BlockState state) {
         super(HobbyContent.SCULPTURE_ENTITY.get(), pos, state);
@@ -32,34 +31,73 @@ public final class SculptureBlockEntity extends BlockEntity {
     public int carve(Player player, ItemStack toolStack, double x, double y, double z, boolean mirror, int expectedRevision) {
         if (level == null || level.isClientSide || expectedRevision != revision
                 || !(toolStack.getItem() instanceof ChiselItem item) || !volume.exposed(x,y,z)) return 0;
-        MarbleVolume before = volume.copy();
-        int changed = volume.stroke(x,y,z,item.tool(),mirror);
-        if (changed == 0) return 0;
-        volume.pruneDetached();
-        if (volume.count() == 0) { volume=before; return 0; }
-        history.addLast(new History(player.getUUID(), before));
-        while (history.size() > 12) history.removeFirst();
+        return carvePath(player,toolStack,x,y,z,mirror,expectedRevision,null);
+    }
+
+    public int carvePath(Player player,ItemStack toolStack,double x,double y,double z,boolean mirror,int expectedRevision,net.minecraft.world.phys.Vec3 previous) {
+        if(level==null || level.isClientSide || revision!=expectedRevision || !(toolStack.getItem() instanceof ChiselItem item)
+                || !volume.exposed(x,y,z) || !SculptureNetworking.permitted(player,worldPosition,toolStack))return 0;
+        var sections=MarbleColumn.sculptures(level,worldPosition);
+        if(sections.isEmpty())return 0;
+        for(var s:sections)if(!SculptureNetworking.mayEdit(player,s.worldPosition,toolStack))return 0;
+        var volumes=sections.stream().map(SculptureBlockEntity::volume).toList();
+        var before=volumes.stream().map(MarbleVolume::copy).toList();
+        var end=new net.minecraft.world.phys.Vec3(worldPosition.getX()+x,worldPosition.getY()+y,worldPosition.getZ()+z);
+        double length=previous==null?0:previous.distanceTo(end);
+        int steps=length>0 && length<=0.75?Math.clamp((int)Math.ceil(length/(item.tool().cutRadius*0.5)),1,24):1;
+        int changed=0;
+        for(int step=1;step<=steps;step++) {
+            var point=steps==1?end:previous.lerp(end,step/(double)steps);
+            var section=sections.stream().filter(s->point.y>=s.worldPosition.getY() && point.y<=s.worldPosition.getY()+1).findFirst().orElse(this);
+            double px=point.x-section.worldPosition.getX(),py=point.y-section.worldPosition.getY(),pz=point.z-section.worldPosition.getZ();
+            if(!section.volume.exposed(px,py,pz))continue;
+            int index=sections.indexOf(section);
+            var field=MarbleColumn.field(section.volume,index>0?volumes.get(index-1):null,index+1<volumes.size()?volumes.get(index+1):null);
+            double[] normal=field.normal(px,py,pz);
+            boolean mirrored=mirror && Math.abs(px-0.5)>0.001 && section.volume.exposed(1-px,py,pz);
+            double[] reflected=mirrored?field.normal(1-px,py,pz):null;
+            for(var s:sections) {
+                double localY=point.y-s.worldPosition.getY();
+                if(localY < -item.tool().cutRadius || localY>1+item.tool().cutRadius)continue;
+                changed+=s.volume.applyBrush(px,localY,pz,item.tool(),normal);
+                if(mirrored)changed+=s.volume.applyBrush(1-px,localY,pz,item.tool(),reflected);
+            }
+        }
+        if(changed==0)return 0;
+        MarbleColumn.prune(volumes);
+        if(volumes.stream().mapToInt(MarbleVolume::count).sum()==0) {
+            for(int i=0;i<sections.size();i++)sections.get(i).volume=before.get(i);
+            return 0;
+        }
         if (!player.getAbilities().instabuild) {
             toolStack.hurtAndBreak(1, player, toolStack == player.getOffhandItem()
                     ? net.minecraft.world.entity.EquipmentSlot.OFFHAND : net.minecraft.world.entity.EquipmentSlot.MAINHAND);
         }
-        update();
+        for(var s:sections) {
+            if(s.volume.count()==0)level.removeBlock(s.worldPosition,false);
+            else s.update();
+        }
         return changed;
     }
 
-    public boolean undo(Player player, int expectedRevision) {
-        if (level == null || level.isClientSide || expectedRevision != revision || history.isEmpty()
-                || !history.getLast().artist.equals(player.getUUID())) return false;
-        volume = history.removeLast().before;
-        update(); // Undo restores the stone, but does not repair worn tools.
-        return true;
-    }
-
-    private void update() {
+    void update() {
         revision++;
         shape = null;
+        joinedMesh=null;
         setChanged();
         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+    }
+
+    public MarbleMesh mesh() {
+        var below=level!=null && level.getBlockEntity(worldPosition.below()) instanceof SculptureBlockEntity s?s:null;
+        var above=level!=null && level.getBlockEntity(worldPosition.above()) instanceof SculptureBlockEntity s?s:null;
+        var bv=below==null?null:below.volume;var av=above==null?null:above.volume;
+        int br=below==null?-1:below.revision,ar=above==null?-1:above.revision;
+        if(joinedMesh==null || meshOwn!=volume || meshBelow!=bv || meshAbove!=av || meshRevision!=revision || belowRevision!=br || aboveRevision!=ar) {
+            joinedMesh=MarbleMesh.build(MarbleColumn.field(volume,bv,av),below!=null,above!=null);
+            meshOwn=volume;meshBelow=bv;meshAbove=av;meshRevision=revision;belowRevision=br;aboveRevision=ar;
+        }
+        return joinedMesh;
     }
 
     /** Cached 8^3 collision sampling bounds work per update, even for intricate designs. */
@@ -86,7 +124,7 @@ public final class SculptureBlockEntity extends BlockEntity {
 
     @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putInt("sculpture_format", 2);
+        tag.putInt("sculpture_format", 3);
         tag.putByteArray("density", volume.densityBytes());
         tag.putLongArray("polish", volume.polishBits());
         tag.putInt("revision", revision);
@@ -94,10 +132,10 @@ public final class SculptureBlockEntity extends BlockEntity {
     @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         volume = tag.contains("density", net.minecraft.nbt.Tag.TAG_BYTE_ARRAY)
-                ? MarbleVolume.read(tag.getByteArray("density"), tag.getLongArray("polish"))
+                ? MarbleVolume.read(tag.getByteArray("density"), tag.getLongArray("polish"),tag.getInt("sculpture_format")<3)
                 : tag.contains("marble") ? MarbleVolume.read(tag.getLongArray("marble"), tag.getLongArray("polish")) : new MarbleVolume();
         revision = tag.getInt("revision");
-        history.clear();
+        joinedMesh=null;
         shape = null;
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) { return saveWithoutMetadata(registries); }
