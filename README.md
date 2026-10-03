@@ -73,7 +73,17 @@ You must remain within six blocks of the section you carve; moving the camera
 does not move your player or extend their reach.
 
 The models reuse vanilla calcite, quartz, iron, and wood textures. Natural
-marble deposits and other hobbies, including astronomy, are future work.
+marble deposits and astronomy are future work.
+
+## Pottery
+
+Throw smooth, hollow pots on a visibly spinning wheel in the world. Shape the
+profile with your hands, smooth it with a rib or sponge, trim leather-hard clay,
+cut it off, dry it, bisque-fire it, glaze it in any of sixteen colors, and fire
+it again. Every step preserves your own design. Finished pots can hold flowers.
+
+See [the full pottery process and controls](docs/POTTERY.md). All pottery blocks,
+tools, clay, and glazes are available in the **HobbyMod: Pottery** creative tab.
 
 ## Development
 
@@ -138,7 +148,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for thirteen geometry tests: curved
+Run `./gradlew --no-daemon :common:test` for twenty tests: thirteen sculpting geometry tests and seven pottery geometry/process tests. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -147,7 +157,8 @@ Run `./gradlew --no-daemon -Pgametest :neoforge:runServer` in an interactive
 terminal. After readiness, enter `test runall`. Fourteen GameTests cover opening a
 blank, survival and symmetry, creative and smoothing, stale revisions and permanent cuts, persistence and update tags, mining and replacement, invalid
 coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
-Verify fourteen distinct `SCULPTING_TEST_PASS` entries in the server log; the vanilla
+Seven additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
+Verify fourteen distinct `SCULPTING_TEST_PASS` and seven `POTTERY_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
 above. Do not rebuild without `-Pgametest` while these tests are starting: that
 removes test classes from the development output. If also launching a client,
