@@ -18,13 +18,20 @@ public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity
     @Override public int getViewDistance(){return 48;}
     @Override public boolean shouldRenderOffScreen(AquariumBlockEntity tank){return true;}
     @Override public boolean shouldRender(AquariumBlockEntity tank,Vec3 camera){
-        var s=tank.data.size;return camera.distanceToSqr(Vec3.atLowerCornerOf(tank.getBlockPos()).add(s.blocksWide()/2.0,s.blocksHigh()/2.0,s.blocksDeep()/2.0))<48*48;
+        var s=tank.data.size;return camera.distanceToSqr(Vec3.atLowerCornerOf(tank.getBlockPos()).add(tank.blocksWide()/2.0,s.blocksHigh()/2.0,tank.blocksDeep()/2.0))<48*48;
     }
     private static TextureAtlasSprite sprite(String name){return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(ResourceLocation.withDefaultNamespace("block/"+name));}
     @Override public void render(AquariumBlockEntity tank,float partial,PoseStack poses,MultiBufferSource buffers,int light,int overlay){
         var d=tank.data;var s=d.size;
-        boolean distant=Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().distanceToSqr(Vec3.atLowerCornerOf(tank.getBlockPos()).add(s.blocksWide()/2.0,s.blocksHigh()/2.0,s.blocksDeep()/2.0))>24*24;
+        boolean distant=Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().distanceToSqr(Vec3.atLowerCornerOf(tank.getBlockPos()).add(tank.blocksWide()/2.0,s.blocksHigh()/2.0,tank.blocksDeep()/2.0))>24*24;
         double W=s.blocksWide(),H=s.blocksHigh()*.88,D=s.blocksDeep();
+        poses.pushPose();
+        switch(tank.facing()){
+            case NORTH->{poses.translate(W,0,D);poses.mulPose(Axis.YP.rotationDegrees(180));}
+            case EAST->{poses.translate(0,0,W);poses.mulPose(Axis.YP.rotationDegrees(90));}
+            case WEST->{poses.translate(D,0,0);poses.mulPose(Axis.YP.rotationDegrees(-90));}
+            default->{}
+        }
         var solid=buffers.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));var trim=sprite("dark_oak_planks");
         box(solid,poses.last(),trim,.01,.02,.01,W-.01,.10,D-.01,0xFFFFFF,light,overlay);
         box(solid,poses.last(),trim,.01,H-.07,.01,W-.01,H,D-.01,0xFFFFFF,light,overlay);
@@ -50,7 +57,12 @@ public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity
                 var id=ResourceLocation.tryParse(piece.block());
                 if(id!=null){
                     poses.translate(-.25,0,-.25);poses.scale(.5f,.5f,.5f);
-                    Minecraft.getInstance().getBlockRenderer().renderSingleBlock(net.minecraft.core.registries.BuiltInRegistries.BLOCK.get(id).defaultBlockState(),poses,buffers,light,overlay);
+                    // Native block-sheet buffers otherwise flush after the water shell and fail its depth test.
+                    // Share the aquascape passes, preserving separate textures for special block renderers.
+                    Minecraft.getInstance().getBlockRenderer().renderSingleBlock(net.minecraft.core.registries.BuiltInRegistries.BLOCK.get(id).defaultBlockState(),poses,type->buffers.getBuffer(
+                            type==Sheets.cutoutBlockSheet()?RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS):
+                            type==Sheets.translucentCullBlockSheet() || type==Sheets.translucentItemSheet()?
+                                    RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS):type),light,overlay);
                     out=buffers.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
                 }
             }else{
@@ -106,6 +118,7 @@ public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity
         box(glass,poses.last(),glassTexture,.04,.10,.047,.047,H-.07,D-.047,0x99FFFFFF,light,overlay);
         box(glass,poses.last(),glassTexture,W-.047,.10,.047,W-.04,H-.07,D-.047,0x99FFFFFF,light,overlay);
 
+        poses.popPose();
     }
     private static void box(VertexConsumer out,PoseStack.Pose pose,TextureAtlasSprite sprite,double x,double y,double z,double X,double Y,double Z,int color,int light,int overlay){
         Vec3 a=new Vec3(x,y,z),b=new Vec3(X,y,z),c=new Vec3(X,Y,z),d=new Vec3(x,Y,z);

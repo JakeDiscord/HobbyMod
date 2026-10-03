@@ -20,7 +20,12 @@ import net.minecraft.world.phys.BlockHitResult;
 
 public final class AquariumControllerBlock extends BaseEntityBlock {
     public static final MapCodec<AquariumControllerBlock> CODEC=simpleCodec(AquariumControllerBlock::new);
-    public AquariumControllerBlock(Properties p){super(p);}
+    public static final net.minecraft.world.level.block.state.properties.DirectionProperty FACING=net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
+    public AquariumControllerBlock(Properties p){super(p);registerDefaultState(stateDefinition.any().setValue(FACING,Direction.SOUTH));}
+    @Override protected void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition.Builder<Block,BlockState> builder){builder.add(FACING);}
+    @Override public BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context){return defaultBlockState().setValue(FACING,context.getHorizontalDirection());}
+    @Override public BlockState rotate(BlockState state,Rotation rotation){return state.setValue(FACING,rotation.rotate(state.getValue(FACING)));}
+    @Override public BlockState mirror(BlockState state,Mirror mirror){return rotate(state,mirror.getRotation(state.getValue(FACING)));}
     @Override protected MapCodec<? extends BaseEntityBlock> codec(){return CODEC;}
     @Override public RenderShape getRenderShape(BlockState state){return RenderShape.INVISIBLE;}
     @Override public BlockEntity newBlockEntity(BlockPos pos,BlockState state){return new AquariumBlockEntity(pos,state);}
@@ -145,7 +150,7 @@ public final class AquariumControllerBlock extends BaseEntityBlock {
         if(!state.is(replacement.getBlock()) && !level.isClientSide
                 && level.getBlockEntity(pos) instanceof AquariumBlockEntity tank && level.hasChunksAt(pos,tank.maximum())){
             var size=tank.data.size;
-            for(int y=0;y<size.blocksHigh();y++)for(int x=0;x<size.blocksWide();x++)for(int z=0;z<size.blocksDeep();z++){
+            for(int y=0;y<size.blocksHigh();y++)for(int x=0;x<tank.blocksWide();x++)for(int z=0;z<tank.blocksDeep();z++){
                 if(x==0 && y==0 && z==0)continue;
                 BlockPos cell=pos.offset(x,y,z);
                 if(level.getBlockState(cell).is(AquariumContent.PART.get()))level.setBlock(cell,Blocks.AIR.defaultBlockState(),3);

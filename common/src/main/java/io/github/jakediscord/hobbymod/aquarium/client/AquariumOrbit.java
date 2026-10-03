@@ -32,11 +32,11 @@ public final class AquariumOrbit {
     public static void close(){if(active())Minecraft.getInstance().options.hideGui=previousHud;target=null;selected=null;}
     public static SculptureOrbit.CameraPose cameraPose(){
         var t=tank();var mc=Minecraft.getInstance();if(t==null || mc.player==null)return null;
-        var s=t.data.size;Vec3 center=Vec3.atLowerCornerOf(target).add(s.blocksWide()*.5,s.blocksHigh()*.44,s.blocksDeep()*.5);
+        var s=t.data.size;Vec3 center=t.toWorld(new Vec3(s.blocksWide()*.5,s.blocksHigh()*.44,s.blocksDeep()*.5));
         double a=Math.toRadians(yaw),p=Math.toRadians(pitch);
         Vec3 desired=center.add(Math.sin(a)*Math.cos(p)*distance,Math.sin(p)*distance,-Math.cos(a)*Math.cos(p)*distance);
         BlockGetter surrounding=new BlockGetter(){
-            private boolean inside(BlockPos p){return p.getX()>=target.getX() && p.getX()<target.getX()+s.blocksWide() && p.getY()>=target.getY() && p.getY()<target.getY()+s.blocksHigh() && p.getZ()>=target.getZ() && p.getZ()<target.getZ()+s.blocksDeep();}
+            private boolean inside(BlockPos p){return p.getX()>=target.getX() && p.getX()<target.getX()+t.blocksWide() && p.getY()>=target.getY() && p.getY()<target.getY()+s.blocksHigh() && p.getZ()>=target.getZ() && p.getZ()<target.getZ()+t.blocksDeep();}
             public BlockEntity getBlockEntity(BlockPos p){return inside(p)?null:mc.level.getBlockEntity(p);}
             public BlockState getBlockState(BlockPos p){return inside(p)?Blocks.AIR.defaultBlockState():mc.level.getBlockState(p);}
             public FluidState getFluidState(BlockPos p){return inside(p)?Fluids.EMPTY.defaultFluidState():mc.level.getFluidState(p);}
@@ -53,7 +53,7 @@ public final class AquariumOrbit {
         var v=new Vector3f((float)(x*aspect*tan),(float)(y*tan),-1).rotate(camera.rotation()).normalize();return new Vec3(v.x,v.y,v.z);
     }
     public static java.util.UUID pick(double mx,double my,float partial){
-        var t=tank();if(t==null)return null;var mc=Minecraft.getInstance();Vec3 o=mc.gameRenderer.getMainCamera().getPosition().subtract(Vec3.atLowerCornerOf(t.getBlockPos()));Vec3 end=o.add(ray(mx,my,partial).scale(48));
+        var t=tank();if(t==null)return null;var mc=Minecraft.getInstance();Vec3 world=mc.gameRenderer.getMainCamera().getPosition();Vec3 o=t.toLocal(world);Vec3 end=t.toLocal(world.add(ray(mx,my,partial).scale(48)));
         double nearest=Double.MAX_VALUE;java.util.UUID found=null;
         for(var piece:t.data.scape.pieces()){
             var b=AquariumScape.bounds(piece,t.data.size);var box=new AABB(b.x(),b.y(),b.z(),b.X(),b.Y(),b.Z());
@@ -64,7 +64,7 @@ public final class AquariumOrbit {
     }
     public static Vec3 plane(double mx,double my,float partial,double y){
         Vec3 o=Minecraft.getInstance().gameRenderer.getMainCamera().getPosition(),d=ray(mx,my,partial);
-        if(Math.abs(d.y)<.001)return null;double t=(y-o.y)/d.y;return t<0?null:o.add(d.scale(t));
+        if(Math.abs(d.y)<.001)return null;double t=(y-o.y)/d.y;return t<0?null:tank().toLocal(o.add(d.scale(t)));
     }
     private AquariumOrbit(){}
 }

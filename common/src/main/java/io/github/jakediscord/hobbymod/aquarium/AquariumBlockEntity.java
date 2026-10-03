@@ -14,16 +14,38 @@ public final class AquariumBlockEntity extends BlockEntity {
     public Condition condition=Condition.EMPTY;
     private final AquariumClock clock=new AquariumClock();
     public AquariumBlockEntity(BlockPos pos,BlockState state){super(AquariumContent.TANK_ENTITY.get(),pos,state);}
-    // Full model bounds supplied by the platform renderer; the shared entity stays loader-neutral.
+    public Direction facing(){return getBlockState().hasProperty(AquariumControllerBlock.FACING)?getBlockState().getValue(AquariumControllerBlock.FACING):Direction.SOUTH;}
+    public int blocksWide(){return facing().getAxis()==Direction.Axis.X?data.size.blocksDeep():data.size.blocksWide();}
+    public int blocksDeep(){return facing().getAxis()==Direction.Axis.X?data.size.blocksWide():data.size.blocksDeep();}
+    // Local model coordinates remain stable when the entire tank rotates.
+    public net.minecraft.world.phys.Vec3 toWorld(net.minecraft.world.phys.Vec3 p){
+        double w=data.size.blocksWide(),d=data.size.blocksDeep();
+        var q=switch(facing()){
+            case NORTH->new net.minecraft.world.phys.Vec3(w-p.x,p.y,d-p.z);
+            case EAST->new net.minecraft.world.phys.Vec3(p.z,p.y,w-p.x);
+            case WEST->new net.minecraft.world.phys.Vec3(d-p.z,p.y,p.x);
+            default->p;
+        };return q.add(worldPosition.getX(),worldPosition.getY(),worldPosition.getZ());
+    }
+    public net.minecraft.world.phys.Vec3 toLocal(net.minecraft.world.phys.Vec3 world){
+        var p=world.subtract(worldPosition.getX(),worldPosition.getY(),worldPosition.getZ());
+        return switch(facing()){
+            case NORTH->new net.minecraft.world.phys.Vec3(data.size.blocksWide()-p.x,p.y,data.size.blocksDeep()-p.z);
+            case EAST->new net.minecraft.world.phys.Vec3(data.size.blocksWide()-p.z,p.y,p.x);
+            case WEST->new net.minecraft.world.phys.Vec3(p.z,p.y,data.size.blocksDeep()-p.x);
+            default->p;
+        };
+    }
+    // Full rotated model bounds supplied to the platform renderer.
     public net.minecraft.world.phys.AABB getRenderBoundingBox(){
         return new net.minecraft.world.phys.AABB(worldPosition.getX(),worldPosition.getY(),worldPosition.getZ(),
-                worldPosition.getX()+data.size.blocksWide(),worldPosition.getY()+data.size.blocksHigh(),worldPosition.getZ()+data.size.blocksDeep());
+                worldPosition.getX()+blocksWide(),worldPosition.getY()+data.size.blocksHigh(),worldPosition.getZ()+blocksDeep());
     }
-    public BlockPos maximum(){return worldPosition.offset(data.size.blocksWide()-1,data.size.blocksHigh()-1,data.size.blocksDeep()-1);}
+    public BlockPos maximum(){return worldPosition.offset(blocksWide()-1,data.size.blocksHigh()-1,blocksDeep()-1);}
     public void changed(){setChanged();if(level!=null)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
     public Condition inspect(){
         if(level==null || !level.hasChunksAt(worldPosition,maximum()))return condition=Condition.UNLOADED;
-        for(int y=0;y<data.size.blocksHigh();y++)for(int x=0;x<data.size.blocksWide();x++)for(int z=0;z<data.size.blocksDeep();z++){
+        for(int y=0;y<data.size.blocksHigh();y++)for(int x=0;x<blocksWide();x++)for(int z=0;z<blocksDeep();z++){
             if(x==0 && y==0 && z==0)continue;
             if(!level.getBlockState(worldPosition.offset(x,y,z)).is(AquariumContent.PART.get()))return condition=Condition.BROKEN_GLASS;
         }
