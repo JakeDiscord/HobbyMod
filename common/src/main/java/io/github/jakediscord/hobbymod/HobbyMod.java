@@ -18,6 +18,10 @@ public final class HobbyMod {
         io.github.jakediscord.hobbymod.pottery.PotteryContent.register();
         io.github.jakediscord.hobbymod.pottery.PotteryNetworking.register();
         io.github.jakediscord.hobbymod.bonsai.BonsaiContent.register();
+        io.github.jakediscord.hobbymod.aquarium.AquariumContent.register();
+        io.github.jakediscord.hobbymod.aquarium.AquariumNetworking.register();
+        dev.architectury.utils.EnvExecutor.runInEnv(dev.architectury.utils.Env.CLIENT,
+                () -> io.github.jakediscord.hobbymod.aquarium.client.AquariumScreen::register);
         io.github.jakediscord.hobbymod.sculpting.SculptureNetworking.register();
         dev.architectury.utils.EnvExecutor.runInEnv(dev.architectury.utils.Env.CLIENT,
                 () -> io.github.jakediscord.hobbymod.sculpting.client.SculptureClient::init);
