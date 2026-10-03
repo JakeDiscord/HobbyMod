@@ -11,7 +11,19 @@ public record MarbleMesh(List<Quad> quads) {
     }
     public record Hit(double x,double y,double z,double distance) {}
     private static final int[][] EDGES={{0,1},{2,3},{4,5},{6,7},{0,2},{1,3},{4,6},{5,7},{0,4},{1,5},{2,6},{3,7}};
+    public interface Field {
+        int node(int x,int y,int z);
+        double[] normal(double x,double y,double z);
+        boolean polishedAt(double x,double y,double z);
+    }
     public static MarbleMesh build(MarbleVolume v) {
+        return build(new Field() {
+            public int node(int x,int y,int z) { return v.node(x,y,z); }
+            public double[] normal(double x,double y,double z) { return v.normal(x,y,z); }
+            public boolean polishedAt(double x,double y,double z) { return v.polishedAt(x,y,z); }
+        },false,false);
+    }
+    public static MarbleMesh build(Field v,boolean joinedBelow,boolean joinedAbove) {
         int grid=MarbleVolume.GRID,cells=grid-1;
         Vertex[] vertices=new Vertex[cells*cells*cells];
         for (int z=0;z<cells;z++) for (int y=0;y<cells;y++) for (int x=0;x<cells;x++) {
@@ -35,6 +47,10 @@ public record MarbleMesh(List<Quad> quads) {
             int ua=(axis+1)%3,va=(axis+2)%3;
             for(int layer=0;layer<cells;layer++) for(int u=1;u<cells;u++) for(int w=1;w<cells;w++) {
                 int[] p=new int[3];p[axis]=layer;p[ua]=u;p[va]=w;
+                // Each section owns y edges inside its bounds. Neighbor shells supply
+                // seam vertices, but their horizontal faces belong to the neighbor.
+                if(axis==1 && ((joinedBelow && layer==0) || (joinedAbove && layer==cells-1)))continue;
+                if (axis!=1 && joinedAbove && p[1]==MarbleVolume.GRID-2) continue;
                 int a=v.node(p[0],p[1],p[2]);p[axis]++;int b=v.node(p[0],p[1],p[2]);p[axis]--;
                 if((a>=0)==(b>=0))continue;
                 Vertex[] q=new Vertex[4];int[][] offsets={{-1,-1},{0,-1},{0,0},{-1,0}};

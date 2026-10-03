@@ -9,7 +9,12 @@ Craft four marble blocks from two calcite and two quartz in a checkerboard.
 Place marble and right-click with a carving tool to orbit around **the actual
 sculpture in the world**. The world, nearby blocks, lighting, and your hotbar
 stay visible. Opening carving mode preserves the entire blank. A stonecutter
-can also produce a blank.
+can also produce a blank. Stack marble vertically to make one taller carving
+surface. Opening it joins the stack; adding marble to an existing sculpture
+joins the new section automatically. Shift + wheel moves the camera up or down.
+The overlay shows only your held tool and the percentage of marble remaining
+in the pillar. Controls and tool instructions belong in the planned hobbies
+guidebook.
 
 ![Smooth marble carving in the world](docs/marble-carving-world.png)
 
@@ -31,13 +36,13 @@ The camera stops at surrounding blocks so you cannot orbit through walls.
 
 | Input | Action |
 | --- | --- |
-| Left click / hold | Cut or smooth the marble under the brush |
+| Left click / hold and drag | Cut or smooth a continuous stroke under the brush |
 | Right / middle drag, or Alt + left drag | Orbit around the placed sculpture |
 | Ctrl + mouse wheel | Zoom |
+| Shift + mouse wheel | Move up/down the marble pillar |
 | 1–9 / mouse wheel | Select your hotbar slot |
 | E | Open the real inventory, then return to carving |
 | M | Toggle X symmetry |
-| Ctrl + Z | Restore your most recent stroke (up to 12) |
 | F | Reset the camera |
 | Escape | Leave carving mode |
 
@@ -48,18 +53,24 @@ are rendered. Geometry still has finite resolution (32 samples per block,
 with sub-grid interpolation); very thin details below that resolution cannot
 be preserved. Collision remains a coarser 8 × 8 × 8 approximation.
 
+Cuts and rasp strokes cross vertical block boundaries. Drag strokes interpolate
+short cursor movements, with one durability charge per accepted update rather
+than per interpolated brush sample. Large jumps start a separate cut. Carving
+produces two small dust particles to keep the work visible.
+
 After every stroke, disconnected fragments break away as debris. Only one
 connected component rooted in the lowest surviving marble remains, so severed
-arms or tops cannot float. The same rule applies when loading old carvings.
+arms or tops cannot float. Connectivity is checked across the whole pillar, including neighboring sections.
+A severed upper section disappears; removing stone is permanent.
 Previously saved voxel sculptures migrate into smooth geometry, retaining
 their shape approximately; disconnected fragments are removed. Existing legacy
 preset statue IDs remain compatible with saved worlds.
 
 Work appears immediately and saves with the block. Mining with a pickaxe
-preserves the design when picked up and placed again. Undo history lasts only
-while the block entity remains loaded; you can undo only your own most recent
-stroke, and undo does not refund durability. Multiplayer edits are validated
-and synchronized by the server.
+preserves each section’s design when picked up and placed again. There is no
+undo. Multiplayer edits are validated and synchronized by the server.
+You must remain within six blocks of the section you carve; moving the camera
+does not move your player or extend their reach.
 
 The models reuse vanilla calcite, quartz, iron, and wood textures. Natural
 marble deposits and other hobbies, including astronomy, are future work.
@@ -127,17 +138,16 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for nine geometry tests: curved
+Run `./gradlew --no-daemon :common:test` for thirteen geometry tests: curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
-detached-island removal, severing a narrow connection, and legacy migration.
+detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
 
 Run `./gradlew --no-daemon -Pgametest :neoforge:runServer` in an interactive
-terminal. After readiness, enter `test runall`. Ten GameTests cover opening a
-blank, survival and symmetry, creative and smoothing, stale revisions and undo
-ownership, persistence and update tags, mining and replacement, invalid
-coordinates and tool breakage, held-tool selection, severed fragments and undo, and unrelated stone.
-Verify ten distinct `SCULPTING_TEST_PASS` entries in the server log; the vanilla
+terminal. After readiness, enter `test runall`. Fourteen GameTests cover opening a
+blank, survival and symmetry, creative and smoothing, stale revisions and permanent cuts, persistence and update tags, mining and replacement, invalid
+coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
+Verify fourteen distinct `SCULPTING_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
 above. Do not rebuild without `-Pgametest` while these tests are starting: that
 removes test classes from the development output. If also launching a client,

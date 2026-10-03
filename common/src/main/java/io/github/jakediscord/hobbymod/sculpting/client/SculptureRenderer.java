@@ -22,7 +22,7 @@ public final class SculptureRenderer implements BlockEntityRenderer<SculptureBlo
         var atlas=Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
         var raw=atlas.apply(ResourceLocation.withDefaultNamespace("block/calcite"));
         var polished=atlas.apply(ResourceLocation.withDefaultNamespace("block/quartz_block_side"));
-        for (MarbleMesh.Quad face:sculpture.volume().mesh().quads()) {
+        for (MarbleMesh.Quad face:sculpture.mesh().quads()) {
             double nx=face.a().nx()+face.b().nx()+face.c().nx()+face.d().nx();
             double ny=face.a().ny()+face.b().ny()+face.c().ny()+face.d().ny();
             double nz=face.a().nz()+face.b().nz()+face.c().nz()+face.d().nz();
@@ -32,7 +32,8 @@ public final class SculptureRenderer implements BlockEntityRenderer<SculptureBlo
             var sprite=finished>=2?polished:raw;
             for (MarbleMesh.Vertex p:face.vertices()) {
                 float shade=(float)(0.72+0.18*p.ny()+0.08*p.nx()+0.04*p.nz());
-                float u=(float)(axis==0?p.z():p.x()),v=(float)(axis==1?p.z():1-p.y());
+                // Joined surface-net vertices can extend slightly beyond this section's local bounds.
+                float u=(float)Math.clamp(axis==0?p.z():p.x(),0,1),v=(float)Math.clamp(axis==1?p.z():1-p.y(),0,1);
                 vertices.addVertex(pose,(float)p.x(),(float)p.y(),(float)p.z()).setColor(shade,shade,shade,1)
                         .setUv(sprite.getU(u),sprite.getV(v)).setOverlay(overlay).setLight(light)
                         .setNormal(pose,(float)p.nx(),(float)p.ny(),(float)p.nz());
