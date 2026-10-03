@@ -1,0 +1,33 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="hobbymod"
+version="${version}"
+displayName="HobbyMod"
+authors="JakeDiscord"
+description='''
+Creative hobbies in Minecraft: marble sculpture, astronomy, vineries, painting, photography, and woodworking.
+'''
+
+[[dependencies.hobbymod]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.172,21.2)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.hobbymod]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,1.21.2)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.hobbymod]]
+modId="architectury"
+type="required"
+versionRange="[13.0.8,14)"
+ordering="AFTER"
+side="BOTH"

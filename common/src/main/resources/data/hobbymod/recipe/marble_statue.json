@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "hobbymod:marble"
+  },
+  "result": {
+    "id": "hobbymod:marble_statue",
+    "count": 1
+  }
+}
