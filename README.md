@@ -5,18 +5,50 @@ vineries, painting, cameras, woodworking, and other creative hobbies.
 
 ## Marble sculpting
 
-- Craft four marble blocks from two calcite and two quartz in a checkerboard.
-- Craft a chisel with an iron ingot directly above a stick.
-- Place marble and right-click it with the chisel to carve a small human statue.
-  The statue faces you. Each sculpture uses one of the chisel's 128 durability;
-  creative mode preserves the tool.
-- Alternatively, turn a marble block into a statue with a stonecutter.
-- Mine marble and statues with a pickaxe to recover them. Both appear alongside
-  the chisel in the HobbyMod creative tab.
+Craft four marble blocks from two calcite and two quartz in a checkerboard.
+Place one and right-click with any carving tool to open **Marble Atelier**, an
+orbiting 3D workspace. Opening the editor preserves the entire marble blank;
+every cut you make changes your own sculpture rather than selecting a preset.
+You can also make an editable blank in a stonecutter.
 
-The first models reuse vanilla calcite, quartz, iron, and wood textures.
-Marble is crafted for now; natural deposits and additional statue designs are
-future work. Astronomy (a telescope and sky observation) is the next planned hobby.
+![Marble Atelier with freehand cuts](docs/marble-atelier.png)
+
+| Tool | Effect | Crafting ingredients |
+| --- | --- | --- |
+| Detail chisel | Remove one tiny piece | Iron ingot above a stick |
+| Point chisel | Cut a small group of pieces | Iron nugget, iron ingot, stick vertically |
+| Roughing mallet | Make broader cuts | Three iron ingots across the top, two sticks down the middle |
+| Polishing rasp | Finish exposed surfaces without removing marble | Two iron ingots vertically above a stick |
+
+Keep the tools you want to use in your inventory. Successful strokes wear tools
+in survival; creative preserves durability. The creative tab includes all tools
+and a blank.
+
+| Input | Action |
+| --- | --- |
+| Left click / drag | Chip or polish the surface under the cursor |
+| Right / middle drag, or Alt + left drag | Orbit around the sculpture |
+| Shift + orbit drag | Pan the view |
+| Mouse wheel | Zoom |
+| 1–4 | Select a tool |
+| Mirror X | Apply cuts to both sides |
+| Ctrl + Z / Undo | Restore your most recent stroke (up to 12) |
+| F / Frame | Reset the view |
+| Escape / Done | Return to the world |
+
+Your work appears in the world immediately and saves with the block. Mining
+with a pickaxe preserves its design in the dropped item and when placed again.
+Undo history lasts only while that block entity remains loaded, and you can undo
+only your own most recent stroke; undo does not refund tool durability. Multiplayer
+editing is validated and synchronized by the server.
+
+Carving uses a **32 × 32 × 32** volume (32,768 pieces per block), with cached,
+merged surface meshes. This is detailed voxel carving: curved forms have tiny
+steps, and the rasp changes their finish rather than generating a smooth mesh.
+Collision uses a coarser 8 × 8 × 8 approximation for performance. Existing preset
+statues remain compatible with saved worlds, but new carving starts with a blank.
+The first world models reuse vanilla calcite, quartz, iron, and wood textures.
+Natural marble deposits and other hobbies, including astronomy, are future work.
 
 ## Development
 
@@ -79,18 +111,23 @@ Minecraft, NeoForge, Architectury API, and Gradle versions are centralized in
 `gradle.properties` and the wrapper. The Architectury and Loom build plugins
 use concrete versions rather than snapshot versions.
 
-## Integration tests
+## Tests
+
+Run `./gradlew --no-daemon :common:test` for six geometry and camera tests covering
+ray picking through carved space, tools, serialization, mesh winding, malformed
+data, and orbit transforms.
 
 Run `./gradlew --no-daemon -Pgametest :neoforge:runServer` in an interactive
-terminal. Once the server is ready, enter `test runall`. The five GameTests cover
-survival carving and facing, creative durability, unrelated stone, the chisel's
-last use, and already-carved statues. In a headless run, check for five distinct
-`SCULPTING_TEST_PASS` entries in the server log (the vanilla summary goes to
-in-game players). Then shut down as described above. Tests use the ignored development world;
-use a disposable world when running them.
+terminal. Once the server is ready, enter `test runall`. Eight GameTests cover
+opening an untouched blank, survival tools and symmetry, creative and polish,
+stale revisions and undo ownership, persistence and update tags, mining and
+replacement, invalid targets and broken tools, and unrelated stone. Check for
+eight distinct `SCULPTING_TEST_PASS` entries in the server log (the vanilla
+summary goes to in-game players). Then shut down as described above. Tests use
+the ignored development world; use a disposable world when running them.
 
-Tests and their structure template live in `neoforge/src/gametest` and are
+GameTests and their structure template live in `neoforge/src/gametest` and are
 included only with `-Pgametest`. Run a normal `./gradlew build` to produce the
-release jar without test classes or test structures. Gradle's ordinary `test`
-task does not run these integration tests. Visual client play-testing remains
-separate from the dedicated-server tests.
+release jar without GameTest classes or test structures. Gradle's ordinary
+`test` task runs the shared unit tests, but not the in-game integration tests.
+Visual client play-testing remains separate from the dedicated-server tests.

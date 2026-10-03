@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_material": {
+    "has_marble": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
@@ -12,23 +12,16 @@
           }
         ]
       }
-    },
-    "has_recipe": {
-      "trigger": "minecraft:recipe_unlocked",
-      "conditions": {
-        "recipe": "hobbymod:marble_statue"
-      }
     }
   },
   "requirements": [
     [
-      "has_material",
-      "has_recipe"
+      "has_marble"
     ]
   ],
   "rewards": {
     "recipes": [
-      "hobbymod:marble_statue"
+      "hobbymod:marble_sculpture"
     ]
   }
 }

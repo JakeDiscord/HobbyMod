@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "hobbymod:marble",
-    "hobbymod:marble_statue"
+    "hobbymod:marble_statue",
+    "hobbymod:marble_sculpture"
   ]
 }
