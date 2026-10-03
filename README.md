@@ -175,7 +175,7 @@ terminal. After readiness, enter `test runall`. Fourteen GameTests cover opening
 blank, survival and symmetry, creative and smoothing, stale revisions and permanent cuts, persistence and update tags, mining and replacement, invalid
 coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
 Nine additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
-Eight aquarium GameTests cover placement, item returns, care, aquascaping and persistence.
+Nine aquarium GameTests cover placement, item returns, care, aquascaping and persistence.
 Six painting GameTests cover supplies, strokes, signatures, canvas saves, wall support and the two-block easel.
 Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, eight `AQUARIUM_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described

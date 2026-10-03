@@ -22,4 +22,4 @@ javac -cp common/build/classes/java/main -d /tmp/hobby-render-bench tools/perfor
 java -cp /tmp/hobby-render-bench:common/build/classes/java/main RenderingBenchmark
 ```
 
-Forty unit tests and thirty-nine Minecraft GameTests passed. Client checks covered pottery rendering, a live marble cut and cache update, texture reload, new painting strokes and canvas resizing. Existing screenshots in the painting and pottery guides show the accompanying model and workflow revisions.
+Forty unit tests and forty Minecraft GameTests passed. Client checks covered pottery rendering, a live marble cut and cache update, texture reload, new painting strokes and canvas resizing. Existing screenshots in the painting and pottery guides show the accompanying model and workflow revisions.
