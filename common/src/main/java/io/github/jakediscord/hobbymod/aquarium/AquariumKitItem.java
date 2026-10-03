@@ -35,7 +35,8 @@ public final class AquariumKitItem extends BlockItem {
             }
         }
         boolean carried=context.getItemInHand().has(DataComponents.BLOCK_ENTITY_DATA);
-        var box=new net.minecraft.world.phys.AABB(origin,origin.offset(size.width,size.height,size.depth));
+        var box=new net.minecraft.world.phys.AABB(origin.getX(),origin.getY(),origin.getZ(),
+                origin.getX()+size.width,origin.getY()+size.height,origin.getZ()+size.depth);
         if(level.getEntities(null,box).stream().anyMatch(entity->entity instanceof net.minecraft.world.entity.LivingEntity && !entity.isSpectator()))return InteractionResult.FAIL;
         InteractionResult result=super.place(context);
         if(result.consumesAction() && !level.isClientSide && level.getBlockEntity(origin) instanceof AquariumBlockEntity tank){
