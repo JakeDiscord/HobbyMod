@@ -19,12 +19,14 @@ public final class BonsaiCareOverlay {
                 || !(client.level.getBlockEntity(hit.getBlockPos()) instanceof BonsaiBlockEntity tree)
                 || !tree.graph.planted())return;
         var graph=tree.graph;
-        String[] lines={graph.species+" bonsai | Age "+graph.age+" min",
-                "Water "+graph.water+"% | Health "+graph.health+"%",
-                "Soil "+graph.soilAge+" min | Roots "+graph.rootAge+" min",
-                graph.careStatus(client.level.getMaxLocalRawBrightness(hit.getBlockPos().above())>=9)};
+        java.util.List<String> lines=new java.util.ArrayList<>();
+        lines.add(graph.species+" · "+graph.age+" min");
+        lines.add("Water "+graph.water+"% · Health "+graph.health+"%");
+        if(client.player.isShiftKeyDown())lines.add("Soil "+graph.soilAge+" min · Roots "+graph.rootAge+" min");
+        String care=graph.careStatus(client.level.getMaxLocalRawBrightness(hit.getBlockPos().above())>=9);
+        if(!care.equals("Healthy"))lines.add(care);
         var graphics=event.getGuiGraphics();
-        int y=graphics.guiHeight()-112;
+        int y=graphics.guiHeight()-64-lines.size()*12;
         for(String line:lines) {
             for(var wrapped:client.font.split(net.minecraft.network.chat.Component.literal(line),Math.max(80,graphics.guiWidth()-24))) {
                 int width=client.font.width(wrapped),x=(graphics.guiWidth()-width)/2;

@@ -47,15 +47,56 @@ public final class BonsaiGraphChecks {
         }
         check(resumed.visibleLength(resumed.node(bud.id),0)==base,"reload finished a partly grown branch");
         growing.grow(600);double half=growing.visibleLength(bud,0);
-        check(half>base && half<bud.length && Math.abs(half-bud.length*.525)<1e-9,"not growing over the minute");
+        check(half>base && half<bud.length && Math.abs(half-bud.length*.5)<1e-9,"not growing over the minute");
         check(growing.visibleLength(bud,.5)>half,"no partial tick interpolation");
         growing.grow(600);check(growing.visibleLength(bud,0)==bud.length,"branch failed to mature");
         growing.grow(5000);check(bud.growthTicks==1200,"growth exceeded cap");
         double yaw=growing.node(2).yaw,pitch=growing.node(2).pitch;
         growing.wire(2,false);growing.wire(2,true);
         check(Math.abs(growing.node(2).yaw-yaw)<1e-9 && Math.abs(growing.node(2).pitch-pitch)<1e-9,"reverse failed to undo direction");
-        check(growing.careStatus(true).contains("+2/min"),"missing healthy care feedback");
+        check(growing.careStatus(true).equals("Recovering") || growing.careStatus(true).equals("Healthy"),"missing healthy care feedback");
         growing.water=10;check(growing.careStatus(false).contains("dry") && growing.careStatus(false).contains("needs light"),"missing stress causes");
+        BonsaiGraph leafy=new BonsaiGraph();leafy.plant(BonsaiGraph.Species.OAK,1);leafy.grow(1200);
+        check(leafy.hasLeaves(leafy.node(2)),"branch should initially have foliage");
+        var first=leafy.shear(2);
+        check(first.leavesRemoved() && first.branchesCut()==0 && first.changed(),"first shear must remove leaves");
+        check(leafy.nodes().size()==2 && !leafy.hasLeaves(leafy.node(2)) && leafy.health==98,"leaf shear must preserve wood and remove foliage");
+        BonsaiGraph savedBare=new BonsaiGraph();
+        for(var original:leafy.nodes()){
+            var copy=new BonsaiGraph.Node(original.id,original.parent,original.length,original.radius,original.yaw,original.pitch);
+            copy.leavesRemoved=original.leavesRemoved;copy.growthTicks=original.growthTicks;
+            check(savedBare.acceptLoaded(copy),"defoliated node rejected on reload");
+        }
+        check(!savedBare.hasLeaves(savedBare.node(2)),"reload restored removed leaves");
+        var second=savedBare.shear(2);
+        check(!second.leavesRemoved() && second.branchesCut()==1 && savedBare.node(2)==null,"second shear must cut the branch");
+        check(!leafy.shear(999).changed(),"invalid shear changed tree");
+        leafy.shear(1);check(!leafy.shear(1).changed() && leafy.node(1)!=null,"two-stage shearing cut protected trunk");
+        int deepest=0;
+        BonsaiGraph stages=new BonsaiGraph();stages.plant(BonsaiGraph.Species.CHERRY,6);stages.grow(1200);
+        for(int interval=0;interval<200;interval++){
+            if(stages.water<45)stages.water();if(stages.soilAge>=30)stages.repot();if(stages.rootAge>=40)stages.rootPrune();
+            var before=new HashSet<Integer>();for(var n:stages.nodes())before.add(n.id);
+            stages.advance(true,false);
+            for(var n:stages.nodes())if(!before.contains(n.id)){
+                int depth=0;for(var parent=stages.node(n.parent);parent!=null;parent=stages.node(parent.parent))depth++;
+                deepest=Math.max(deepest,depth);
+                check(n.growthTicks==0 && stages.visibleLength(n,0)==0 && stages.foliageGrowth(n,0)==0,"later-stage growth appeared at a preset size");
+                check(stages.end(n).distanceSquared(stages.start(n))==0,"new stem jumped away from parent");
+                stages.grow(300);check(Math.abs(stages.visibleLength(n,0)-n.length*.25)<1e-9,"later-stage quarter growth wrong");
+                check(Math.abs(stages.foliageGrowth(n,0)-.25)<1e-9,"later-stage foliage jumped");
+                stages.grow(600);check(Math.abs(stages.visibleLength(n,0)-n.length*.75)<1e-9,"later-stage growth did not continue");
+            }
+            stages.grow(1200);
+        }
+        check(deepest>=3,"growth checks did not cover branches growing from branches");
+        // Defoliating a branch removes its descendant foliage without touching wood.
+        int wood=stages.nodes().size();stages.shear(1);
+        check(stages.nodes().size()==wood && stages.nodes().stream().noneMatch(stages::hasLeaves),"subtree defoliation left leaves or cut wood");
+        stages.water=0;int dry=stages.soilColor();stages.water=90;int wet=stages.soilColor();
+        check(wet<dry,"soil did not darken with water");
+        stages.water=20;check(stages.soilColor()>wet && stages.soilColor()<dry,"soil drying did not follow water level");
+        check(new BonsaiGraph().soilColor()==0xFFFFFF,"empty pot should use dry soil");
         BonsaiGraph roots=new BonsaiGraph();roots.plant(BonsaiGraph.Species.OAK,1);
         check(!roots.rootPrune() && !roots.repot(),"new roots/soil should not be cut or repotted");
         for(int i=0;i<12;i++)roots.advance(true,false);

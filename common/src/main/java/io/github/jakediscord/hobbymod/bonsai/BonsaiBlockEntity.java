@@ -29,7 +29,7 @@ public final class BonsaiBlockEntity extends BlockEntity {
         for(BonsaiGraph.Node n:graph.nodes()){
             CompoundTag t=new CompoundTag();t.putInt("Id",n.id);t.putInt("Parent",n.parent);
             t.putDouble("Length",n.length);t.putDouble("Radius",n.radius);t.putDouble("Yaw",n.yaw);t.putDouble("Pitch",n.pitch);
-            t.putInt("Age",n.age);t.putInt("Health",n.health);t.putInt("Bend",n.bend);t.putInt("GrowthTicks",n.growthTicks);t.putBoolean("Bud",n.bud);t.putBoolean("Wired",n.wired);nodes.add(t);
+            t.putInt("Age",n.age);t.putInt("Health",n.health);t.putInt("Bend",n.bend);t.putInt("GrowthTicks",n.growthTicks);t.putBoolean("Bud",n.bud);t.putBoolean("Wired",n.wired);t.putBoolean("LeavesRemoved",n.leavesRemoved);nodes.add(t);
         }tag.put("Branches",nodes);
     }
     private static int bounded(CompoundTag t,String key,int max){return Math.max(0,Math.min(max,t.getInt(key)));}
@@ -43,7 +43,7 @@ public final class BonsaiBlockEntity extends BlockEntity {
             CompoundTag t=nodes.getCompound(i);
             BonsaiGraph.Node n=new BonsaiGraph.Node(t.getInt("Id"),t.getInt("Parent"),t.getDouble("Length"),t.getDouble("Radius"),t.getDouble("Yaw"),t.getDouble("Pitch"));
             n.growthTicks=t.contains("GrowthTicks",Tag.TAG_INT)?t.getInt("GrowthTicks"):BonsaiGraph.GROWTH_TICKS;
-            n.age=t.getInt("Age");n.health=t.getInt("Health");n.bend=t.getInt("Bend");n.bud=t.getBoolean("Bud");n.wired=t.getBoolean("Wired");graph.acceptLoaded(n);
+            n.age=t.getInt("Age");n.health=t.getInt("Health");n.bend=t.getInt("Bend");n.bud=t.getBoolean("Bud");n.wired=t.getBoolean("Wired");n.leavesRemoved=t.getBoolean("LeavesRemoved");graph.acceptLoaded(n);
         }
         graph.nextId=Math.max(graph.nextId,Math.max(1,Math.min(1_000_001,tag.getInt("NextId"))));
     }

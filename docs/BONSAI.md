@@ -17,14 +17,18 @@ species, age and health in their tooltip.
 | --- | --- |
 | Inspect care and age | Right-click with an empty hand |
 | Water | Right-click with a water bucket; survival returns the empty bucket |
-| Prune a branch and its descendants | Aim at a branch and right-click with shears |
+| Remove leaves, then prune the branch | Aim shears at a branch: first click removes foliage from it and its twigs; second click cuts the branch |
 | Wire and bend a branch | Aim at a branch and right-click with a copper ingot |
 | Reverse both the turn and outward bend | Sneak while using copper |
 | Prune roots | Sneak and right-click with shears |
 | Repot with fresh soil | Right-click with dirt |
 
 Branch selection follows the player's viewing ray through the pot's outline.
-The base trunk is protected. Every wiring operation uses one copper ingot and
+The base trunk is protected from cutting, but its foliage can be removed.
+Defoliation is saved on every affected node and survives moving/reloading the
+tree. First-click leaf removal preserves all wood and costs 2 health; new buds
+can produce new foliage. A second click still cuts the selected branch and its
+descendants, even if a new twig has since grown. Every wiring operation uses one copper ingot and
 adds 12 degrees of bend; the seventh bend on a branch breaks that subtree.
 Shears consume durability in survival. Creative mode preserves materials/tools.
 Root pruning and repotting each require at least 12 growth intervals since the
@@ -35,7 +39,9 @@ Care updates once per 1,200 consecutive loaded ticks (one minute at 20 TPS),
 adding a bud/branch about every two intervals when healthy. Each tree starts
 with two trunk segments and grows to at most 28 branch segments. Initial trunk
 segments and every new branch unfold continuously over 1,200 loaded ticks,
-with partial-tick rendering between ticks. Growth progress is saved in each
+with partial-tick rendering between ticks. Every generation starts with zero
+visible length, radius and leaf size; later branches growing from branches use
+the same one-minute progression as the planted tree. Growth progress is saved in each
 node, so unloading or carrying the tree pauses growth rather than completing it. Oak and cherry
 spread out more than birch. Leave room and use adequate daylight or block light
 (level 9 or greater above the pot). Water between 15% and 85% is healthy; watering
@@ -47,9 +53,11 @@ points (capped at 100); any stress condition subtracts 4 points total. Branch
 pruning costs 6 points per removed segment, wiring costs 1, root pruning costs
 8, repotting costs 4, and watering when already above 75% costs 12. Good care
 can restore health even from zero; new branches require at least 35 health.
-A live overlay shows water, health, soil/root ages and the current stress causes
-while aiming at the pot, and reflects care by other players too. Watering and
-repotting also immediately refresh the action-bar readout. Sneak gestures for
+The compact live overlay shows age, water and health while aiming at the pot.
+Recovery or stress appears only when relevant; sneak to see soil/root ages.
+It reflects other players' care too. Soil darkens continuously with its water
+content and dries back out as water drops. Routine care no longer duplicates
+the overlay with a long action-bar message; tool feedback is brief. Sneak gestures for
 copper and shears explicitly allow block interaction, so Minecraft does not
 bypass the pot while sneaking. No automatic harvesting or Create automation is
 provided: these are individual ornamental trees for tending and display.
@@ -98,7 +106,9 @@ Checks cover 3,000 aged trees across all three species, bounds, parent ordering,
 subtree pruning, overwatering/neglect, root pruning versus repotting, repeated
 bending, duplicate/invalid parents, NaN/infinite geometry, 10,000 attempted deep
 nodes, unloaded intervals, partial-growth reload, continuous one-minute growth,
-reverse bending, immediate foliage health, care feedback and backwards/large
+later-generation branch and foliage growth, two-click shearing and persisted
+defoliation, subtree foliage removal, soil wetness/drying, reverse bending,
+immediate foliage health, care feedback and backwards/large
 game-time changes.
 Operations run serially on the Minecraft server thread; pruning and growth do
 not mutate the graph concurrently.
@@ -111,4 +121,5 @@ have therefore **not** passed here. No graphical client play-test has been run.
 Before release, build in the configured development environment and check two
 clients observing care/growth, carried-tree placement and save/reload, chunk
 unload, recipe/tool durability, branch targeting, leaf transparency, close/far
-LOD and dedicated-server startup.
+LOD, first/second-click shearing, leaf state after carrying/reloading, wet soil
+and drying, compact text at different GUI scales and dedicated-server startup.

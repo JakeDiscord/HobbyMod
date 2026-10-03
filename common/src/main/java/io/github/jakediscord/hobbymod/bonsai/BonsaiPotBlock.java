@@ -32,32 +32,34 @@ public final class BonsaiPotBlock extends BaseEntityBlock {
         if(!(level.getBlockEntity(pos) instanceof BonsaiBlockEntity tree))return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if(level.isClientSide)return ItemInteractionResult.SUCCESS;
         BonsaiGraph g=tree.graph; boolean changed=false;
-        boolean careReadout=!stack.is(Items.SHEARS) && !stack.is(Items.COPPER_INGOT); SoundEvent sound=SoundEvents.AZALEA_LEAVES_PLACE;
+        SoundEvent sound=SoundEvents.AZALEA_LEAVES_PLACE;
         if(!g.planted()){
             BonsaiGraph.Species species=stack.is(Items.OAK_SAPLING)?BonsaiGraph.Species.OAK:stack.is(Items.BIRCH_SAPLING)?BonsaiGraph.Species.BIRCH:stack.is(Items.CHERRY_SAPLING)?BonsaiGraph.Species.CHERRY:null;
             if(species!=null){g.plant(species,level.random.nextLong());consume(stack,player);changed=true;}
+            else if(stack.isEmpty())player.displayClientMessage(Component.literal("Plant oak, birch or cherry."),true);
         }else if(stack.is(Items.WATER_BUCKET)){
             g.water();if(!player.getAbilities().instabuild)player.setItemInHand(hand,new ItemStack(Items.BUCKET));changed=true;sound=SoundEvents.BUCKET_EMPTY;
         }else if(stack.is(Items.SHEARS)){
             if(player.isShiftKeyDown()){
-                if(g.rootPrune()){changed=true;player.displayClientMessage(Component.literal("Roots pruned. Let the tree recover before pruning again."),true);}
-                else player.displayClientMessage(Component.literal("Let the roots recover: root pruning needs 12 growth intervals."),true);
+                if(g.rootPrune()){changed=true;player.displayClientMessage(Component.literal("Roots pruned."),true);}
+                else player.displayClientMessage(Component.literal("Roots need more time."),true);
             }else{
-                int id=target(g,player,pos);int cut=g.prune(id);changed=cut>0;
-                player.displayClientMessage(Component.literal(changed?"Pruned "+cut+" branch segments.":"Aim near a branch; the base trunk is protected."),true);
+                int id=target(g,player,pos);
+                BonsaiGraph.ShearResult result=g.shear(id);changed=result.changed();
+                player.displayClientMessage(Component.literal(result.leavesRemoved()?"Leaves removed.":result.branchesCut()>0?"Branch pruned.":id==1?"Base trunk protected.":"Aim at a branch."),true);
             }
             if(changed){stack.hurtAndBreak(1,player,hand==InteractionHand.MAIN_HAND?net.minecraft.world.entity.EquipmentSlot.MAINHAND:net.minecraft.world.entity.EquipmentSlot.OFFHAND);sound=SoundEvents.SHEEP_SHEAR;}
         }else if(stack.is(Items.COPPER_INGOT)){
             int id=target(g,player,pos);BonsaiGraph.Node n=g.node(id);
             if(n!=null && id>1 && n.health>0){boolean intact=g.wire(id,player.isShiftKeyDown());consume(stack,player);changed=true;sound=intact?SoundEvents.CHAIN_PLACE:SoundEvents.AZALEA_BREAK;
-                player.displayClientMessage(Component.literal(intact?(player.isShiftKeyDown()?"Reverse bend applied. Repeated bending can snap the branch.":"Forward bend applied. Sneak to reverse; repeated bending can snap the branch."):"The branch snapped under excessive bending."),true);}
-            else player.displayClientMessage(Component.literal("Aim near a living branch to wire it."),true);
+                player.displayClientMessage(Component.literal(intact?(player.isShiftKeyDown()?"Bent in reverse.":"Branch bent."):"Branch snapped."),true);}
+            else player.displayClientMessage(Component.literal("Aim at a living branch."),true);
         }else if(stack.is(Items.DIRT)){
             if(g.repot()){consume(stack,player);changed=true;}
-            else player.displayClientMessage(Component.literal("Soil is still fresh; repot after 12 minutes."),true);
+            else player.displayClientMessage(Component.literal("Soil is still fresh."),true);
         }
-        if(changed){tree.changed();if(careReadout)status(player,tree);if(level instanceof net.minecraft.server.level.ServerLevel server)server.sendParticles(net.minecraft.core.particles.ParticleTypes.COMPOSTER,pos.getX()+.5,pos.getY()+.5,pos.getZ()+.5,3,.12,.12,.12,.01);level.playSound(null,pos,sound,SoundSource.BLOCKS,.6F,1.1F);}
-        else if(!stack.is(Items.SHEARS) && !stack.is(Items.COPPER_INGOT) && !stack.is(Items.DIRT))status(player,tree);
+        if(changed){tree.changed();if(level instanceof net.minecraft.server.level.ServerLevel server)server.sendParticles(net.minecraft.core.particles.ParticleTypes.COMPOSTER,pos.getX()+.5,pos.getY()+.5,pos.getZ()+.5,3,.12,.12,.12,.01);level.playSound(null,pos,sound,SoundSource.BLOCKS,.6F,1.1F);}
+
         return ItemInteractionResult.CONSUME;
     }
     private static void consume(ItemStack s,Player p){if(!p.getAbilities().instabuild)s.shrink(1);}
@@ -65,6 +67,7 @@ public final class BonsaiPotBlock extends BaseEntityBlock {
         var eye=player.getEyePosition().subtract(pos.getX(),pos.getY(),pos.getZ());
         var ray=player.getLookAngle(); int chosen=0; double best=.10*.10;
         for(BonsaiGraph.Node n:g.nodes()){
+            if(g.visibleLength(n,0)==0)continue;
             BonsaiGraph.Point a=g.start(n),b=g.end(n);
             // A bounded sample gives reliable selection through the broad block outline.
             for(int i=0;i<=12;i++){
@@ -77,13 +80,11 @@ public final class BonsaiPotBlock extends BaseEntityBlock {
         }
         return chosen;
     }
-    public static Component statusText(BonsaiBlockEntity tree){
-        BonsaiGraph g=tree.graph;
-        boolean light=tree.getLevel()!=null && tree.getLevel().getMaxLocalRawBrightness(tree.getBlockPos().above())>=9;
-        return Component.literal(g.planted()?g.species+" | Age "+g.age+" min | Water "+g.water+"% | Health "+g.health+"% | Soil "+g.soilAge+" min | Roots "+g.rootAge+" min | "+g.careStatus(light):"Plant oak, birch or cherry. Water: bucket; prune: shears; wire: copper; repot: dirt.");
+    @Override protected InteractionResult useWithoutItem(BlockState s,Level l,BlockPos pos,Player player,BlockHitResult hit){
+        if(!l.isClientSide && l.getBlockEntity(pos) instanceof BonsaiBlockEntity tree && !tree.graph.planted())
+            player.displayClientMessage(Component.literal("Plant oak, birch or cherry."),true);
+        return InteractionResult.sidedSuccess(l.isClientSide);
     }
-    private static void status(Player player,BonsaiBlockEntity tree){player.displayClientMessage(statusText(tree),true);}
-    @Override protected InteractionResult useWithoutItem(BlockState s,Level l,BlockPos pos,Player p,BlockHitResult hit){if(!l.isClientSide && l.getBlockEntity(pos) instanceof BonsaiBlockEntity t)status(p,t);return InteractionResult.sidedSuccess(l.isClientSide);}
     private static ItemStack preserved(BlockEntity entity){
         ItemStack stack=new ItemStack(BonsaiContent.POT_ITEM.get());
         if(entity instanceof BonsaiBlockEntity t){var tag=t.saveWithId(t.getLevel().registryAccess());stack.set(DataComponents.BLOCK_ENTITY_DATA,CustomData.of(tag));}return stack;
