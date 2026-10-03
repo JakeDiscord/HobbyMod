@@ -45,6 +45,7 @@ public final class SculptureOrbit {
     }
     public static void begin(BlockPos pos) {
         var mc=Minecraft.getInstance();if(mc.player==null || mc.level==null)return;
+        io.github.jakediscord.hobbymod.pottery.client.PotteryOrbit.close();
         target=pos.immutable();world=mc.level;focusY=pos.getY()+0.5;mirror=false;continuing=false;pending=-1;hit=null;lastClearPose=null;frame();
         mc.setScreen(new OrbitControls());
     }

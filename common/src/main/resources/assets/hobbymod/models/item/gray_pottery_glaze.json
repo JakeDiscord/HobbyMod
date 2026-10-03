@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "hobbymod:item/gray_pottery_glaze"
+  }
+}

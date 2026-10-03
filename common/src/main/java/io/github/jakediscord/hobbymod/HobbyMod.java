@@ -14,10 +14,14 @@ public final class HobbyMod {
 
     public static void init() {
         HobbyContent.register();
+        io.github.jakediscord.hobbymod.pottery.PotteryContent.register();
+        io.github.jakediscord.hobbymod.pottery.PotteryNetworking.register();
         io.github.jakediscord.hobbymod.bonsai.BonsaiContent.register();
         io.github.jakediscord.hobbymod.sculpting.SculptureNetworking.register();
         dev.architectury.utils.EnvExecutor.runInEnv(dev.architectury.utils.Env.CLIENT,
                 () -> io.github.jakediscord.hobbymod.sculpting.client.SculptureClient::init);
+        dev.architectury.utils.EnvExecutor.runInEnv(dev.architectury.utils.Env.CLIENT,
+                () -> io.github.jakediscord.hobbymod.pottery.client.PotteryClient::init);
         LOGGER.info("HobbyMod initialized on {}", Platform.isNeoForge() ? "NeoForge" : "another loader");
     }
 }

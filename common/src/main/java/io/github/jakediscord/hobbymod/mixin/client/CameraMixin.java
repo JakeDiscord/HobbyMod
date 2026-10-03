@@ -17,7 +17,7 @@ abstract class CameraMixin {
     @Shadow protected abstract void setRotation(float yaw,float pitch);
     @Inject(method="setup",at=@At("TAIL"))
     private void hobby$orbit(BlockGetter level,Entity entity,boolean detached,boolean mirrored,float partialTick,CallbackInfo ci) {
-        var pose=SculptureOrbit.cameraPose();if(pose==null)return;
+        var pose=io.github.jakediscord.hobbymod.pottery.client.PotteryOrbit.active()?io.github.jakediscord.hobbymod.pottery.client.PotteryOrbit.cameraPose():SculptureOrbit.cameraPose();if(pose==null)return;
         // Keep the local player's body out of the orbit view when zooming out.
         this.detached=false;
         setRotation(pose.yaw(),pose.pitch());
