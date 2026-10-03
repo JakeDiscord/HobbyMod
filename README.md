@@ -3,6 +3,14 @@
 A Minecraft **1.21.1 / NeoForge** mod combining marble sculpture, astronomy,
 vineries, painting, cameras, woodworking, and other creative hobbies.
 
+## Terrariums
+
+Craft eight glass around a copper ingot for a 2×1 glass land enclosure. Right-click
+for ecosystem care and layout: choose soil, sand or moss, arrange plants and
+hardscape, mist, light, and optionally introduce springtail or isopod colonies.
+The shared 3D editor has move arrows, scale cubes and precise yaw/pitch/roll.
+See [the terrarium guide](docs/TERRARIUMS.md) for supplies, controls and testing.
+
 ## Painting
 
 Paint on a two-block easel using a dye-loaded palette and paintbrush. Square,
@@ -165,7 +173,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for forty tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, three blueprint serialization/validation tests, seven aquarium layout/care/persistence tests, seven painting raster/shape/persistence tests, and three rendering geometry/cache tests. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for forty-five tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, three blueprint serialization/validation tests, seven aquarium layout/care/persistence tests, seven painting raster/shape/persistence tests, three rendering geometry/cache tests, and five terrarium ecosystem/rotation/motion tests. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -176,8 +184,9 @@ blank, survival and symmetry, creative and smoothing, stale revisions and perman
 coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
 Nine additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
 Nine aquarium GameTests cover placement, item returns, care, aquascaping and persistence.
+Four terrarium GameTests cover land placement, survival care supplies, colony collection, precise rotation and carrying the planted enclosure.
 Six painting GameTests cover supplies, strokes, signatures, canvas saves, wall support and the two-block easel.
-Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, eight `AQUARIUM_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
+Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, four `TERRARIUM_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
 above. Do not rebuild without `-Pgametest` while these tests are starting: that
 removes test classes from the development output. If also launching a client,

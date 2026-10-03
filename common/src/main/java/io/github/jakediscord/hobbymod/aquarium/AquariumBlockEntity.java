@@ -49,15 +49,19 @@ public final class AquariumBlockEntity extends BlockEntity {
             if(x==0 && y==0 && z==0)continue;
             if(!level.getBlockState(worldPosition.offset(x,y,z)).is(AquariumContent.PART.get()))return condition=Condition.BROKEN_GLASS;
         }
-        return condition=data.filled?Condition.READY:Condition.EMPTY;
+        return condition=data.terrarium!=null || data.filled?Condition.READY:Condition.EMPTY;
     }
     public boolean water(boolean fill){
+        if(data.terrarium!=null)return false;
         if(inspect()==Condition.UNLOADED || condition==Condition.BROKEN_GLASS)return false;
         if(fill){if(!data.filled)clock.reset();data.waterChange();}else data.drain();
         inspect();changed();return true;
     }
     public boolean restoreWater(){inspect();changed();return true;}
     public String warning(){
+        if(data.terrarium!=null && condition==Condition.UNLOADED)return "Load the whole enclosure.";
+        if(data.terrarium!=null && condition==Condition.BROKEN_GLASS)return "Repair the enclosure.";
+        if(data.terrarium!=null)return data.terrarium.advice(io.github.jakediscord.hobbymod.terrarium.TerrariumActions.plants(data));
         return switch(condition){case UNLOADED->"Tank partly unloaded.";case BROKEN_GLASS->"Repair tank walls.";
             case MISSING_WATER->"Refill missing water.";case EMPTY->"Fill the tank.";case READY->data.issue(true);};
     }
@@ -70,7 +74,8 @@ public final class AquariumBlockEntity extends BlockEntity {
         if(tank.condition==Condition.UNLOADED){tank.clock.reset();return;}
         if(!tank.clock.poll(level.getGameTime()))return;
         tank.inspect();if(tank.condition==Condition.UNLOADED){tank.clock.reset();return;}
-        tank.data.advance(tank.condition==Condition.READY,level.getMaxLocalRawBrightness(pos.above())>=9);
+        if(tank.data.terrarium!=null)tank.data.terrarium.advance(tank.condition==Condition.READY,io.github.jakediscord.hobbymod.terrarium.TerrariumActions.plants(tank.data),level.getMaxLocalRawBrightness(pos.above()),tank.data.seed);
+        else tank.data.advance(tank.condition==Condition.READY,level.getMaxLocalRawBrightness(pos.above())>=9);
         tank.changed();
     }
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){

@@ -25,9 +25,11 @@ final class AquariumGizmo {
     static java.util.List<Handle> handles(){
         var p=piece();var t=AquariumOrbit.tank();if(p==null || t==null)return java.util.List.of();
         var b=AquariumScape.bounds(p,t.data.size);var center=new Vec3((b.x()+b.X())/2,(b.y()+b.Y())/2,(b.z()+b.Z())/2);
-        double angle=p.rotation()*Math.PI/2,c=Math.cos(angle),s=Math.sin(angle);
-        Vec3[] axes={new Vec3(c,0,-s),new Vec3(0,1,0),new Vec3(s,0,c)};
+        Vec3[] axes=new Vec3[3];var size=t.data.size;
+        double ax=(size.blocksWide()-.16)/(size.width-2),ay=(size.blocksHigh()*.88-.24)/(size.height-2),az=(size.blocksDeep()-.16)/(size.depth-2);
+        for(int i=0;i<3;i++){var v=AquariumScape.rotate(p,i==0?1:0,i==1?1:0,i==2?1:0);axes[i]=new Vec3(v[0]*ax,v[1]*ay,v[2]*az).normalize();}
         double[] ext={p.rotation()%2==0?b.X()-b.x():b.Z()-b.z(),b.Y()-b.y(),p.rotation()%2==0?b.Z()-b.z():b.X()-b.x()};
+        if(AquariumScape.precise(p))for(int i=0;i<3;i++)ext[i]=Math.abs(axes[i].x)*(b.X()-b.x())+Math.abs(axes[i].y)*(b.Y()-b.y())+Math.abs(axes[i].z)*(b.Z()-b.z());
         var result=new java.util.ArrayList<Handle>();
         for(int axis=0;axis<3;axis++){
             double length=ext[axis]/2+.22;

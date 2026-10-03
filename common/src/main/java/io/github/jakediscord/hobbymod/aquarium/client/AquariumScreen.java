@@ -23,9 +23,10 @@ public final class AquariumScreen extends Screen {
     private int left(){return (width-W)/2;} private int top(){return Math.max(0,(height-H)/2);}
     public AquariumScreen(BlockPos pos){super(Component.literal("Aquarium"));this.pos=pos;}
     public static void register(){
-        NetworkManager.registerReceiver(NetworkManager.Side.S2C,AquariumNetworking.Notice.TYPE,AquariumNetworking.Notice.CODEC,(p,c)->c.queue(()->{if(Minecraft.getInstance().screen instanceof AquariumScreen s){s.notice=p.text();s.noticeUntil=net.minecraft.Util.getMillis()+4500;}else if(Minecraft.getInstance().screen instanceof AquariumEditScreen s)s.feedback(p.text());}));
-        NetworkManager.registerReceiver(NetworkManager.Side.S2C,AquariumNetworking.Open.TYPE,AquariumNetworking.Open.CODEC,(p,c)->c.queue(()->Minecraft.getInstance().setScreen(new AquariumScreen(p.pos()))));
+        NetworkManager.registerReceiver(NetworkManager.Side.S2C,AquariumNetworking.Notice.TYPE,AquariumNetworking.Notice.CODEC,(p,c)->c.queue(()->{if(Minecraft.getInstance().screen instanceof AquariumScreen s){s.notice=p.text();s.noticeUntil=net.minecraft.Util.getMillis()+4500;}else if(Minecraft.getInstance().screen instanceof io.github.jakediscord.hobbymod.terrarium.client.TerrariumScreen s)s.feedback(p.text());else if(Minecraft.getInstance().screen instanceof AquariumEditScreen s)s.feedback(p.text());}));
+        NetworkManager.registerReceiver(NetworkManager.Side.S2C,AquariumNetworking.Open.TYPE,AquariumNetworking.Open.CODEC,(p,c)->c.queue(()->Minecraft.getInstance().setScreen(care(p.pos()))));
     }
+    public static Screen care(BlockPos pos){var mc=Minecraft.getInstance();return mc.level!=null && mc.level.getBlockEntity(pos) instanceof AquariumBlockEntity t && t.data.terrarium!=null?new io.github.jakediscord.hobbymod.terrarium.client.TerrariumScreen(pos):new AquariumScreen(pos);}
     private AquariumBlockEntity tank(){return minecraft!=null && minecraft.level!=null && minecraft.level.getBlockEntity(pos) instanceof AquariumBlockEntity t?t:null;}
     @Override public boolean isPauseScreen(){return false;}
     // Screen.render normally calls Minecraft's blur. Never blur our already-drawn inventory panel.

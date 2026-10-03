@@ -28,9 +28,10 @@ public final class AquariumContent {
         for(var species:AquariumData.Species.values())FISH.put(species,ITEMS.register(species.name().toLowerCase(Locale.ROOT)+"_fish",()->new AquariumFishItem(species)));
     }
     private static Item named(String name,Item.Properties properties){return new Item(properties){@Override public Component getName(ItemStack stack){return Component.literal(name);}};}
-    public static final RegistrySupplier<CreativeModeTab> TAB=TABS.register("aquariums",()->CreativeTabRegistry.create(b->b.title(Component.literal("HobbyMod: Aquariums"))
+    public static final RegistrySupplier<CreativeModeTab> TAB=TABS.register("aquariums",()->CreativeTabRegistry.create(b->b.title(Component.literal("HobbyMod: Habitats"))
             .icon(()->new ItemStack(KITS.get(AquariumData.Size.SMALL).get())).displayItems((p,o)->{
-                KITS.values().forEach(item->o.accept(item.get()));o.accept(FOOD.get());o.accept(FILTER.get());o.accept(STARTER.get());FISH.values().forEach(item->o.accept(item.get()));
+                KITS.values().forEach(item->o.accept(item.get()));
+                o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.KIT.get());o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.MISTER.get());o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.FOOD.get());o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.SPRINGTAILS.get());o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.ISOPODS.get());o.accept(FOOD.get());o.accept(FILTER.get());o.accept(STARTER.get());FISH.values().forEach(item->o.accept(item.get()));
             })));
     public static void register(){BLOCKS.register();ITEMS.register();ENTITIES.register();TABS.register();}
     private AquariumContent(){}
