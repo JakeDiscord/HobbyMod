@@ -112,6 +112,9 @@ signing/editing, pickup, wall placement and round-canvas clipping. The editor wa
 inspected at GUI scales 2 and 3. Exported landscape artwork was 192 × 128 pixels;
 the round PNG was 64 × 64 with transparent corners.
 
+After integrating the newer aquarium changes for publication, the combined
+release build, all 36 shared tests and all 39 GameTests passed.
+
 Actual client captures: [studio](painting-studio.png),
 [easel](painting-easel.png),
 [wall display](painting-gallery.png), [round studio](painting-round.png),
