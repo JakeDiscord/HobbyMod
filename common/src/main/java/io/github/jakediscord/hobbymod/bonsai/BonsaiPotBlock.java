@@ -27,11 +27,12 @@ public final class BonsaiPotBlock extends BaseEntityBlock {
     @Override protected VoxelShape getShape(BlockState s,BlockGetter l,BlockPos p,CollisionContext c){return Block.box(1,0,1,15,16,15);}
     @Override protected VoxelShape getCollisionShape(BlockState s,BlockGetter l,BlockPos p,CollisionContext c){return Block.box(3,0,3,13,3,13);}
     @Override public BlockEntity newBlockEntity(BlockPos pos,BlockState state){return new BonsaiBlockEntity(pos,state);}
-    @Override public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level l,BlockState s,BlockEntityType<T> t){return l.isClientSide?null:createTickerHelper(t,BonsaiContent.TREE.get(),BonsaiBlockEntity::tick);}
+    @Override public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level l,BlockState s,BlockEntityType<T> t){return createTickerHelper(t,BonsaiContent.TREE.get(),BonsaiBlockEntity::tick);}
     @Override protected ItemInteractionResult useItemOn(ItemStack stack,BlockState state,Level level,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit){
         if(!(level.getBlockEntity(pos) instanceof BonsaiBlockEntity tree))return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if(level.isClientSide)return ItemInteractionResult.SUCCESS;
-        BonsaiGraph g=tree.graph; boolean changed=false; SoundEvent sound=SoundEvents.AZALEA_LEAVES_PLACE;
+        BonsaiGraph g=tree.graph; boolean changed=false;
+        boolean careReadout=!stack.is(Items.SHEARS) && !stack.is(Items.COPPER_INGOT); SoundEvent sound=SoundEvents.AZALEA_LEAVES_PLACE;
         if(!g.planted()){
             BonsaiGraph.Species species=stack.is(Items.OAK_SAPLING)?BonsaiGraph.Species.OAK:stack.is(Items.BIRCH_SAPLING)?BonsaiGraph.Species.BIRCH:stack.is(Items.CHERRY_SAPLING)?BonsaiGraph.Species.CHERRY:null;
             if(species!=null){g.plant(species,level.random.nextLong());consume(stack,player);changed=true;}
@@ -49,11 +50,14 @@ public final class BonsaiPotBlock extends BaseEntityBlock {
         }else if(stack.is(Items.COPPER_INGOT)){
             int id=target(g,player,pos);BonsaiGraph.Node n=g.node(id);
             if(n!=null && id>1 && n.health>0){boolean intact=g.wire(id,player.isShiftKeyDown());consume(stack,player);changed=true;sound=intact?SoundEvents.CHAIN_PLACE:SoundEvents.AZALEA_BREAK;
-                player.displayClientMessage(Component.literal(intact?"Branch wired and bent 12 degrees. Sneak to turn the other way.":"The branch snapped under excessive bending."),true);}
+                player.displayClientMessage(Component.literal(intact?(player.isShiftKeyDown()?"Reverse bend applied. Repeated bending can snap the branch.":"Forward bend applied. Sneak to reverse; repeated bending can snap the branch."):"The branch snapped under excessive bending."),true);}
             else player.displayClientMessage(Component.literal("Aim near a living branch to wire it."),true);
-        }else if(stack.is(Items.DIRT) && g.soilAge>=12){g.repot();consume(stack,player);changed=true;}
-        if(changed){tree.changed();if(level instanceof net.minecraft.server.level.ServerLevel server)server.sendParticles(net.minecraft.core.particles.ParticleTypes.COMPOSTER,pos.getX()+.5,pos.getY()+.5,pos.getZ()+.5,3,.12,.12,.12,.01);level.playSound(null,pos,sound,SoundSource.BLOCKS,.6F,1.1F);}
-        else if(!stack.is(Items.SHEARS) && !stack.is(Items.COPPER_INGOT))status(player,g);
+        }else if(stack.is(Items.DIRT)){
+            if(g.repot()){consume(stack,player);changed=true;}
+            else player.displayClientMessage(Component.literal("Soil is still fresh; repot after 12 minutes."),true);
+        }
+        if(changed){tree.changed();if(careReadout)status(player,tree);if(level instanceof net.minecraft.server.level.ServerLevel server)server.sendParticles(net.minecraft.core.particles.ParticleTypes.COMPOSTER,pos.getX()+.5,pos.getY()+.5,pos.getZ()+.5,3,.12,.12,.12,.01);level.playSound(null,pos,sound,SoundSource.BLOCKS,.6F,1.1F);}
+        else if(!stack.is(Items.SHEARS) && !stack.is(Items.COPPER_INGOT) && !stack.is(Items.DIRT))status(player,tree);
         return ItemInteractionResult.CONSUME;
     }
     private static void consume(ItemStack s,Player p){if(!p.getAbilities().instabuild)s.shrink(1);}
@@ -73,8 +77,13 @@ public final class BonsaiPotBlock extends BaseEntityBlock {
         }
         return chosen;
     }
-    private static void status(Player p,BonsaiGraph g){p.displayClientMessage(Component.literal(g.planted()?g.species+" bonsai | age "+g.age+" | water "+g.water+"% | health "+g.health+"% | soil "+g.soilAge+" | "+g.nodes().size()+" branches":"Plant an oak, birch or cherry sapling. Water bucket: water; shears: prune; copper: wire; dirt: repot."),true);}
-    @Override protected InteractionResult useWithoutItem(BlockState s,Level l,BlockPos pos,Player p,BlockHitResult hit){if(!l.isClientSide && l.getBlockEntity(pos) instanceof BonsaiBlockEntity t)status(p,t.graph);return InteractionResult.sidedSuccess(l.isClientSide);}
+    public static Component statusText(BonsaiBlockEntity tree){
+        BonsaiGraph g=tree.graph;
+        boolean light=tree.getLevel()!=null && tree.getLevel().getMaxLocalRawBrightness(tree.getBlockPos().above())>=9;
+        return Component.literal(g.planted()?g.species+" | Age "+g.age+" min | Water "+g.water+"% | Health "+g.health+"% | Soil "+g.soilAge+" min | Roots "+g.rootAge+" min | "+g.careStatus(light):"Plant oak, birch or cherry. Water: bucket; prune: shears; wire: copper; repot: dirt.");
+    }
+    private static void status(Player player,BonsaiBlockEntity tree){player.displayClientMessage(statusText(tree),true);}
+    @Override protected InteractionResult useWithoutItem(BlockState s,Level l,BlockPos pos,Player p,BlockHitResult hit){if(!l.isClientSide && l.getBlockEntity(pos) instanceof BonsaiBlockEntity t)status(p,t);return InteractionResult.sidedSuccess(l.isClientSide);}
     private static ItemStack preserved(BlockEntity entity){
         ItemStack stack=new ItemStack(BonsaiContent.POT_ITEM.get());
         if(entity instanceof BonsaiBlockEntity t){var tag=t.saveWithId(t.getLevel().registryAccess());stack.set(DataComponents.BLOCK_ENTITY_DATA,CustomData.of(tag));}return stack;

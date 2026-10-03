@@ -19,7 +19,7 @@ species, age and health in their tooltip.
 | Water | Right-click with a water bucket; survival returns the empty bucket |
 | Prune a branch and its descendants | Aim at a branch and right-click with shears |
 | Wire and bend a branch | Aim at a branch and right-click with a copper ingot |
-| Turn the bend the other way | Sneak while using copper |
+| Reverse both the turn and outward bend | Sneak while using copper |
 | Prune roots | Sneak and right-click with shears |
 | Repot with fresh soil | Right-click with dirt |
 
@@ -31,15 +31,27 @@ Root pruning and repotting each require at least 12 growth intervals since the
 previous corresponding action. Pruning roots costs health; repotting refreshes
 soil and sets water to 55%. Root pruning does not replace the soil.
 
-Trees update once per 1,200 consecutive loaded ticks (one minute at 20 TPS),
+Care updates once per 1,200 consecutive loaded ticks (one minute at 20 TPS),
 adding a bud/branch about every two intervals when healthy. Each tree starts
-with two trunk segments and grows to at most 28 branch segments. Oak and cherry
+with two trunk segments and grows to at most 28 branch segments. Initial trunk
+segments and every new branch unfold continuously over 1,200 loaded ticks,
+with partial-tick rendering between ticks. Growth progress is saved in each
+node, so unloading or carrying the tree pauses growth rather than completing it. Oak and cherry
 spread out more than birch. Leave room and use adequate daylight or block light
 (level 9 or greater above the pot). Water between 15% and 85% is healthy; watering
 above 75% already causes stress. Fresh soil lasts 40 intervals; roots become
 crowded after 60. Repeated pruning, excessive bending, neglect and overwatering
 reduce health. Stressed foliage turns brown and disappears at zero health;
-proper care can restore it. No automatic harvesting or Create automation is
+proper care can restore it. Each minute, healthy conditions add 2 health
+points (capped at 100); any stress condition subtracts 4 points total. Branch
+pruning costs 6 points per removed segment, wiring costs 1, root pruning costs
+8, repotting costs 4, and watering when already above 75% costs 12. Good care
+can restore health even from zero; new branches require at least 35 health.
+A live overlay shows water, health, soil/root ages and the current stress causes
+while aiming at the pot, and reflects care by other players too. Watering and
+repotting also immediately refresh the action-bar readout. Sneak gestures for
+copper and shears explicitly allow block interaction, so Minecraft does not
+bypass the pot while sneaking. No automatic harvesting or Create automation is
 provided: these are individual ornamental trees for tending and display.
 
 ## Persistence and multiplayer
@@ -58,9 +70,11 @@ snapshot (at most 28 nodes) after care or coarse growth updates. Chunk loading
 also synchronizes the saved graph. Fine-grained graph-delta packets remain a
 future optimization. Item block-entity data preserves the graph when moved.
 
-Rendering uses tapered cylinders, crossed leaf planes and reduced geometry
+Rendering uses a wider, flared base, tapered cylinders, overlapping irregular
+leaf volumes and reduced geometry
 beyond 24 blocks. The first pot is a terracotta tray; species reuse vanilla bark
-and leaves. Vanilla shearing, chain, branch-break and water sounds plus subtle
+and leaves. Face UVs preserve a fixed 64-pixel-per-block texture density rather
+than stretching a whole texture across each face. Vanilla shearing, chain, branch-break and water sounds plus subtle
 composter particles accompany care. Additional pot shapes, bespoke assets,
 disease simulation, cuttings, grafting, flowering seasons, deadwood carving,
 competitions and lineage are future work.
@@ -83,7 +97,9 @@ java -cp /tmp/hobbymod-bonsai-checks BonsaiGraphChecks
 Checks cover 3,000 aged trees across all three species, bounds, parent ordering,
 subtree pruning, overwatering/neglect, root pruning versus repotting, repeated
 bending, duplicate/invalid parents, NaN/infinite geometry, 10,000 attempted deep
-nodes, unloaded intervals, reload and backwards/large game-time changes.
+nodes, unloaded intervals, partial-growth reload, continuous one-minute growth,
+reverse bending, immediate foliage health, care feedback and backwards/large
+game-time changes.
 Operations run serially on the Minecraft server thread; pruning and growth do
 not mutate the graph concurrently.
 
