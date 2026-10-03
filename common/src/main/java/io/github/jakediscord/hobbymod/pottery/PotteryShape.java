@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 /** A smooth lathe profile. Throwing redistributes a fixed amount of clay into continuous walls. */
 public final class PotteryShape {
+    public double maxRadius(){double max=0;for(int i=0;i<=128;i++)max=Math.max(max,radius(i/128.0));return max;}
     public static final int SAMPLES=32;
     public static final double FLOOR=.12, MIN_WALL=.018;
     private final double[] radius=new double[SAMPLES];

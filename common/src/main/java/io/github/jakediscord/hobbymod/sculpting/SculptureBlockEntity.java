@@ -16,6 +16,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public final class SculptureBlockEntity extends BlockEntity {
     private MarbleVolume volume = new MarbleVolume();
     private int revision;
+    private int snapshots;
+    public int snapshots(){return snapshots;}
+    public void applyBlueprint(MarbleVolume design){volume=design.copy();update();}
     private VoxelShape shape;
     private MarbleMesh joinedMesh;
     private MarbleVolume meshOwn,meshBelow,meshAbove;
@@ -44,17 +47,19 @@ public final class SculptureBlockEntity extends BlockEntity {
         var before=volumes.stream().map(MarbleVolume::copy).toList();
         var end=new net.minecraft.world.phys.Vec3(worldPosition.getX()+x,worldPosition.getY()+y,worldPosition.getZ()+z);
         double length=previous==null?0:previous.distanceTo(end);
-        int steps=length>0 && length<=0.75?Math.clamp((int)Math.ceil(length/(item.tool().cutRadius*0.5)),1,24):1;
+        int steps=length>0 && length<=1.25?Math.clamp((int)Math.ceil(length/(item.tool().cutRadius*0.5)),1,64):1;
         int changed=0;
         for(int step=1;step<=steps;step++) {
             var point=steps==1?end:previous.lerp(end,step/(double)steps);
             var section=sections.stream().filter(s->point.y>=s.worldPosition.getY() && point.y<=s.worldPosition.getY()+1).findFirst().orElse(this);
             double px=point.x-section.worldPosition.getX(),py=point.y-section.worldPosition.getY(),pz=point.z-section.worldPosition.getZ();
-            if(!section.volume.exposed(px,py,pz))continue;
             int index=sections.indexOf(section);
-            var field=MarbleColumn.field(section.volume,index>0?volumes.get(index-1):null,index+1<volumes.size()?volumes.get(index+1):null);
+            // Earlier samples in this packet must not erase the surface needed by later samples.
+            var surface=before.get(index);
+            if(!surface.exposed(px,py,pz))continue;
+            var field=MarbleColumn.field(surface,index>0?before.get(index-1):null,index+1<before.size()?before.get(index+1):null);
             double[] normal=field.normal(px,py,pz);
-            boolean mirrored=mirror && Math.abs(px-0.5)>0.001 && section.volume.exposed(1-px,py,pz);
+            boolean mirrored=mirror && Math.abs(px-0.5)>0.001 && surface.exposed(1-px,py,pz);
             double[] reflected=mirrored?field.normal(1-px,py,pz):null;
             for(var s:sections) {
                 double localY=point.y-s.worldPosition.getY();
@@ -131,6 +136,7 @@ public final class SculptureBlockEntity extends BlockEntity {
     }
     @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        snapshots++;
         volume = tag.contains("density", net.minecraft.nbt.Tag.TAG_BYTE_ARRAY)
                 ? MarbleVolume.read(tag.getByteArray("density"), tag.getLongArray("polish"),tag.getInt("sculpture_format")<3)
                 : tag.contains("marble") ? MarbleVolume.read(tag.getLongArray("marble"), tag.getLongArray("polish")) : new MarbleVolume();

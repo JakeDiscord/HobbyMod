@@ -66,7 +66,7 @@ public final class SculptureNetworking {
         boolean polishes = stack.getItem() instanceof ChiselItem item && item.tool().polishes;
         var end=new net.minecraft.world.phys.Vec3(packet.pos.getX()+packet.x,packet.pos.getY()+packet.y,packet.pos.getZ()+packet.z);
         var last=LAST_POINT.get(player);
-        var start=packet.continuing && last!=null && now-last.tick<=4 && last.tool==stack.getItem() && last.mirror==packet.mirror
+        var start=packet.continuing && last!=null && now-last.tick<=20 && last.tool==stack.getItem() && last.mirror==packet.mirror
                 && last.dimension.equals(player.level().dimension()) && last.pos.getX()==packet.pos.getX() && last.pos.getZ()==packet.pos.getZ()
                 ? last.point:null;
         int changed = sculpture.carvePath(player, stack, packet.x, packet.y, packet.z, packet.mirror, packet.revision,start);

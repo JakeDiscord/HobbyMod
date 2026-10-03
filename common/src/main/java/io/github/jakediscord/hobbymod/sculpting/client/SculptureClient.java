@@ -15,6 +15,7 @@ public final class SculptureClient {
     public static void init() {
         NetworkManager.registerReceiver(NetworkManager.Side.S2C, SculptureNetworking.OpenEditor.TYPE, SculptureNetworking.OpenEditor.CODEC,
                 (packet, context) -> context.queue(() -> SculptureOrbit.begin(packet.pos())));
+        NetworkManager.registerReceiver(NetworkManager.Side.S2C,io.github.jakediscord.hobbymod.sculpting.BlueprintNetworking.OpenFiles.TYPE,io.github.jakediscord.hobbymod.sculpting.BlueprintNetworking.OpenFiles.CODEC,(p,c)->c.queue(()->net.minecraft.client.Minecraft.getInstance().setScreen(new BlueprintFilesScreen(p.hand()))));
         ClientTickEvent.CLIENT_POST.register(SculptureOrbit::tick);
         ClientLifecycleEvent.CLIENT_SETUP.register(client ->
                 BlockEntityRendererRegistry.register(HobbyContent.SCULPTURE_ENTITY.get(), SculptureRenderer::new));

@@ -104,21 +104,48 @@ public final class PotteryGameTests {
         h.assertTrue(copy!=null && copy.firing==80 && copy.burn==k.burn && !copy.vessel.isEmpty(),"Kiln retains firing progress, remaining fuel and its unique pot");
         pass(h,"kilnAndWheelStateSurviveReload");
     }
-    @GameTest(template="empty") public static void emptyHandCollectsCooledPotteryAndPlacedPots(GameTestHelper h){
+    @GameTest(template="empty") public static void menuCollectsCooledPotteryAndPlacedPots(GameTestHelper h){
         h.setBlock(POS,PotteryContent.KILN.get());var k=(KilnBlockEntity)h.getLevel().getBlockEntity(h.absolutePos(POS));var p=player(h);
         var piece=new PotteryPiece();piece.shape.openCenter();piece.stage=PotteryPiece.Stage.BISQUE;
         k.vessel=PotteryPotItem.create(piece);k.completed=true;k.cooling=0;
-        var hit=new BlockHitResult(Vec3.atCenterOf(k.getBlockPos()),Direction.UP,k.getBlockPos(),false);
-        var result=h.getBlockState(POS).useItemOn(ItemStack.EMPTY,h.getLevel(),p,InteractionHand.MAIN_HAND,hit);
-        h.assertTrue(result==ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION,"An empty hand reaches the kiln collection interaction");
-        h.getBlockState(POS).useWithoutItem(h.getLevel(),p,hit);
-        h.assertTrue(k.vessel.isEmpty() && p.getInventory().items.stream().anyMatch(s->s.is(PotteryContent.POT_ITEM.get())),"Empty-hand interaction collects the cooled pot");
+        var menu=new KilnMenu(1,p.getInventory(),k);
+        h.assertTrue(menu.getSlot(0).getItem().isEmpty() && menu.getSlot(2).hasItem(),"Cooled pot moves to the kiln output slot");
+        h.assertTrue(!menu.quickMoveStack(p,2).isEmpty(),"Shift-click collects the cooled output");
+        h.assertTrue(k.vessel.isEmpty() && p.getInventory().items.stream().anyMatch(s->s.is(PotteryContent.POT_ITEM.get())),"Output enters inventory once");
         var placed=POS.above();h.setBlock(placed,PotteryContent.POT.get());p.setShiftKeyDown(true);
         var absolute=h.absolutePos(placed);var potHit=new BlockHitResult(Vec3.atCenterOf(absolute),Direction.UP,absolute,false);
         h.assertTrue(h.getBlockState(placed).useItemOn(ItemStack.EMPTY,h.getLevel(),p,InteractionHand.MAIN_HAND,potHit)==ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION,"Empty hand reaches pottery pickup too");
         h.getBlockState(placed).useWithoutItem(h.getLevel(),p,potHit);
         h.assertBlockPresent(net.minecraft.world.level.block.Blocks.AIR,placed);
         h.assertTrue(p.getInventory().items.stream().filter(s->s.is(PotteryContent.POT_ITEM.get())).mapToInt(ItemStack::getCount).sum()==2,"Picked pot enters inventory exactly once");
-        pass(h,"emptyHandCollectsCooledPotteryAndPlacedPots");
+        pass(h,"menuCollectsCooledPotteryAndPlacedPots");
     }
+    @GameTest(template="empty") public static void kilnMenuSlotsLockHeatAndTransferFuel(GameTestHelper h){
+        h.setBlock(POS,PotteryContent.KILN.get());var k=(KilnBlockEntity)h.getLevel().getBlockEntity(h.absolutePos(POS));var p=player(h);var menu=new KilnMenu(1,p.getInventory(),k);
+        var piece=new PotteryPiece();piece.shape.openCenter();h.assertTrue(!menu.getSlot(0).mayPlace(PotteryPotItem.create(piece)),"Wet clay cannot enter input slot");
+        piece.stage=PotteryPiece.Stage.DRY;p.getInventory().setItem(9,PotteryPotItem.create(piece));menu.quickMoveStack(p,3);
+        p.getInventory().setItem(10,new ItemStack(Items.COAL,3));menu.quickMoveStack(p,4);
+        h.assertTrue(!k.vessel.isEmpty() && k.fuel==3 && p.getInventory().getItem(10).isEmpty(),"Shift-click inserts exactly one pot and transfers fuel");
+        menu.quickMoveStack(p,1);h.assertTrue(k.fuel==0 && p.getInventory().items.stream().filter(s->s.is(Items.COAL)).mapToInt(ItemStack::getCount).sum()==3,"Shift-click removes fuel without duplication");
+        k.addFuel();KilnBlockEntity.tick(h.getLevel(),k.getBlockPos(),k.getBlockState(),k);
+        h.assertTrue(!menu.getSlot(0).mayPickup(p) && menu.quickMoveStack(p,0).isEmpty(),"Hot input cannot be extracted");
+        for(int i=1;i<KilnBlockEntity.FIRING_TICKS;i++)KilnBlockEntity.tick(h.getLevel(),k.getBlockPos(),k.getBlockState(),k);
+        h.assertTrue(!menu.getSlot(2).hasItem(),"Output stays hidden throughout cooling");
+        for(int i=0;i<KilnBlockEntity.COOLING_TICKS;i++)KilnBlockEntity.tick(h.getLevel(),k.getBlockPos(),k.getBlockState(),k);
+        h.assertTrue(menu.getSlot(2).hasItem() && menu.getSlot(2).mayPickup(p),"Cooled output unlocks");pass(h,"kilnMenuSlotsLockHeatAndTransferFuel");
+    }
+    @GameTest(template="empty") public static void flowersRemoveByHandAndPotOffsetsPersist(GameTestHelper h){
+        h.setBlock(POS,PotteryContent.POT.get());var pot=(PotteryBlockEntity)h.getLevel().getBlockEntity(h.absolutePos(POS));var p=player(h);pot.piece.shape.openCenter();pot.piece.stage=PotteryPiece.Stage.FINISHED;
+        use(h,p,POS,new ItemStack(Items.POPPY));p.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+        var hit=new BlockHitResult(Vec3.atCenterOf(pot.getBlockPos()),Direction.UP,pot.getBlockPos(),false);h.getBlockState(POS).useWithoutItem(h.getLevel(),p,hit);
+        h.assertTrue(pot.flower.isEmpty() && p.getInventory().items.stream().anyMatch(s->s.is(Items.POPPY)),"Empty hand returns the real flower and leaves the pot placed");
+        pot.offsetX=.15;pot.offsetZ=-.15;pot.offsetY=-.5;pot.changed();
+        var copy=(PotteryBlockEntity)BlockEntity.loadStatic(pot.getBlockPos(),pot.getBlockState(),pot.saveWithFullMetadata(h.getLevel().registryAccess()),h.getLevel().registryAccess());
+        h.assertTrue(copy.offsetX==.15 && copy.offsetZ==-.15 && copy.offsetY==-.5,"Off-center placement survives reload");
+        h.setBlock(POS,net.minecraft.world.level.block.Blocks.STONE);p.setItemInHand(InteractionHand.MAIN_HAND,PotteryPotItem.create(pot.piece));var absolute=h.absolutePos(POS);
+        p.getMainHandItem().useOn(new net.minecraft.world.item.context.UseOnContext(p,InteractionHand.MAIN_HAND,new BlockHitResult(new Vec3(absolute.getX()+.8,absolute.getY()+1,absolute.getZ()+.2),Direction.UP,absolute,false)));
+        var placed=(PotteryBlockEntity)h.getLevel().getBlockEntity(absolute.above());h.assertTrue(placed!=null && placed.offsetX>0 && placed.offsetZ<0 && placed.offsetY==0,"Actual placement follows clicked surface location");
+        pass(h,"flowersRemoveByHandAndPotOffsetsPersist");
+    }
+
 }

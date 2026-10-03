@@ -17,7 +17,7 @@ public final class PotteryRenderer implements BlockEntityRenderer<PotteryBlockEn
     @Override public void render(PotteryBlockEntity pot,float partial,PoseStack poses,MultiBufferSource buffers,int light,int overlay) {
         if(pot.wheel())wheel(pot,partial,poses,buffers,light,overlay);
         if(pot.piece==null)return;
-        poses.pushPose();if(pot.wheel())poses.translate(0,.55,0);
+        poses.pushPose();if(pot.wheel())poses.translate(0,.55,0);else poses.translate(pot.offsetX,pot.offsetY,pot.offsetZ);
         var piece=pot.piece;float r,g,b;
         switch(piece.stage) {
             case WET->{r=.61F;g=.43F;b=.34F;}case LEATHER_HARD->{r=.73F;g=.53F;b=.42F;}
@@ -31,7 +31,7 @@ public final class PotteryRenderer implements BlockEntityRenderer<PotteryBlockEn
             float shade=(float)Math.clamp(.72+.23*v.ny()+.12*v.nx()-.06*v.nz(),.35,1);
             float shine=0;
             if(piece.stage==PotteryPiece.Stage.FINISHED) {
-                double vx=camera.x-pot.getBlockPos().getX()-v.x(),vy=camera.y-pot.getBlockPos().getY()-v.y()-(pot.wheel()?.55:0),vz=camera.z-pot.getBlockPos().getZ()-v.z();
+                double vx=camera.x-pot.getBlockPos().getX()-v.x()-pot.offsetX,vy=camera.y-pot.getBlockPos().getY()-v.y()-(pot.wheel()?.55:0),vz=camera.z-pot.getBlockPos().getZ()-v.z()-pot.offsetZ;
                 double len=Math.sqrt(vx*vx+vy*vy+vz*vz);
                 double hx=vx/len-.3,hy=vy/len+.8,hz=vz/len-.5,hl=Math.sqrt(hx*hx+hy*hy+hz*hz);
                 shine=(float)(.38*Math.pow(Math.max(0,(v.nx()*hx+v.ny()*hy+v.nz()*hz)/hl),24));
@@ -40,8 +40,10 @@ public final class PotteryRenderer implements BlockEntityRenderer<PotteryBlockEn
                     .setUv(sprite.getU((float)v.x()),sprite.getV((float)v.z())).setLight(light).setOverlay(overlay).setNormal(pose,(float)v.nx(),(float)v.ny(),(float)v.nz());
         }
         if(!pot.flower.isEmpty()) {
-            poses.pushPose();poses.translate(.5,piece.shape.height()+.12,.5);poses.scale(.55F,.55F,.55F);
-            Minecraft.getInstance().getItemRenderer().renderStatic(pot.flower,ItemDisplayContext.FIXED,light,overlay,poses,buffers,pot.getLevel(),0);poses.popPose();
+            if(pot.flower.getItem() instanceof net.minecraft.world.item.BlockItem plant){
+                poses.pushPose();poses.translate(.15,piece.shape.height()-.10,.15);poses.scale(.7F,.7F,.7F);
+                Minecraft.getInstance().getBlockRenderer().renderSingleBlock(plant.getBlock().defaultBlockState(),poses,buffers,light,overlay);poses.popPose();
+            }
         }
         poses.popPose();
     }

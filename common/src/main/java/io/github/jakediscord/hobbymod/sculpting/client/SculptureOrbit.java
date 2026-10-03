@@ -33,6 +33,7 @@ public final class SculptureOrbit {
     private static BlockPos hitPos,pendingPos;
     public static boolean mirror;
     private static boolean continuing;
+    private static int pendingSnapshots;
     private static int pending=-1,waitTicks,ticks,lastStroke=-10;
     private static CameraPose lastClearPose;
     public static MarbleMesh.Hit hit;
@@ -61,7 +62,7 @@ public final class SculptureOrbit {
         if(s==null || mc.player==null || !mc.player.isAlive() || mc.player.isSpectator()
                 || mc.player.hurtTime>0 || mc.player.distanceToSqr(Vec3.atCenterOf(target))>36) { close();return; }
         var pendingEntity=pendingPos==null?null:world.getBlockEntity(pendingPos);
-        if(pending>=0 && (!(pendingEntity instanceof SculptureBlockEntity waiting) || waiting.revision()!=pending || ++waitTicks>20))pending=-1;
+        if(pending>=0 && (!(pendingEntity instanceof SculptureBlockEntity waiting) || waiting.revision()!=pending || waiting.snapshots()!=pendingSnapshots || ++waitTicks>20))pending=-1;
         // E opens the real inventory; resume the same camera when it closes.
         if(mc.screen==null)mc.setScreen(new OrbitControls());
     }
@@ -83,7 +84,7 @@ public final class SculptureOrbit {
         var mc=Minecraft.getInstance();
         if(hit==null || hitPos==null || pending>=0 || ticks-lastStroke<2 || SculptureNetworking.heldTool(mc.player).isEmpty())return;
         if(!(world.getBlockEntity(hitPos) instanceof SculptureBlockEntity s))return;
-        pending=s.revision();pendingPos=hitPos;waitTicks=0;lastStroke=ticks;
+        pending=s.revision();pendingSnapshots=s.snapshots();pendingPos=hitPos;waitTicks=0;lastStroke=ticks;
         NetworkManager.sendToServer(new SculptureNetworking.Stroke(hitPos,pending,hit.x(),hit.y(),hit.z(),mirror,continuing));
         continuing=true;
     }

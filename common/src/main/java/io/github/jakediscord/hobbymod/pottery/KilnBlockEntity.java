@@ -25,6 +25,33 @@ public final class KilnBlockEntity extends BlockEntity {
         if(vessel.isEmpty() || cooling>0 || (!completed && firing>0))return ItemStack.EMPTY;
         ItemStack out=vessel;vessel=ItemStack.EMPTY;completed=false;firing=0;changed();return out;
     }
+    public net.minecraft.world.inventory.ContainerData progress(){return new net.minecraft.world.inventory.ContainerData(){
+        public int get(int i){return switch(i){case 0->burn;case 1->firing;case 2->cooling;case 3->completed?1:0;case 4->vessel.isEmpty()?0:1;case 5->fuel;default->0;};}
+        public void set(int i,int value){} public int getCount(){return 6;}
+    };}
+    public net.minecraft.world.Container inventory(){return new net.minecraft.world.Container(){
+        public int getContainerSize(){return 3;}
+        public boolean isEmpty(){return vessel.isEmpty() && fuel==0;}
+        public ItemStack getItem(int i){return switch(i){case 0->completed?ItemStack.EMPTY:vessel;case 1->fuel==0?ItemStack.EMPTY:new ItemStack(coalFuel>0?net.minecraft.world.item.Items.COAL:net.minecraft.world.item.Items.CHARCOAL,coalFuel>0?coalFuel:fuel);case 2->completed && cooling==0?vessel:ItemStack.EMPTY;default->ItemStack.EMPTY;};}
+        public ItemStack removeItem(int i,int count){
+            ItemStack s=getItem(i);if(s.isEmpty() || count<=0 || i!=1 && (cooling>0 || firing>0 && !completed))return ItemStack.EMPTY;
+            ItemStack out=s.copyWithCount(Math.min(count,s.getCount()));s=s.copy();s.shrink(out.getCount());setItem(i,s);return out;
+        }
+        public ItemStack removeItemNoUpdate(int i){return removeItem(i,getItem(i).getCount());}
+        public void setItem(int i,ItemStack stack){
+            if(i==1){int charcoal=fuel-coalFuel;if(coalFuel>0)coalFuel=0;else charcoal=0;
+                if(stack.is(net.minecraft.world.item.Items.COAL))coalFuel=Math.min(stack.getCount(),64-charcoal);
+                else if(stack.is(net.minecraft.world.item.Items.CHARCOAL))charcoal=Math.min(stack.getCount(),64-coalFuel);
+                fuel=coalFuel+charcoal;
+            }else if(i==0 && firing==0 && !completed){if(stack.isEmpty()){vessel=ItemStack.EMPTY;}else if(stack.is(PotteryContent.POT_ITEM.get()) && PotteryPotItem.piece(stack).canFire())vessel=stack.copyWithCount(1);}
+            else if(i==2 && cooling==0 && completed && stack.isEmpty()){vessel=ItemStack.EMPTY;completed=false;firing=0;}
+            changed();
+        }
+        public void setChanged(){changed();}
+        public boolean stillValid(net.minecraft.world.entity.player.Player player){return level!=null && level.getBlockEntity(worldPosition)==KilnBlockEntity.this && player.distanceToSqr(worldPosition.getX()+.5,worldPosition.getY()+.5,worldPosition.getZ()+.5)<=64;}
+        public void clearContent(){if(cooling==0 && firing==0){vessel=ItemStack.EMPTY;fuel=coalFuel=0;changed();}}
+        public int getMaxStackSize(){return 64;}
+    };}
     public void changed(){setChanged();if(level!=null)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
     public static void tick(Level level,BlockPos pos,BlockState state,KilnBlockEntity kiln) {
         if(level.isClientSide)return;

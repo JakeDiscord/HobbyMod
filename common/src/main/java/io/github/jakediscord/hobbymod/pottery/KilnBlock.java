@@ -27,26 +27,14 @@ public final class KilnBlock extends BaseEntityBlock {
     @Override public BlockEntity newBlockEntity(BlockPos pos,BlockState state){return new KilnBlockEntity(pos,state);}
     @Override public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level l,BlockState s,BlockEntityType<T> t){return createTickerHelper(t,PotteryContent.KILN_ENTITY.get(),KilnBlockEntity::tick);}
     @Override protected ItemInteractionResult useItemOn(ItemStack stack,BlockState state,Level level,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit) {
-        if(stack.isEmpty())return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        if(!PotteryNetworking.permitted(player,pos))return ItemInteractionResult.FAIL;
-        if(level.isClientSide)return ItemInteractionResult.SUCCESS;
-        var kiln=(KilnBlockEntity)level.getBlockEntity(pos);if(kiln==null)return ItemInteractionResult.FAIL;
-        boolean used=stack.is(PotteryContent.POT_ITEM.get())?kiln.insert(stack):(stack.is(Items.COAL) || stack.is(Items.CHARCOAL)) && kiln.addFuel(stack.is(Items.CHARCOAL));
-        if(used && !player.getAbilities().instabuild)stack.shrink(1);
-        if(!used && stack.is(PotteryContent.POT_ITEM.get()))player.displayClientMessage(Component.literal("Fire a bone-dry pot, or a bisque pot after glazing. The kiln needs an empty slot."),true);
-        else status(player,kiln);
-        return ItemInteractionResult.CONSUME;
+        open(level,pos,player);return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
-    @Override protected InteractionResult useWithoutItem(BlockState s,Level level,BlockPos pos,Player player,BlockHitResult hit) {
-        if(!PotteryNetworking.permitted(player,pos))return InteractionResult.FAIL;
-        if(!level.isClientSide && level.getBlockEntity(pos) instanceof KilnBlockEntity kiln) {
-            var result=kiln.extract();if(!result.isEmpty())PotteryBlock.give(player,result);else status(player,kiln);
-        }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+    @Override protected InteractionResult useWithoutItem(BlockState s,Level level,BlockPos pos,Player player,BlockHitResult hit){
+        open(level,pos,player);return InteractionResult.sidedSuccess(level.isClientSide);
     }
-    private static void status(Player p,KilnBlockEntity k) {
-        String state=k.vessel.isEmpty()?"Empty":k.cooling>0?"Cooling · "+(k.cooling/20+1)+"s":k.completed?"Ready to collect":k.burn==0 && k.fuel==0?"Needs coal or charcoal":"Firing · "+(k.firing*100/KilnBlockEntity.FIRING_TICKS)+"%";
-        p.displayClientMessage(Component.literal("Kiln · "+state+" · Fuel "+k.fuel),true);
+    private static void open(Level level,BlockPos pos,Player player){
+        if(!level.isClientSide && PotteryNetworking.permitted(player,pos) && player instanceof net.minecraft.server.level.ServerPlayer server && level.getBlockEntity(pos) instanceof KilnBlockEntity kiln)
+            server.openMenu(new net.minecraft.world.SimpleMenuProvider((id,inv,p)->new KilnMenu(id,inv,kiln),Component.translatable("block.hobbymod.pottery_kiln")));
     }
     @Override protected void onRemove(BlockState state,Level level,BlockPos pos,BlockState next,boolean moving) {
         if(!state.is(next.getBlock()) && level.getBlockEntity(pos) instanceof KilnBlockEntity kiln && !level.isClientSide) {

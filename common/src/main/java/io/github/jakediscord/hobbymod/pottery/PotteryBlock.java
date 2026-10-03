@@ -32,7 +32,7 @@ public final class PotteryBlock extends BaseEntityBlock {
         if(wheel)return Block.box(1,0,1,15,9,15);
         if(level.getBlockEntity(pos) instanceof PotteryBlockEntity pot && pot.piece!=null) {
             double radius=0;for(int i=0;i<32;i++)radius=Math.max(radius,pot.piece.shape.radius(i/31.0));
-            return Shapes.box(.5-radius,0,.5-radius,.5+radius,pot.piece.shape.height()+pot.piece.shape.wall()/2,.5+radius);
+            return Shapes.box(.5-radius+pot.offsetX,pot.offsetY,.5-radius+pot.offsetZ,.5+radius+pot.offsetX,pot.piece.shape.height()+pot.piece.shape.wall()/2+pot.offsetY,.5+radius+pot.offsetZ);
         }
         return Block.box(4,0,4,12,8,12);
     }
@@ -68,6 +68,7 @@ public final class PotteryBlock extends BaseEntityBlock {
         if(!PotteryNetworking.permitted(player,pos))return InteractionResult.FAIL;
         if(!level.isClientSide && level.getBlockEntity(pos) instanceof PotteryBlockEntity pot) {
             if(wheel && pot.piece!=null)open(player,pot);
+            else if(!wheel && !player.isShiftKeyDown() && !pot.flower.isEmpty()){give(player,pot.flower);pot.flower=ItemStack.EMPTY;pot.changed();}
             else if(!wheel && player.isShiftKeyDown()){give(player,preserved(pot));level.removeBlock(pos,false);}
             else status(player,pot);
         }

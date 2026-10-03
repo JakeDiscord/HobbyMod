@@ -7,6 +7,8 @@ shape the whole circumference as the wheel turns; there are no finished presets.
 
 ![A hollow pot being shaped on the spinning wheel](pottery-wheel.png)
 
+![The kiln inventory during firing](pottery-kiln-menu.png)
+
 ![A finished glazed pot with a flower after both firings](pottery-finished.png)
 
 ## From clay to finished pot
@@ -29,7 +31,8 @@ shape the whole circumference as the wheel turns; there are no finished presets.
    camera and use a water bucket on the wheel, then return to shaping.
 5. Leave the camera and use **Clay Cutting Wire** on the wheel to lift the pot
    off the head. Its custom shape and stage enter your inventory as a pot item.
-   Place it to air-dry, or let it dry on the idle wheel. Keeping the wheel running
+   Place it to air-dry, or let it dry on the idle wheel. Placement follows the
+   point you click on the supporting block, keeping the whole pot on that block. Keeping the wheel running
    pauses drying. Wet clay becomes **leather-hard after 60 seconds** of idle,
    loaded ticks. It becomes **bone dry after another 60 seconds**.
 6. For foot trimming, put a leather-hard pot back on an empty wheel, right-click
@@ -39,16 +42,21 @@ shape the whole circumference as the wheel turns; there are no finished presets.
    leather-hard clay; bone-dry and fired clay cannot be thrown again.
 7. Craft a **Pottery Kiln** from eight bricks around a furnace. Pick up your dry
    pot by sneaking and right-clicking it with an empty hand, or mine it. Use the
-   pot item on an empty kiln. Wet and leather-hard clay are refused. Add coal or
-   charcoal: firing takes **30 seconds**, followed by **10 seconds of cooling**.
-   Right-click the cooled kiln with an empty hand to collect the **bisque pot**.
+   kiln to open its furnace-style inventory. Put the dry pot into the upper-left
+   input slot and coal or charcoal into the lower-left fuel slot. Wet and
+   leather-hard clay are refused. Firing takes **30 seconds**, followed by
+   **10 seconds of cooling**. Collect the **bisque pot** from the right output
+   slot; hot pottery stays locked while it fires and cools. Shift-click transfers
+   pots and fuel between the kiln and your inventory.
 8. Place the bisque pot. Craft a glaze from one dye, one quartz, one clay ball,
    and a water bucket; this makes four portions and returns the bucket. All
    sixteen dye colors are supported. Use a glaze on the bisque pot, then pick it
    up and put it back into the kiln. The **second firing and cooling** produce
    the finished glazed pot. Unglazed bisque does not undergo this second firing.
 9. Place the finished pot as a decoration. Use a small flower on it to plant a
-   real flower; shears remove the flower. Mining or picking up the pot preserves
+   real flower, rendered with its world block model. Right-click with an empty
+   hand to remove the flower; shears also work. Sneak-right-click with an empty
+   hand picks up the whole pot, preserving its flower. Mining or picking up the pot preserves
    its profile, glaze, stage, and flower.
 
 A dry pot shrinks slightly, and each firing shrinks its original geometry. The
@@ -95,10 +103,11 @@ lips, profile smoothing, subtractive trimming, bounds, malformed data, saving,
 drying, rewetting, and both firing stages.
 
 Run `./gradlew --no-daemon -Pgametest :neoforge:runServer`, then `test runall`.
-Seven pottery GameTests cover clay loading and shaping with stale/invalid edits,
+Nine pottery GameTests cover clay loading and shaping with stale/invalid edits,
 wire pickup and placement, drying/trimming/water buckets, kiln fuel and cooling,
 glazing/second firing/flower preservation, wheel/kiln reloads, and real
-empty-hand collection/pickup. Check seven
+menu slot transfers, heat locks, empty-hand flower removal, off-center placement,
+and pickup. Check nine
 `POTTERY_TEST_PASS` entries, alongside fourteen `SCULPTING_TEST_PASS` entries.
 Keep `-Pgametest` on simultaneous development client runs, and shut down the
 server as described in the root README. A normal release build excludes tests.

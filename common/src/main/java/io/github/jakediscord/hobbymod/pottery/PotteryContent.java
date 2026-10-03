@@ -11,6 +11,8 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public final class PotteryContent {
+    private static final DeferredRegister<net.minecraft.world.inventory.MenuType<?>> MENUS=DeferredRegister.create(HobbyMod.MOD_ID,Registries.MENU);
+    public static final RegistrySupplier<net.minecraft.world.inventory.MenuType<KilnMenu>> KILN_MENU=MENUS.register("pottery_kiln",()->new net.minecraft.world.inventory.MenuType<>(KilnMenu::new,net.minecraft.world.flag.FeatureFlags.DEFAULT_FLAGS));
     private static final DeferredRegister<Block> BLOCKS=DeferredRegister.create(HobbyMod.MOD_ID,Registries.BLOCK);
     private static final DeferredRegister<Item> ITEMS=DeferredRegister.create(HobbyMod.MOD_ID,Registries.ITEM);
     private static final DeferredRegister<BlockEntityType<?>> ENTITIES=DeferredRegister.create(HobbyMod.MOD_ID,Registries.BLOCK_ENTITY_TYPE);
@@ -34,6 +36,6 @@ public final class PotteryContent {
         o.accept(WHEEL_ITEM.get());o.accept(CLAY.get());o.accept(RIB.get());o.accept(SPONGE.get());o.accept(LOOP.get());o.accept(WIRE.get());o.accept(KILN_ITEM.get());
         for(var color:DyeColor.values())o.accept(GLAZES.get(color).get());
     })));
-    public static void register(){BLOCKS.register();ITEMS.register();ENTITIES.register();TABS.register();}
+    public static void register(){MENUS.register();BLOCKS.register();ITEMS.register();ENTITIES.register();TABS.register();}
     private PotteryContent(){}
 }

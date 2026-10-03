@@ -75,12 +75,19 @@ does not move your player or extend their reach.
 The models reuse vanilla calcite, quartz, iron, and wood textures. Natural
 marble deposits and astronomy are future work.
 
+## Marble blueprints
+
+Capture and reapply carved marble structures, and share them as `.marble.json` files.
+See [blueprint capture, application, and file controls](docs/MARBLE_BLUEPRINTS.md).
+
 ## Pottery
 
 Throw smooth, hollow pots on a visibly spinning wheel in the world. Shape the
 profile with your hands, smooth it with a rib or sponge, trim leather-hard clay,
 cut it off, dry it, bisque-fire it, glaze it in any of sixteen colors, and fire
-it again. Every step preserves your own design. Finished pots can hold flowers.
+it again. Every step preserves your own design. Finished pots can hold flowers rendered with world models; empty hands remove them.
+Place pots at the clicked point on a block. Kilns use a furnace-style inventory
+with input, fuel, progress, cooling, and output slots.
 
 See [the full pottery process and controls](docs/POTTERY.md). All pottery blocks,
 tools, clay, and glazes are available in the **HobbyMod: Pottery** creative tab.
@@ -148,7 +155,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for twenty tests: thirteen sculpting geometry tests and seven pottery geometry/process tests. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for twenty-three tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, and three blueprint serialization/validation tests. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -157,8 +164,8 @@ Run `./gradlew --no-daemon -Pgametest :neoforge:runServer` in an interactive
 terminal. After readiness, enter `test runall`. Fourteen GameTests cover opening a
 blank, survival and symmetry, creative and smoothing, stale revisions and permanent cuts, persistence and update tags, mining and replacement, invalid
 coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
-Seven additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
-Verify fourteen distinct `SCULPTING_TEST_PASS` and seven `POTTERY_TEST_PASS` entries in the server log; the vanilla
+Nine additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
+Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, and two `BLUEPRINT_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
 above. Do not rebuild without `-Pgametest` while these tests are starting: that
 removes test classes from the development output. If also launching a client,

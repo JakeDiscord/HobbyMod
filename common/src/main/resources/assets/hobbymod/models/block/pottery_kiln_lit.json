@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:block/cube",
   "textures": {
-    "particle": "minecraft:block/bricks",
-    "down": "minecraft:block/bricks",
-    "up": "minecraft:block/bricks",
+    "particle": "hobbymod:block/pottery_kiln_side",
+    "down": "hobbymod:block/pottery_kiln_side",
+    "up": "hobbymod:block/pottery_kiln_top",
     "north": "hobbymod:block/pottery_kiln_front_lit",
-    "south": "minecraft:block/bricks",
-    "west": "minecraft:block/bricks",
-    "east": "minecraft:block/bricks"
+    "south": "hobbymod:block/pottery_kiln_side",
+    "west": "hobbymod:block/pottery_kiln_side",
+    "east": "hobbymod:block/pottery_kiln_side"
   }
 }

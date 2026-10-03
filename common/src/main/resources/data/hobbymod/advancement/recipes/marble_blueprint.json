@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_paper": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:paper"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_paper"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "hobbymod:marble_blueprint"
+    ]
+  }
+}

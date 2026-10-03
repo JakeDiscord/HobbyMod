@@ -14,6 +14,7 @@ public final class HobbyMod {
 
     public static void init() {
         HobbyContent.register();
+        io.github.jakediscord.hobbymod.sculpting.BlueprintNetworking.register();
         io.github.jakediscord.hobbymod.pottery.PotteryContent.register();
         io.github.jakediscord.hobbymod.pottery.PotteryNetworking.register();
         io.github.jakediscord.hobbymod.bonsai.BonsaiContent.register();

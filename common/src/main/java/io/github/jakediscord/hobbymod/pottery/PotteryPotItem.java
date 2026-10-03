@@ -10,6 +10,15 @@ import net.minecraft.world.item.component.CustomData;
 
 public final class PotteryPotItem extends BlockItem {
     public PotteryPotItem(){super(PotteryContent.POT.get(),new Properties().stacksTo(1));}
+    @Override public net.minecraft.world.InteractionResult place(net.minecraft.world.item.context.BlockPlaceContext context){
+        var result=super.place(context);
+        if(result.consumesAction() && !context.getLevel().isClientSide && context.getLevel().getBlockEntity(context.getClickedPos()) instanceof PotteryBlockEntity pot && !pot.wheel()){
+            double edge=.5-pot.piece.shape.maxRadius();var point=context.getClickLocation();var pos=context.getClickedPos();
+            pot.offsetX=Math.clamp(point.x-pos.getX()-.5,-edge,edge);pot.offsetZ=Math.clamp(point.z-pos.getZ()-.5,-edge,edge);
+            pot.offsetY=Math.clamp(point.y-pos.getY(),-.5,0);pot.changed();
+        }
+        return result;
+    }
     public static PotteryPiece piece(ItemStack stack) {
         var data=stack.get(DataComponents.BLOCK_ENTITY_DATA);
         return data==null?new PotteryPiece():PotteryPiece.read(data.copyTag().getCompound("piece"));

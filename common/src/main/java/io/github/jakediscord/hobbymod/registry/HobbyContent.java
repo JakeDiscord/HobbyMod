@@ -42,6 +42,7 @@ public final class HobbyContent {
     public static final RegistrySupplier<ChiselItem> POINT_CHISEL = ITEMS.register("point_chisel", () -> new ChiselItem(new Item.Properties().durability(192), CarvingTool.POINT));
     public static final RegistrySupplier<ChiselItem> MALLET = ITEMS.register("roughing_mallet", () -> new ChiselItem(new Item.Properties().durability(256), CarvingTool.ROUGH));
     public static final RegistrySupplier<ChiselItem> RASP = ITEMS.register("polishing_rasp", () -> new ChiselItem(new Item.Properties().durability(256), CarvingTool.POLISH));
+    public static final RegistrySupplier<Item> BLUEPRINT=ITEMS.register("marble_blueprint",io.github.jakediscord.hobbymod.sculpting.MarbleBlueprintItem::new);
     public static final RegistrySupplier<Item> MARBLE_ITEM = ITEMS.register("marble", () -> new BlockItem(MARBLE.get(), new Item.Properties()));
     public static final RegistrySupplier<Item> MARBLE_STATUE_ITEM = ITEMS.register("marble_statue", () -> new BlockItem(MARBLE_STATUE.get(), new Item.Properties()));
     public static final RegistrySupplier<ChiselItem> CHISEL = ITEMS.register("chisel", () -> new ChiselItem(new Item.Properties().durability(128)));
@@ -54,6 +55,7 @@ public final class HobbyContent {
                         output.accept(POINT_CHISEL.get());
                         output.accept(MALLET.get());
                         output.accept(RASP.get());
+                        output.accept(BLUEPRINT.get());
                         output.accept(SCULPTURE_ITEM.get());
                     })));
 
