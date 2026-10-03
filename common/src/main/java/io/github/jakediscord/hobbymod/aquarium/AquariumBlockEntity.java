@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public final class AquariumBlockEntity extends BlockEntity {
     public enum Condition { READY,EMPTY,MISSING_WATER,BROKEN_GLASS,UNLOADED }
     public final AquariumData data=new AquariumData();
+    public long fedAt=-1000;
     public Condition condition=Condition.EMPTY;
     private final AquariumClock clock=new AquariumClock();
     public AquariumBlockEntity(BlockPos pos,BlockState state){super(AquariumContent.TANK_ENTITY.get(),pos,state);}
@@ -46,10 +47,10 @@ public final class AquariumBlockEntity extends BlockEntity {
         tank.changed();
     }
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
-        super.saveAdditional(tag,registries);tag.put("Aquarium",AquariumNbt.save(data));tag.putString("Condition",condition.name());
+        super.saveAdditional(tag,registries);tag.putLong("FedAt",fedAt);tag.put("Aquarium",AquariumNbt.save(data));tag.putString("Condition",condition.name());
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
-        super.loadAdditional(tag,registries);clock.reset();
+        super.loadAdditional(tag,registries);clock.reset();fedAt=tag.contains("FedAt")?tag.getLong("FedAt"):-1000;
         if(tag.contains("Aquarium"))AquariumNbt.load(data,tag.getCompound("Aquarium"));
         try{condition=Condition.valueOf(tag.getString("Condition"));}catch(IllegalArgumentException e){condition=Condition.EMPTY;}
     }

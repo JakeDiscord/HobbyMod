@@ -155,7 +155,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for twenty-three tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, and three blueprint serialization/validation tests. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for twenty-seven tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, three blueprint serialization/validation tests, and four aquarium layout/care/persistence tests. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -165,7 +165,8 @@ terminal. After readiness, enter `test runall`. Fourteen GameTests cover opening
 blank, survival and symmetry, creative and smoothing, stale revisions and permanent cuts, persistence and update tags, mining and replacement, invalid
 coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
 Nine additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
-Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, and two `BLUEPRINT_TEST_PASS` entries in the server log; the vanilla
+Seven aquarium GameTests cover placement, item returns, care, aquascaping and persistence.
+Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, and seven `AQUARIUM_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
 above. Do not rebuild without `-Pgametest` while these tests are starting: that
 removes test classes from the development output. If also launching a client,

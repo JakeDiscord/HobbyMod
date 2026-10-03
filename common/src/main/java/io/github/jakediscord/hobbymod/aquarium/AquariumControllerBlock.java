@@ -61,6 +61,7 @@ public final class AquariumControllerBlock extends BaseEntityBlock {
             }else message(player,"Clear the interior before filling.");
         }else if(stack.is(Items.BUCKET)){
             if(player.isShiftKeyDown() || d.fish().isEmpty()){
+                if(!d.fish().isEmpty()){message(player,"Move your fish into buckets before draining.");return ItemInteractionResult.CONSUME;}
                 if(!d.filled){message(player,"No full tank to drain.");return ItemInteractionResult.CONSUME;}
                 if(tank.water(false)){if(!player.getAbilities().instabuild)player.setItemInHand(hand,new ItemStack(Items.WATER_BUCKET));changed=true;sound=SoundEvents.BUCKET_FILL;}
             }else{
@@ -84,28 +85,23 @@ public final class AquariumControllerBlock extends BaseEntityBlock {
             changed=true;sound=SoundEvents.FISH_SWIM;message(player,"Acclimating: 2 min.");
         }else if(stack.is(AquariumContent.FOOD.get())){
             if(!d.filled){message(player,"Fill the tank first.");return ItemInteractionResult.CONSUME;}
-            d.feed();consume(stack,player);changed=true;sound=SoundEvents.GENERIC_EAT;
+            d.feed();tank.fedAt=level.getGameTime();consume(stack,player);changed=true;sound=SoundEvents.GENERIC_EAT;
+        }else if(stack.is(AquariumContent.STARTER.get())){
+            if(d.seedFilter()){consume(stack,player);refund(player,Items.GLASS_BOTTLE);changed=true;message(player,"Established bacteria: your filter is cycled.");}
+            else message(player,!d.filled?"Fill the tank first.":!d.filter?"Install a filter first.":"Your filter is already cycled.");
         }else if(stack.is(Items.SHEARS)){
             d.clean();stack.hurtAndBreak(1,player,hand==InteractionHand.MAIN_HAND?net.minecraft.world.entity.EquipmentSlot.MAINHAND:net.minecraft.world.entity.EquipmentSlot.OFFHAND);changed=true;sound=SoundEvents.SHEEP_SHEAR;
         }else if(stack.is(Items.SAND) || stack.is(Items.GRAVEL)){
             if(player.isShiftKeyDown()){
                 if(d.plants>0)message(player,"Remove plants first.");
-                else if(d.substrate){d.substrate=false;refund(player,Items.SAND);changed=true;}
-            }else if(!d.substrate){d.substrate=true;consume(stack,player);changed=true;}
+                else if(d.substrate){d.substrate=false;refund(player,d.gravel?Items.GRAVEL:Items.SAND);changed=true;}
+            }else if(!d.substrate){d.substrate=true;d.gravel=stack.is(Items.GRAVEL);consume(stack,player);changed=true;}
             else message(player,"Substrate already placed.");
-        }else if(stack.is(Items.SEAGRASS) || stack.is(Items.KELP)){
-            if(player.isShiftKeyDown()){if(d.plants>0){d.plants--;refund(player,Items.SEAGRASS);changed=true;}}
-            else if(!d.substrate)message(player,"Add sand or gravel first.");
-            else if(d.plants>=AquariumData.MAX_PLANTS)message(player,"Plant limit reached.");
-            else{d.plants++;consume(stack,player);changed=true;sound=SoundEvents.AZALEA_PLACE;}
-        }else if(stack.is(Items.COBBLESTONE)){
-            if(player.isShiftKeyDown()){if(d.rocks>0){d.rocks--;refund(player,Items.COBBLESTONE);changed=true;}}
-            else if(d.rocks<AquariumData.MAX_ROCKS){d.rocks++;consume(stack,player);changed=true;}
-            else message(player,"Rock limit reached.");
-        }else if(stack.is(Items.STICK)){
-            if(player.isShiftKeyDown()){if(d.wood>0){d.wood--;refund(player,Items.STICK);changed=true;}}
-            else if(d.wood<4){d.wood++;consume(stack,player);changed=true;}
-            else message(player,"Driftwood limit reached.");
+        }else if(material(stack)!=null){
+            d.ensureScape();var kind=material(stack);
+            if(player.isShiftKeyDown()){
+                for(int i=d.scape.pieces().size()-1;i>=0;i--)if(d.scape.pieces().get(i).material()==kind){removeDecor(player,tank,i);break;}
+            }else{int n=d.scape.pieces().size();addDecor(player,tank,stack,.12+(n*.618%.76),.12+(n*.414%.76),0);}
         }else if(stack.is(AquariumContent.FILTER.get())){
             if(player.isShiftKeyDown()){if(d.filter){d.filter=false;refund(player,AquariumContent.FILTER.get());changed=true;}}
             else if(!d.filter){d.filter=true;consume(stack,player);changed=true;}else message(player,"Filter already fitted.");
@@ -117,6 +113,22 @@ public final class AquariumControllerBlock extends BaseEntityBlock {
         }
         if(changed){tank.changed();level.playSound(null,pos,sound,SoundSource.BLOCKS,.5F,1F);}
         return ItemInteractionResult.CONSUME;
+    }
+    public static AquariumScape.Material material(ItemStack s){
+        if(s.is(Items.SEAGRASS))return AquariumScape.Material.SEAGRASS;if(s.is(Items.KELP))return AquariumScape.Material.KELP;
+        if(s.is(Items.COBBLESTONE))return AquariumScape.Material.ROCK;if(s.is(Items.STICK))return AquariumScape.Material.WOOD;return null;
+    }
+    public static Item decorItem(AquariumScape.Material m){return switch(m){case SEAGRASS->Items.SEAGRASS;case KELP->Items.KELP;case ROCK->Items.COBBLESTONE;case WOOD->Items.STICK;};}
+    public static boolean addDecor(Player player,AquariumBlockEntity tank,ItemStack stack,double x,double z,int rotation){
+        var kind=material(stack);var d=tank.data;d.ensureScape();
+        if(kind==null)return false;
+        if((kind==AquariumScape.Material.SEAGRASS || kind==AquariumScape.Material.KELP) && !d.substrate){message(player,"Lay sand or gravel before planting.");return false;}
+        if(!d.scape.add(kind,x,z,rotation)){message(player,"Decoration limit reached, or position outside the tank.");return false;}
+        d.syncScape();consume(stack,player);tank.changed();message(player,"Placed "+decorItem(kind).getDescription().getString()+".");return true;
+    }
+    public static boolean removeDecor(Player player,AquariumBlockEntity tank,int index){
+        tank.data.ensureScape();var piece=tank.data.scape.remove(index);if(piece==null)return false;
+        tank.data.syncScape();refund(player,decorItem(piece.material()));tank.changed();message(player,"Decoration returned to your inventory.");return true;
     }
     @Override protected InteractionResult useWithoutItem(BlockState state,Level level,BlockPos pos,Player player,BlockHitResult hit){
         open(level,pos,player);

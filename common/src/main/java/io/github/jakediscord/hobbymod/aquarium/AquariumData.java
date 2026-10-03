@@ -47,6 +47,16 @@ public final class AquariumData {
         }
         public String label(){return name.isEmpty()?species.label:name;}
     }
+    public final AquariumScape scape=new AquariumScape();
+    public boolean gravel;
+    public int births,discovered;
+    public void syncScape(){plants=scape.count(AquariumScape.Material.SEAGRASS)+scape.count(AquariumScape.Material.KELP);rocks=scape.count(AquariumScape.Material.ROCK);wood=scape.count(AquariumScape.Material.WOOD);}
+    public void ensureScape(){if(scape.pieces().isEmpty()){int n=0;for(int i=0;i<plants;i++)scape.add(AquariumScape.Material.SEAGRASS,.12+((n++*.618)% .76),.12+((n*.414)% .76),0);for(int i=0;i<rocks;i++)scape.add(AquariumScape.Material.ROCK,.12+((n++*.618)% .76),.12+((n*.414)% .76),0);for(int i=0;i<wood;i++)scape.add(AquariumScape.Material.WOOD,.12+((n++*.618)% .76),.12+((n*.414)% .76),0);}}
+    public boolean seedFilter(){if(!filled || !filter || cycle>=5)return false;cycle=5;return true;}
+    public int foodUse(){return Math.max(1,(load()+11)/12);}
+    public int foodMinutes(){return food/foodUse();}
+    public boolean schooling(Species s){return s==Species.NEON_TETRA || s==Species.ZEBRA_DANIO || s==Species.CHERRY_BARB;}
+    public String habitatTip(Fish f){if(schooling(f.species) && fish.stream().filter(a->a.species==f.species).count()<3)return "Keep a group of 3 or more.";if(plants<2)return "Add plants for shelter.";return "Comfortable habitat.";}
     private final List<Fish> fish=new ArrayList<>();
     public Size size=Size.SMALL;
     public long seed,nextId=1;
@@ -73,7 +83,7 @@ public final class AquariumData {
         for(Fish a:fish)if(!compatible(a,f))return "Incompatible with "+a.species.label+".";
         return "";
     }
-    public boolean add(Fish f){if(!canAdd(f).isEmpty())return false;f.acclimation=2;fish.add(f);selected=fish.size()-1;return true;}
+    public boolean add(Fish f){if(!canAdd(f).isEmpty())return false;f.acclimation=2;fish.add(f);discovered|=1<<f.species.ordinal();selected=fish.size()-1;return true;}
     public Fish capture(){Fish f=selected();if(f!=null){fish.remove(f);selected=Math.max(0,Math.min(selected,fish.size()-1));}return f;}
     public Fish newFish(Species species){
         Random random=new Random(seed+nextId*7919);
@@ -82,7 +92,7 @@ public final class AquariumData {
     }
     public void waterChange(){if(!filled){filled=true;cycle=0;}quality=Math.min(100,quality+25);algae=Math.max(0,algae-15);}
     public void drain(){filled=false;cycle=0;}
-    public void feed(){if(food>=60)quality=Math.max(0,quality-8);food=Math.min(100,food+20);}
+    public void feed(){if(food>=80)quality=Math.max(0,quality-8);food=Math.min(100,food+20);}
     public void clean(){algae=Math.max(0,algae-30);quality=Math.min(100,quality+10);}
     public String issue(boolean intact){
         if(!intact)return "Repair glass / refill water.";
@@ -102,8 +112,8 @@ public final class AquariumData {
         steps=Math.min(1_000_000,steps+1);
         if(filled && intact){
             if(quality>=60)cycle=Math.min(5,cycle+1);
-            algae=clamp(algae+(bright?2:0)+(food>50?3:0)-plants/4,100);
-            quality=clamp(quality-Math.max(fish.isEmpty()?0:1,load()/4)-(food>60?3:0)-(algae>70?2:0)+plants/3+(filter?3:0),100);
+            algae=clamp(algae+(bright?2:0)+(food>80?3:0)-plants/4,100);
+            quality=clamp(quality-Math.max(fish.isEmpty()?0:1,load()/4)-(food>80?3:0)-(algae>70?2:0)+plants/3+(filter?3:0),100);
         }
         boolean fed=food>0;
         for(Fish f:fish){
@@ -113,7 +123,7 @@ public final class AquariumData {
             for(Fish other:fish)if(other!=f && !compatible(f,other))stress=true;
             f.health=clamp(f.health+(stress?-8:4),100);
         }
-        food=Math.max(0,food-Math.max(1,load()/2));
+        food=Math.max(0,food-foodUse());
         if(intact && filled && cycle==5 && quality>=75 && fed)breed();
     }
     private void breed(){
@@ -130,7 +140,7 @@ public final class AquariumData {
                 child.formA=random.nextBoolean()?mother.formA:mother.formB;
                 child.formB=random.nextBoolean()?father.formA:father.formB;child.female=random.nextBoolean();
                 if(canAdd(child).isEmpty()){
-                    fish.add(child);mother.cooldown=6;father.cooldown=6;births++;
+                    fish.add(child);mother.cooldown=6;father.cooldown=6;births++;this.births=Math.min(1_000_000,this.births+1);
                 }
                 break;
             }
@@ -143,6 +153,6 @@ public final class AquariumData {
         if(f==null || f.id==null || f.species==null || fish.size()>=MAX_FISH || fish.stream().anyMatch(a->a.id.equals(f.id)))return false;
         f.colorA=clamp(f.colorA,15);f.colorB=clamp(f.colorB,15);f.formA=clamp(f.formA,3);f.formB=clamp(f.formB,3);
         f.age=clamp(f.age,1_000_000);f.health=clamp(f.health,100);f.acclimation=clamp(f.acclimation,2);f.cooldown=clamp(f.cooldown,6);
-        f.name=f.name==null?"":f.name.substring(0,Math.min(32,f.name.length()));fish.add(f);return true;
+        f.name=f.name==null?"":f.name.substring(0,Math.min(32,f.name.length()));fish.add(f);discovered|=1<<f.species.ordinal();return true;
     }
 }

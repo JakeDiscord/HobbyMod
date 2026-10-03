@@ -4,7 +4,8 @@ package io.github.jakediscord.hobbymod.aquarium;
 public final class AquariumMotion {
     public record Pose(double x,double y,double z,double yaw,double tail){}
     public static Pose pose(AquariumData.Fish fish,AquariumData.Size size,double ticks,boolean filled){
-        double phase=Math.floorMod(fish.id.getLeastSignificantBits(),10000)*.37+fish.species.ordinal()*.8;
+        boolean school=fish.species==AquariumData.Species.NEON_TETRA || fish.species==AquariumData.Species.ZEBRA_DANIO || fish.species==AquariumData.Species.CHERRY_BARB;
+        double phase=(school?Math.floorMod(fish.id.getLeastSignificantBits(),7)*.065:Math.floorMod(fish.id.getLeastSignificantBits(),10000)*.37)+fish.species.ordinal()*.8;
         double t=(ticks%1_000_000)*.012*(fish.health<35?.35:1)+phase;
         double rx=(size.width-2)/2.0-.45,rz=(size.depth-2)/2.0-.45;
         double x=size.width/2.0+Math.sin(t)*rx,z=size.depth/2.0+Math.cos(t*.8)*rz;

@@ -21,6 +21,7 @@ public final class AquariumContent {
     public static final Map<AquariumData.Size,RegistrySupplier<Item>> KITS=new EnumMap<>(AquariumData.Size.class);
     public static final Map<AquariumData.Species,RegistrySupplier<Item>> FISH=new EnumMap<>(AquariumData.Species.class);
     public static final RegistrySupplier<Item> FOOD=ITEMS.register("fish_food",()->named("Fish Food",new Item.Properties()));
+    public static final RegistrySupplier<Item> STARTER=ITEMS.register("aquarium_filter_starter",()->named("Filter Bacteria Starter",new Item.Properties()));
     public static final RegistrySupplier<Item> FILTER=ITEMS.register("aquarium_filter",()->named("Aquarium Filter",new Item.Properties()));
     static{
         for(var size:AquariumData.Size.values())KITS.put(size,ITEMS.register(size.name().toLowerCase(Locale.ROOT)+"_aquarium",()->new AquariumKitItem(size)));
@@ -29,7 +30,7 @@ public final class AquariumContent {
     private static Item named(String name,Item.Properties properties){return new Item(properties){@Override public Component getName(ItemStack stack){return Component.literal(name);}};}
     public static final RegistrySupplier<CreativeModeTab> TAB=TABS.register("aquariums",()->CreativeTabRegistry.create(b->b.title(Component.literal("HobbyMod: Aquariums"))
             .icon(()->new ItemStack(KITS.get(AquariumData.Size.SMALL).get())).displayItems((p,o)->{
-                KITS.values().forEach(item->o.accept(item.get()));o.accept(FOOD.get());o.accept(FILTER.get());FISH.values().forEach(item->o.accept(item.get()));
+                KITS.values().forEach(item->o.accept(item.get()));o.accept(FOOD.get());o.accept(FILTER.get());o.accept(STARTER.get());FISH.values().forEach(item->o.accept(item.get()));
             })));
     public static void register(){BLOCKS.register();ITEMS.register();ENTITIES.register();TABS.register();}
     private AquariumContent(){}

@@ -81,4 +81,25 @@ public final class AquariumGameTests {
         var drops=Block.getDrops(tank.getBlockState(),h.getLevel(),tank.getBlockPos(),tank);
         h.assertTrue(drops.size()==1 && drops.getFirst().has(net.minecraft.core.component.DataComponents.BLOCK_ENTITY_DATA),"Mining lost tank contents");pass(h,"persistencePacketsAndCarriedFish");
     }
+    @GameTest(template="aquarium_empty") public static void aquascapingConsumesReturnsAndSavesExactItems(GameTestHelper h){
+        var tank=tank(h);var p=player(h);tank.data.substrate=true;var kelp=new ItemStack(Items.KELP,2);
+        h.assertTrue(AquariumControllerBlock.addDecor(p,tank,kelp,.2,.8,3) && kelp.getCount()==1,"Custom plant placement consumes one real kelp");
+        h.assertTrue(!AquariumControllerBlock.addDecor(p,tank,kelp,Double.NaN,.5,0) && kelp.getCount()==1,"Invalid layout coordinates cannot consume supplies");
+        var restored=(AquariumBlockEntity)BlockEntity.loadStatic(tank.getBlockPos(),tank.getBlockState(),tank.saveWithFullMetadata(h.getLevel().registryAccess()),h.getLevel().registryAccess());
+        h.assertTrue(restored.data.scape.pieces().equals(tank.data.scape.pieces()),"Carrying/loading retains exact aquascape positions and rotation");
+        h.assertTrue(AquariumControllerBlock.removeDecor(p,tank,0) && tank.data.plants==0 && p.getInventory().items.stream().anyMatch(s->s.is(Items.KELP)),"Removing kelp returns kelp and updates plant count");
+        pass(h,"aquascapingConsumesReturnsAndSavesExactItems");
+    }
+    @GameTest(template="aquarium_empty") public static void starterFeedingAndDrainProtection(GameTestHelper h){
+        var tank=tank(h);var p=player(h);tank.water(true);tank.data.filter=true;var pos=tank.getBlockPos();var hit=new BlockHitResult(Vec3.atCenterOf(pos),Direction.UP,pos,false);
+        p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(AquariumContent.STARTER.get()));AquariumContent.CONTROLLER.get().applyItem(p.getMainHandItem(),tank.getBlockState(),h.getLevel(),pos,p,InteractionHand.MAIN_HAND,hit);
+        h.assertTrue(tank.data.cycle==5 && !p.getMainHandItem().is(AquariumContent.STARTER.get()) && p.getInventory().items.stream().filter(s->s.is(Items.GLASS_BOTTLE)).mapToInt(ItemStack::getCount).sum()==1,"Starter is consumed, cycles a filled filter and returns one bottle");
+        var f=tank.data.newFish(AquariumData.Species.GUPPY);tank.data.add(f);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(AquariumContent.FOOD.get()));
+        AquariumContent.CONTROLLER.get().applyItem(p.getMainHandItem(),tank.getBlockState(),h.getLevel(),pos,p,InteractionHand.MAIN_HAND,hit);
+        h.assertTrue(tank.fedAt==h.getLevel().getGameTime() && tank.data.food==20,"Feeding triggers real reserve and timed visual reaction");
+        p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.BUCKET));p.setShiftKeyDown(true);AquariumContent.CONTROLLER.get().applyItem(p.getMainHandItem(),tank.getBlockState(),h.getLevel(),pos,p,InteractionHand.MAIN_HAND,hit);
+        h.assertTrue(tank.data.filled && p.getMainHandItem().is(Items.BUCKET),"Occupied tanks cannot accidentally be drained");
+        pass(h,"starterFeedingAndDrainProtection");
+    }
+
 }

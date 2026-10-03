@@ -24,37 +24,34 @@ public final class AquariumRenderer implements BlockEntityRenderer<AquariumBlock
         var d=tank.data;var s=d.size;
         boolean distant=Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().distanceToSqr(Vec3.atLowerCornerOf(tank.getBlockPos()).add(s.blocksWide()/2.0,s.blocksHigh()/2.0,s.blocksDeep()/2.0))>24*24;
         double W=s.blocksWide(),H=s.blocksHigh()*.88,D=s.blocksDeep();
-        var solid=buffers.getBuffer(RenderType.entitySolid(WHITE));
-        box(solid,poses.last(),null,.01,.02,.01,W-.01,.10,D-.01,0x303D46,light,overlay);
-        box(solid,poses.last(),null,.01,H-.07,.01,W-.01,H,D-.01,0x303D46,light,overlay);
+        var solid=buffers.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));var trim=sprite("dark_oak_planks");
+        box(solid,poses.last(),trim,.01,.02,.01,W-.01,.10,D-.01,0xFFFFFF,light,overlay);
+        box(solid,poses.last(),trim,.01,H-.07,.01,W-.01,H,D-.01,0xFFFFFF,light,overlay);
         for(double x:new double[]{.01,W-.05})for(double z:new double[]{.01,D-.05})
-            box(solid,poses.last(),null,x,.10,z,x+.04,H-.07,z+.04,0x435763,light,overlay);
-        var glass=buffers.getBuffer(RenderType.entityTranslucent(WHITE));
-        box(glass,poses.last(),null,.04,.10,.04,W-.04,H-.07,.047,0x287AD1DD,light,overlay);
-        box(glass,poses.last(),null,.04,.10,D-.047,W-.04,H-.07,D-.04,0x287AD1DD,light,overlay);
-        box(glass,poses.last(),null,.04,.10,.047,.047,H-.07,D-.047,0x287AD1DD,light,overlay);
-        box(glass,poses.last(),null,W-.047,.10,.047,W-.04,H-.07,D-.047,0x287AD1DD,light,overlay);
-        if(d.filled)box(glass,poses.last(),null,.05,.105,.05,W-.05,H-.13,D-.05,0x263696C4,light,overlay);
+            box(solid,poses.last(),trim,x,.10,z,x+.04,H-.07,z+.04,0xCCCCCC,light,overlay);
         poses.pushPose();poses.translate(.08,.10,.08);
         poses.scale((float)((W-.16)/(s.width-2)),(float)((H-.24)/(s.height-2)),(float)((D-.16)/(s.depth-2)));
         poses.translate(-1,-1,-1);
         var out=buffers.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
-        var sand=sprite("sand");
+        var sand=sprite(d.gravel?"gravel":"sand");
         if(d.substrate)for(int x=1;x<s.width-1;x++)for(int z=1;z<s.depth-1;z++)box(out,poses.last(),sand,x,1.005,z,x+1,1.08,z+1,0xFFFFFF,light,overlay);
-        var rock=sprite("cobblestone");var wood=sprite("oak_log");
-        for(int i=0;i<d.rocks;i++){
-            double x=1.3+((i*1.71+.4)%(s.width-2.6)),z=1.3+((i*1.19+.7)%(s.depth-2.6));
-            box(out,poses.last(),rock,x-.22,1.08,z-.22,x+.22,1.38+(i%3)*.15,z+.22,0xFFFFFF,light,overlay);
-        }
-        for(int i=0;i<d.wood;i++){
-            double x=1.4+((i*1.37+.2)%(s.width-2.8)),z=1.4+((i*1.73+.1)%(s.depth-2.8));
-            box(out,poses.last(),wood,x-.32,1.1,z-.10,x+.32,1.28,z+.10,0xFFFFFF,light,overlay);
-        }
-        var plants=sprite("seagrass");
-        for(int i=0;i<d.plants;i++){
-            double x=1.3+((i*1.618+.8)%(s.width-2.6)),z=1.3+((i*1.414+.3)%(s.depth-2.6)),h=.35+(i%4)*.15;
-            quad(out,poses.last(),plants,new Vec3(x-.20,1.08,z),new Vec3(x+.20,1.08,z),new Vec3(x+.20,1.08+h,z),new Vec3(x-.20,1.08+h,z),0x9CD976,light,overlay);
-            if(!distant)quad(out,poses.last(),plants,new Vec3(x,1.08,z-.20),new Vec3(x,1.08,z+.20),new Vec3(x,1.08+h,z+.20),new Vec3(x,1.08+h,z-.20),0x9CD976,light,overlay);
+        d.ensureScape();
+        for(var piece:d.scape.pieces()){
+            double x=1+piece.x()*(s.width-2),z=1+piece.z()*(s.depth-2);
+            poses.pushPose();poses.translate(x,1.08,z);poses.mulPose(Axis.YP.rotationDegrees(piece.rotation()*90));
+            if(piece.material()==AquariumScape.Material.ROCK){
+                box(out,poses.last(),sprite("cobblestone"),-.25,0,-.23,.25,.28,.23,0xFFFFFF,light,overlay);
+                box(out,poses.last(),sprite("stone"),-.18,.28,-.17,.14,.45,.17,0xFFFFFF,light,overlay);
+            }else if(piece.material()==AquariumScape.Material.WOOD){
+                box(out,poses.last(),sprite("oak_log"),-.4,0,-.10,.35,.17,.10,0xFFFFFF,light,overlay);
+                box(out,poses.last(),sprite("oak_log"),-.10,.10,-.08,.08,.5,.08,0xFFFFFF,light,overlay);
+            }else{
+                var plant=sprite(piece.material()==AquariumScape.Material.KELP?"kelp":"seagrass");double h=(piece.material()==AquariumScape.Material.KELP?.7:.35)*(s.height-2);
+                double sway=Math.sin((tank.getLevel().getGameTime()+partial)*.035+x*3+z)*.07;
+                quad(out,poses.last(),plant,new Vec3(-.22,0,0),new Vec3(.22,0,0),new Vec3(.22+sway,h,0),new Vec3(-.22+sway,h,0),0xA9CF75,light,overlay);
+                quad(out,poses.last(),plant,new Vec3(0,0,-.22),new Vec3(0,0,.22),new Vec3(sway,h,.22),new Vec3(sway,h,-.22),0xA9CF75,light,overlay);
+            }
+            poses.popPose();
         }
         if(d.filter)box(out,poses.last(),sprite("iron_block"),1.05,1.15,1.05,1.25,s.height-1.1,1.35,0x808C96,light,overlay);
         if(d.algae>15){
@@ -65,44 +62,56 @@ public final class AquariumRenderer implements BlockEntityRenderer<AquariumBlock
                 quad(out,poses.last(),moss,new Vec3(x,1.08,z),new Vec3(x+.25*amount,1.08,z),new Vec3(x+.25*amount,1.08+.7*amount,z),new Vec3(x,1.08+.7*amount,z),0x6C883D,light,overlay);
             }
         }
+        poses.popPose();
         TextureAtlasSprite texture=null;
-        out=buffers.getBuffer(RenderType.entitySolid(WHITE));
+        out=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));
         // Internal aquarium lamp provides a minimum light level, without full-bright fish.
         light=Math.max(light&0xFFFF,10<<4) | (Math.max((light>>>16)&0xFFFF,10<<4)<<16);
         double time=tank.getLevel()==null?0:tank.getLevel().getGameTime()+partial;
         if(distant)time=Math.floor(time/20)*20;
         for(var fish:d.fish()){
             var p=AquariumMotion.pose(fish,s,time,d.filled);
-            poses.pushPose();poses.translate(p.x(),p.y(),p.z());poses.mulPose(Axis.YP.rotation((float)p.yaw()));
+            poses.pushPose();double fx=Math.clamp(.08+(p.x()-1)/(s.width-2)*(W-.16),.3,W-.3);
+            double fz=Math.clamp(.08+(p.z()-1)/(s.depth-2)*(D-.16),.28,D-.28);
+            double fy=.10+(p.y()-1)/(s.height-2)*(H-.24);
+            double feeding=Math.clamp((time-tank.fedAt)/160.0,0,1),attraction= d.filled && feeding>0 && feeding<1?Math.sin(feeding*Math.PI):0;
+            fx=fx*(1-attraction*.75)+W*.5*attraction*.75;fz=fz*(1-attraction*.75)+D*.5*attraction*.75;fy=fy*(1-attraction)+Math.max(.3,H-.32)*attraction;
+            poses.translate(fx,fy,fz);poses.mulPose(Axis.YP.rotation((float)p.yaw()));
             if(!d.filled)poses.mulPose(Axis.XP.rotationDegrees(65));
             float scale=(float)fish.size();poses.scale(scale,scale,scale);
-            double length=fish.species==AquariumData.Species.GOLDFISH?.25:.20;
-            double height=switch(fish.species){case ANGELFISH->.19;case BETTA->.12;case NEON_TETRA,ZEBRA_DANIO->.065;default->.09;};
+            double length=fish.species==AquariumData.Species.GOLDFISH?.15:.10;
+            double height=switch(fish.species){case ANGELFISH->.13;case BETTA->.08;case NEON_TETRA,ZEBRA_DANIO->.04;default->.055;};
             height*=1+(fish.formA+fish.formB-3)*.08;
             int color=fish.health<35?0xA58F7A:fish.color();
             body(out,poses.last(),length,height,color,light,overlay);
             int stripe=fish.species==AquariumData.Species.NEON_TETRA?0x39DDF5:fish.species==AquariumData.Species.ZEBRA_DANIO?0x344668:fish.species==AquariumData.Species.ANGELFISH?0x484851:color;
-            if(stripe!=color)for(int side:new int[]{-1,1})quad(out,poses.last(),texture,new Vec3(-length,0,side*.076),new Vec3(length,0,side*.076),new Vec3(length,.035,side*.076),new Vec3(-length,.035,side*.076),stripe,light,overlay);
-            double fan=fish.species==AquariumData.Species.BETTA || fish.species==AquariumData.Species.GUPPY?.17:.10;
+            if(stripe!=color)for(int side:new int[]{-1,1})quad(out,poses.last(),texture,new Vec3(-length,0,side*.041),new Vec3(length,0,side*.041),new Vec3(length,.035,side*.041),new Vec3(-length,.035,side*.041),stripe,light,overlay);
+            double fan=fish.species==AquariumData.Species.BETTA || fish.species==AquariumData.Species.GUPPY?.09:.06;
             fan*=1+(fish.formA+fish.formB)*.05;
-            quad(out,poses.last(),texture,new Vec3(-length,0,0),new Vec3(-length-.14,-fan,p.tail()),new Vec3(-length-.14,fan,p.tail()),new Vec3(-length,0,0),color,light,overlay);
+            quad(out,poses.last(),texture,new Vec3(-length,0,0),new Vec3(-length-.075,-fan,p.tail()),new Vec3(-length-.075,fan,p.tail()),new Vec3(-length,0,0),color,light,overlay);
             if(!distant){
-                quad(out,poses.last(),texture,new Vec3(-.1,height,0),new Vec3(.1,height,0),new Vec3(-.02,height+.1,0),new Vec3(-.1,height,0),color,light,overlay);
-                for(int side:new int[]{-1,1})box(out,poses.last(),texture,length-.07,.02,side*.076-.005,length-.035,.052,side*.076+.005,0x101010,light,overlay);
+                quad(out,poses.last(),texture,new Vec3(- .06,height,0),new Vec3( .06,height,0),new Vec3(-.02,height+.07,0),new Vec3(- .06,height,0),color,light,overlay);
+                for(int side:new int[]{-1,1})box(out,poses.last(),texture,length-.04,.01,side*.041-.005,length-.015,.035,side*.041+.005,0x101010,light,overlay);
             }
             poses.popPose();
         }
-        poses.popPose();
+
+        if(d.filled && time-tank.fedAt>=0 && time-tank.fedAt<160){out=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));for(int i=0;i<7;i++){double px=W*.5+Math.sin(i*2.4)*.12,pz=D*.5+Math.cos(i*2.4)*.1,py=H-.14-(time-tank.fedAt)*.001;box(out,poses.last(),null,px,py,pz,px+.018,py+.012,pz+.018,0xAD7541,light,overlay);}}
+        // Draw transparent shells after the opaque contents: their depth writes
+        // must not hide the substrate, decorations or residents.
+        if(d.filled && d.filter){var bubble=buffers.getBuffer(RenderType.entityTranslucent(WHITE));for(int i=0;i<5;i++){double by=.16+((time*.008+i*.19)%(H-.28));double bx=.15+Math.sin(time*.04+i)*.015;box(bubble,poses.last(),null,bx,by,.16,bx+.018,by+.018,.178,0x779ACEE5,light,overlay);}}
+        if(d.filled)box(buffers.getBuffer(RenderType.entityTranslucent(WHITE)),poses.last(),null,.05,.105,.05,W-.05,H-.13,D-.05,d.quality<50?0x244F794E:0x143696C4,light,overlay);
+        var glass=buffers.getBuffer(RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS));var glassTexture=sprite("glass");
+        box(glass,poses.last(),glassTexture,.04,.10,.04,W-.04,H-.07,.047,0x99FFFFFF,light,overlay);
+        box(glass,poses.last(),glassTexture,.04,.10,D-.047,W-.04,H-.07,D-.04,0x99FFFFFF,light,overlay);
+        box(glass,poses.last(),glassTexture,.04,.10,.047,.047,H-.07,D-.047,0x99FFFFFF,light,overlay);
+        box(glass,poses.last(),glassTexture,W-.047,.10,.047,W-.04,H-.07,D-.047,0x99FFFFFF,light,overlay);
+
     }
     private static void body(VertexConsumer out,PoseStack.Pose pose,double length,double height,int color,int light,int overlay){
-        for(int ring=0;ring<6;ring++)for(int side=0;side<8;side++){
-            Vec3[] v=new Vec3[4];int[][] points={{ring,side},{ring+1,side},{ring+1,side+1},{ring,side+1}};
-            for(int i=0;i<4;i++){
-                double t=Math.PI*(.04+.92*points[i][0]/6.0),angle=2*Math.PI*points[i][1]/8;
-                v[i]=new Vec3(-Math.cos(t)*length,Math.sin(t)*Math.sin(angle)*height,Math.sin(t)*Math.cos(angle)*.075);
-            }
-            quad(out,pose,null,v[0],v[1],v[2],v[3],color,light,overlay);
-        }
+        box(out,pose,null,-length,-height,-.04,length*.75,height,.04,color,light,overlay);
+        box(out,pose,null,length*.75,-height*.7,-.033,length,height*.7,.033,color,light,overlay);
+        box(out,pose,null,-length-.02,-height*.55,-.026,-length,height*.55,.026,color,light,overlay);
     }
     private static void box(VertexConsumer out,PoseStack.Pose pose,TextureAtlasSprite sprite,double x,double y,double z,double X,double Y,double Z,int color,int light,int overlay){
         Vec3 a=new Vec3(x,y,z),b=new Vec3(X,y,z),c=new Vec3(X,Y,z),d=new Vec3(x,Y,z);

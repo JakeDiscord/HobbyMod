@@ -24,13 +24,29 @@ public final class AquariumNetworking {
         public Type<Notice> type(){return TYPE;}
     }
     /** Slot -1 selects a resident; otherwise uses an actual inventory stack. */
-    public record Action(BlockPos pos,int slot,int resident,boolean remove) implements CustomPacketPayload {
+    public record Action(BlockPos pos,int slot,int resident,boolean remove,java.util.UUID fishId) implements CustomPacketPayload {
         public static final Type<Action> TYPE=new Type<>(ResourceLocation.fromNamespaceAndPath("hobbymod","aquarium_action"));
-        public static final StreamCodec<RegistryFriendlyByteBuf,Action> CODEC=StreamCodec.of((b,p)->{b.writeBlockPos(p.pos);b.writeInt(p.slot);b.writeInt(p.resident);b.writeBoolean(p.remove);},b->new Action(b.readBlockPos(),b.readInt(),b.readInt(),b.readBoolean()));
+        public static final StreamCodec<RegistryFriendlyByteBuf,Action> CODEC=StreamCodec.of((b,p)->{b.writeBlockPos(p.pos);b.writeInt(p.slot);b.writeInt(p.resident);b.writeBoolean(p.remove);b.writeBoolean(p.fishId!=null);if(p.fishId!=null)b.writeUUID(p.fishId);},b->new Action(b.readBlockPos(),b.readInt(),b.readInt(),b.readBoolean(),b.readBoolean()?b.readUUID():null));
         public Type<Action> type(){return TYPE;}
+    }
+    public record Decor(BlockPos pos,int slot,int index,double x,double z,int rotation) implements CustomPacketPayload {
+        public static final Type<Decor> TYPE=new Type<>(ResourceLocation.fromNamespaceAndPath("hobbymod","aquarium_scape"));
+        public static final StreamCodec<RegistryFriendlyByteBuf,Decor> CODEC=StreamCodec.of((b,p)->{b.writeBlockPos(p.pos);b.writeInt(p.slot);b.writeInt(p.index);b.writeDouble(p.x);b.writeDouble(p.z);b.writeInt(p.rotation);},b->new Decor(b.readBlockPos(),b.readInt(),b.readInt(),b.readDouble(),b.readDouble(),b.readInt()));
+        public Type<Decor> type(){return TYPE;}
     }
     private static final java.util.Map<ServerPlayer,Long> LAST=new java.util.WeakHashMap<>();
     public static void register(){
+        NetworkManager.registerReceiver(NetworkManager.Side.C2S,Decor.TYPE,Decor.CODEC,(a,c)->c.queue(()->{
+            if(!(c.getPlayer() instanceof ServerPlayer player) || !player.level().hasChunkAt(a.pos) || !io.github.jakediscord.hobbymod.pottery.PotteryNetworking.permitted(player,a.pos) || !(player.level().getBlockEntity(a.pos) instanceof AquariumBlockEntity tank))return;
+            long now=player.level().getGameTime();Long last=LAST.get(player);if(last!=null && now-last<2)return;LAST.put(player,now);
+            if(!Double.isFinite(a.x) || !Double.isFinite(a.z))return;
+            tank.data.ensureScape();
+            if(a.slot>=0 && a.slot<36)AquariumContent.CONTROLLER.get().addDecor(player,tank,player.getInventory().getItem(a.slot),a.x,a.z,a.rotation);
+            else if(a.slot==-1 && a.index>=0 && a.index<tank.data.scape.pieces().size()){
+                var p=tank.data.scape.pieces().get(a.index);if(Math.abs(p.x()-a.x)<.000001 && Math.abs(p.z()-a.z)<.000001)AquariumContent.CONTROLLER.get().removeDecor(player,tank,a.index);
+            }
+            player.inventoryMenu.broadcastChanges();player.connection.send(tank.getUpdatePacket());
+        }));
         if(Platform.getEnvironment()==Env.SERVER){
             NetworkManager.registerS2CPayloadType(Open.TYPE,Open.CODEC);
             NetworkManager.registerS2CPayloadType(Notice.TYPE,Notice.CODEC);
@@ -41,7 +57,8 @@ public final class AquariumNetworking {
                     || !(player.level().getBlockEntity(a.pos) instanceof AquariumBlockEntity tank))return;
             long now=player.level().getGameTime();Long last=LAST.get(player);if(last!=null && now>=last && now-last<2)return;LAST.put(player,now);
             NetworkManager.sendToPlayer(player,new Notice(""));
-            if(a.resident>=0 && a.resident<tank.data.fish().size())tank.data.selected=a.resident;
+            if(a.fishId!=null){int found=-1;for(int i=0;i<tank.data.fish().size();i++)if(tank.data.fish().get(i).id.equals(a.fishId)){found=i;break;}if(found<0){NetworkManager.sendToPlayer(player,new Notice("That fish has moved. Select a resident again."));return;}tank.data.selected=found;}
+            else if(a.resident>=0 && a.resident<tank.data.fish().size())tank.data.selected=a.resident;
             if(a.slot>=0 && a.slot<36){
                 var inventory=player.getInventory();int previous=inventory.selected;boolean sneaking=player.isShiftKeyDown();
                 boolean swap=a.slot!=previous;
