@@ -15,7 +15,8 @@ public final class AquariumContent {
     private static final DeferredRegister<Item> ITEMS=DeferredRegister.create(HobbyMod.MOD_ID,Registries.ITEM);
     private static final DeferredRegister<BlockEntityType<?>> ENTITIES=DeferredRegister.create(HobbyMod.MOD_ID,Registries.BLOCK_ENTITY_TYPE);
     private static final DeferredRegister<CreativeModeTab> TABS=DeferredRegister.create(HobbyMod.MOD_ID,Registries.CREATIVE_MODE_TAB);
-    public static final RegistrySupplier<AquariumControllerBlock> CONTROLLER=BLOCKS.register("aquarium_controller",()->new AquariumControllerBlock(Block.Properties.of().strength(1.5F).sound(SoundType.METAL)));
+    public static final RegistrySupplier<AquariumControllerBlock> CONTROLLER=BLOCKS.register("aquarium_controller",()->new AquariumControllerBlock(Block.Properties.of().strength(1.5F).sound(SoundType.GLASS).noOcclusion()));
+    public static final RegistrySupplier<Block> PART=BLOCKS.register("aquarium_part",()->new AquariumPartBlock(Block.Properties.of().strength(1.5F).sound(SoundType.GLASS).noOcclusion()));
     public static final RegistrySupplier<BlockEntityType<AquariumBlockEntity>> TANK_ENTITY=ENTITIES.register("aquarium",()->BlockEntityType.Builder.of(AquariumBlockEntity::new,CONTROLLER.get()).build(null));
     public static final Map<AquariumData.Size,RegistrySupplier<Item>> KITS=new EnumMap<>(AquariumData.Size.class);
     public static final Map<AquariumData.Species,RegistrySupplier<Item>> FISH=new EnumMap<>(AquariumData.Species.class);

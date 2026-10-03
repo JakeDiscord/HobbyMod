@@ -44,20 +44,27 @@ public final class AquariumGameTests {
         tank.data.advance(false,false);h.assertTrue(tank.data.fish().size()==1 && fish.health<100,"Draining must cause readable stress, not deletion");
         h.assertTrue(tank.water(true),"Tank should be refillable");pass(h,"tankFillAndDrain");
     }
-    @GameTest(template="aquarium_empty") public static void brokenGlassAndMissingWater(GameTestHelper h){
-        var tank=tank(h);tank.water(true);tank.data.cycle=5;tank.data.add(tank.data.newFish(AquariumData.Species.GUPPY));
-        h.setBlock(POS.offset(2,1,1),Blocks.AIR);
-        h.assertTrue(tank.inspect()==AquariumBlockEntity.Condition.MISSING_WATER,"Missing water must be visible");
-        tank.water(true);h.setBlock(POS.offset(2,1,0),Blocks.AIR);
-        h.assertTrue(tank.inspect()==AquariumBlockEntity.Condition.BROKEN_GLASS,"Broken wall not detected");
-        h.assertTrue(tank.data.fish().size()==1,"Wall damage lost resident data");
-        h.setBlock(POS.offset(2,1,0),Blocks.GLASS);tank.water(true);
-        h.assertTrue(tank.inspect()==AquariumBlockEntity.Condition.READY,"Repair/refill failed");pass(h,"brokenGlassAndMissingWater");
+    @GameTest(template="aquarium_empty") public static void compactTankDoesNotCreateWorldWater(GameTestHelper h){
+        var tank=tank(h);tank.water(true);
+        h.assertBlockPresent(Blocks.AIR,POS.above());h.assertBlockPresent(Blocks.AIR,POS.east());
+        h.assertTrue(tank.data.size.blocksWide()==1 && tank.data.size.blocksDeep()==1,"Small tank must fit one block");
+        h.assertTrue(tank.inspect()==AquariumBlockEntity.Condition.READY,"Contained water should be ready");
+        pass(h,"compactTankDoesNotCreateWorldWater");
+    }
+    @GameTest(template="aquarium_empty") public static void compactPartsRouteAndDismantle(GameTestHelper h){
+        h.setBlock(POS.below(),Blocks.STONE);h.setBlock(POS.offset(2,0,0),Blocks.DIAMOND_BLOCK);
+        Player p=player(h);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(AquariumContent.KITS.get(AquariumData.Size.MEDIUM).get()));
+        h.assertTrue(place(h,p).consumesAction(),"Medium tank should place");
+        var tank=AquariumPartBlock.find(h.getLevel(),h.absolutePos(POS.east()));
+        h.assertTrue(tank!=null && tank.getBlockPos().equals(h.absolutePos(POS)),"Part must route to its own tank");
+        h.getLevel().destroyBlock(h.absolutePos(POS.east()),true);
+        h.assertBlockPresent(Blocks.AIR,POS);h.assertBlockPresent(Blocks.AIR,POS.east());
+        h.assertBlockPresent(Blocks.DIAMOND_BLOCK,POS.offset(2,0,0));pass(h,"compactPartsRouteAndDismantle");
     }
     @GameTest(template="aquarium_empty") public static void occupiedFootprintDoesNotOverwrite(GameTestHelper h){
-        h.setBlock(POS.below(),Blocks.STONE);h.setBlock(POS.offset(4,1,1),Blocks.DIAMOND_BLOCK);
-        Player p=player(h);h.assertTrue(!place(h,p).consumesAction(),"Obstructed footprint must fail before mutation");
-        h.assertBlockPresent(Blocks.DIAMOND_BLOCK,POS.offset(4,1,1));h.assertBlockPresent(Blocks.AIR,POS);
+        h.setBlock(POS.below(),Blocks.STONE);h.setBlock(POS.east(),Blocks.DIAMOND_BLOCK);
+        Player p=player(h);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(AquariumContent.KITS.get(AquariumData.Size.MEDIUM).get()));h.assertTrue(!place(h,p).consumesAction(),"Obstructed footprint must fail before mutation");
+        h.assertBlockPresent(Blocks.DIAMOND_BLOCK,POS.east());h.assertBlockPresent(Blocks.AIR,POS);
         h.assertTrue(p.getMainHandItem().getCount()==1,"Failed kit placement consumed item");pass(h,"occupiedFootprintDoesNotOverwrite");
     }
     @GameTest(template="aquarium_empty") public static void persistencePacketsAndCarriedFish(GameTestHelper h){

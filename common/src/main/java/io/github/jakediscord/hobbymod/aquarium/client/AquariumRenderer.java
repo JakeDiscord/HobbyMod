@@ -10,18 +10,34 @@ import net.minecraft.client.renderer.texture.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
-/** Vanilla glass/water handle transparency. Residents and aquascape are bounded cutout geometry. */
+/** Custom glass enclosure, contained water, aquascape and independently lit residents. */
 public final class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity> {
+    private static final ResourceLocation WHITE=ResourceLocation.fromNamespaceAndPath("hobbymod","textures/entity/aquarium_white.png");
     public AquariumRenderer(BlockEntityRendererProvider.Context context){}
     @Override public int getViewDistance(){return 48;}
     @Override public boolean shouldRenderOffScreen(AquariumBlockEntity tank){return true;}
     @Override public boolean shouldRender(AquariumBlockEntity tank,Vec3 camera){
-        var s=tank.data.size;return camera.distanceToSqr(Vec3.atLowerCornerOf(tank.getBlockPos()).add(s.width/2.0,s.height/2.0,s.depth/2.0))<48*48;
+        var s=tank.data.size;return camera.distanceToSqr(Vec3.atLowerCornerOf(tank.getBlockPos()).add(s.blocksWide()/2.0,s.blocksHigh()/2.0,s.blocksDeep()/2.0))<48*48;
     }
     private static TextureAtlasSprite sprite(String name){return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(ResourceLocation.withDefaultNamespace("block/"+name));}
     @Override public void render(AquariumBlockEntity tank,float partial,PoseStack poses,MultiBufferSource buffers,int light,int overlay){
         var d=tank.data;var s=d.size;
-        boolean distant=Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().distanceToSqr(Vec3.atLowerCornerOf(tank.getBlockPos()).add(s.width/2.0,s.height/2.0,s.depth/2.0))>24*24;
+        boolean distant=Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().distanceToSqr(Vec3.atLowerCornerOf(tank.getBlockPos()).add(s.blocksWide()/2.0,s.blocksHigh()/2.0,s.blocksDeep()/2.0))>24*24;
+        double W=s.blocksWide(),H=s.blocksHigh()*.88,D=s.blocksDeep();
+        var solid=buffers.getBuffer(RenderType.entitySolid(WHITE));
+        box(solid,poses.last(),null,.01,.02,.01,W-.01,.10,D-.01,0x303D46,light,overlay);
+        box(solid,poses.last(),null,.01,H-.07,.01,W-.01,H,D-.01,0x303D46,light,overlay);
+        for(double x:new double[]{.01,W-.05})for(double z:new double[]{.01,D-.05})
+            box(solid,poses.last(),null,x,.10,z,x+.04,H-.07,z+.04,0x435763,light,overlay);
+        var glass=buffers.getBuffer(RenderType.entityTranslucent(WHITE));
+        box(glass,poses.last(),null,.04,.10,.04,W-.04,H-.07,.047,0x287AD1DD,light,overlay);
+        box(glass,poses.last(),null,.04,.10,D-.047,W-.04,H-.07,D-.04,0x287AD1DD,light,overlay);
+        box(glass,poses.last(),null,.04,.10,.047,.047,H-.07,D-.047,0x287AD1DD,light,overlay);
+        box(glass,poses.last(),null,W-.047,.10,.047,W-.04,H-.07,D-.047,0x287AD1DD,light,overlay);
+        if(d.filled)box(glass,poses.last(),null,.05,.105,.05,W-.05,H-.13,D-.05,0x263696C4,light,overlay);
+        poses.pushPose();poses.translate(.08,.10,.08);
+        poses.scale((float)((W-.16)/(s.width-2)),(float)((H-.24)/(s.height-2)),(float)((D-.16)/(s.depth-2)));
+        poses.translate(-1,-1,-1);
         var out=buffers.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
         var sand=sprite("sand");
         if(d.substrate)for(int x=1;x<s.width-1;x++)for(int z=1;z<s.depth-1;z++)box(out,poses.last(),sand,x,1.005,z,x+1,1.08,z+1,0xFFFFFF,light,overlay);
@@ -49,7 +65,10 @@ public final class AquariumRenderer implements BlockEntityRenderer<AquariumBlock
                 quad(out,poses.last(),moss,new Vec3(x,1.08,z),new Vec3(x+.25*amount,1.08,z),new Vec3(x+.25*amount,1.08+.7*amount,z),new Vec3(x,1.08+.7*amount,z),0x6C883D,light,overlay);
             }
         }
-        var texture=sprite("quartz_block_side");
+        TextureAtlasSprite texture=null;
+        out=buffers.getBuffer(RenderType.entitySolid(WHITE));
+        // Internal aquarium lamp provides a minimum light level, without full-bright fish.
+        light=Math.max(light&0xFFFF,10<<4) | (Math.max((light>>>16)&0xFFFF,10<<4)<<16);
         double time=tank.getLevel()==null?0:tank.getLevel().getGameTime()+partial;
         if(distant)time=Math.floor(time/20)*20;
         for(var fish:d.fish()){
@@ -61,7 +80,7 @@ public final class AquariumRenderer implements BlockEntityRenderer<AquariumBlock
             double height=switch(fish.species){case ANGELFISH->.19;case BETTA->.12;case NEON_TETRA,ZEBRA_DANIO->.065;default->.09;};
             height*=1+(fish.formA+fish.formB-3)*.08;
             int color=fish.health<35?0xA58F7A:fish.color();
-            box(out,poses.last(),texture,-length,-height,-.075,length,height,.075,color,light,overlay);
+            body(out,poses.last(),length,height,color,light,overlay);
             int stripe=fish.species==AquariumData.Species.NEON_TETRA?0x39DDF5:fish.species==AquariumData.Species.ZEBRA_DANIO?0x344668:fish.species==AquariumData.Species.ANGELFISH?0x484851:color;
             if(stripe!=color)for(int side:new int[]{-1,1})quad(out,poses.last(),texture,new Vec3(-length,0,side*.076),new Vec3(length,0,side*.076),new Vec3(length,.035,side*.076),new Vec3(-length,.035,side*.076),stripe,light,overlay);
             double fan=fish.species==AquariumData.Species.BETTA || fish.species==AquariumData.Species.GUPPY?.17:.10;
@@ -73,6 +92,17 @@ public final class AquariumRenderer implements BlockEntityRenderer<AquariumBlock
             }
             poses.popPose();
         }
+        poses.popPose();
+    }
+    private static void body(VertexConsumer out,PoseStack.Pose pose,double length,double height,int color,int light,int overlay){
+        for(int ring=0;ring<6;ring++)for(int side=0;side<8;side++){
+            Vec3[] v=new Vec3[4];int[][] points={{ring,side},{ring+1,side},{ring+1,side+1},{ring,side+1}};
+            for(int i=0;i<4;i++){
+                double t=Math.PI*(.04+.92*points[i][0]/6.0),angle=2*Math.PI*points[i][1]/8;
+                v[i]=new Vec3(-Math.cos(t)*length,Math.sin(t)*Math.sin(angle)*height,Math.sin(t)*Math.cos(angle)*.075);
+            }
+            quad(out,pose,null,v[0],v[1],v[2],v[3],color,light,overlay);
+        }
     }
     private static void box(VertexConsumer out,PoseStack.Pose pose,TextureAtlasSprite sprite,double x,double y,double z,double X,double Y,double Z,int color,int light,int overlay){
         Vec3 a=new Vec3(x,y,z),b=new Vec3(X,y,z),c=new Vec3(X,Y,z),d=new Vec3(x,Y,z);
@@ -83,12 +113,12 @@ public final class AquariumRenderer implements BlockEntityRenderer<AquariumBlock
     }
     private static void quad(VertexConsumer out,PoseStack.Pose pose,TextureAtlasSprite sprite,Vec3 a,Vec3 b,Vec3 c,Vec3 d,int color,int light,int overlay){
         Vec3 normal=b.subtract(a).cross(c.subtract(a)).normalize();
-        vertex(out,pose,a,sprite.getU0(),sprite.getV1(),color,normal,light,overlay);
-        vertex(out,pose,b,sprite.getU1(),sprite.getV1(),color,normal,light,overlay);
-        vertex(out,pose,c,sprite.getU1(),sprite.getV0(),color,normal,light,overlay);
-        vertex(out,pose,d,sprite.getU0(),sprite.getV0(),color,normal,light,overlay);
+        vertex(out,pose,a,(sprite==null?0:sprite.getU0()),(sprite==null?1:sprite.getV1()),color,normal,light,overlay);
+        vertex(out,pose,b,(sprite==null?1:sprite.getU1()),(sprite==null?1:sprite.getV1()),color,normal,light,overlay);
+        vertex(out,pose,c,(sprite==null?1:sprite.getU1()),(sprite==null?0:sprite.getV0()),color,normal,light,overlay);
+        vertex(out,pose,d,(sprite==null?0:sprite.getU0()),(sprite==null?0:sprite.getV0()),color,normal,light,overlay);
     }
     private static void vertex(VertexConsumer out,PoseStack.Pose pose,Vec3 p,float u,float v,int color,Vec3 normal,int light,int overlay){
-        out.addVertex(pose,(float)p.x,(float)p.y,(float)p.z).setColor((color>>16)&255,(color>>8)&255,color&255,255).setUv(u,v).setOverlay(overlay).setLight(light).setNormal(pose,(float)normal.x,(float)normal.y,(float)normal.z);
+        out.addVertex(pose,(float)p.x,(float)p.y,(float)p.z).setColor((color>>16)&255,(color>>8)&255,color&255,(color>>>24)==0?255:color>>>24).setUv(u,v).setOverlay(overlay).setLight(light).setNormal(pose,(float)normal.x,(float)normal.y,(float)normal.z);
     }
 }

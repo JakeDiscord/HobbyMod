@@ -22,16 +22,29 @@ public final class AquariumControllerBlock extends BaseEntityBlock {
     public static final MapCodec<AquariumControllerBlock> CODEC=simpleCodec(AquariumControllerBlock::new);
     public AquariumControllerBlock(Properties p){super(p);}
     @Override protected MapCodec<? extends BaseEntityBlock> codec(){return CODEC;}
-    @Override public RenderShape getRenderShape(BlockState state){return RenderShape.MODEL;}
+    @Override public RenderShape getRenderShape(BlockState state){return RenderShape.INVISIBLE;}
     @Override public BlockEntity newBlockEntity(BlockPos pos,BlockState state){return new AquariumBlockEntity(pos,state);}
     @Override public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level,BlockState state,BlockEntityType<T> type){return level.isClientSide?null:createTickerHelper(type,AquariumContent.TANK_ENTITY.get(),AquariumBlockEntity::tick);}
-    private static void message(Player player,String message){player.displayClientMessage(Component.literal(message),true);}
+    private static void message(Player player,String message){
+        player.displayClientMessage(Component.literal(message),true);
+        if(player instanceof net.minecraft.server.level.ServerPlayer server)
+            dev.architectury.networking.NetworkManager.sendToPlayer(server,new AquariumNetworking.Notice(message));
+    }
     private static void consume(ItemStack stack,Player player){if(!player.getAbilities().instabuild)stack.shrink(1);}
     private static void refund(Player player,Item item){
         if(player.getAbilities().instabuild)return;
         ItemStack returned=new ItemStack(item);if(!player.addItem(returned))player.drop(returned,false);
     }
     @Override protected ItemInteractionResult useItemOn(ItemStack stack,BlockState state,Level level,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit){
+        open(level,pos,player);return level.isClientSide?ItemInteractionResult.SUCCESS:ItemInteractionResult.CONSUME;
+    }
+    public static void open(Level level,BlockPos pos,Player player){
+        if(player instanceof net.minecraft.server.level.ServerPlayer server && level.getBlockEntity(pos) instanceof AquariumBlockEntity tank){
+            server.connection.send(tank.getUpdatePacket());
+            dev.architectury.networking.NetworkManager.sendToPlayer(server,new AquariumNetworking.Open(pos));
+        }
+    }
+    public ItemInteractionResult applyItem(ItemStack stack,BlockState state,Level level,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit){
         if(!(level.getBlockEntity(pos) instanceof AquariumBlockEntity tank))return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if(level.isClientSide)return ItemInteractionResult.SUCCESS;
         AquariumData d=tank.data;tank.inspect();
@@ -106,19 +119,17 @@ public final class AquariumControllerBlock extends BaseEntityBlock {
         return ItemInteractionResult.CONSUME;
     }
     @Override protected InteractionResult useWithoutItem(BlockState state,Level level,BlockPos pos,Player player,BlockHitResult hit){
-        if(!level.isClientSide && level.getBlockEntity(pos) instanceof AquariumBlockEntity tank){tank.data.selectNext();tank.changed();}
+        open(level,pos,player);
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override protected void onRemove(BlockState state,Level level,BlockPos pos,BlockState replacement,boolean moving){
         if(!state.is(replacement.getBlock()) && !level.isClientSide
                 && level.getBlockEntity(pos) instanceof AquariumBlockEntity tank && level.hasChunksAt(pos,tank.maximum())){
             var size=tank.data.size;
-            // Dismantle only the generated glass and water. Preserve any replacement blocks.
-            for(int y=0;y<size.height;y++)for(int x=0;x<size.width;x++)for(int z=0;z<size.depth;z++){
+            for(int y=0;y<size.blocksHigh();y++)for(int x=0;x<size.blocksWide();x++)for(int z=0;z<size.blocksDeep();z++){
                 if(x==0 && y==0 && z==0)continue;
-                BlockPos cell=pos.offset(x,y,z);BlockState existing=level.getBlockState(cell);
-                if((size.shell(x,y,z) && existing.is(Blocks.GLASS))
-                        || (!size.shell(x,y,z) && y<size.height-1 && existing.is(Blocks.WATER)))level.setBlock(cell,Blocks.AIR.defaultBlockState(),3);
+                BlockPos cell=pos.offset(x,y,z);
+                if(level.getBlockState(cell).is(AquariumContent.PART.get()))level.setBlock(cell,Blocks.AIR.defaultBlockState(),3);
             }
         }
         super.onRemove(state,level,pos,replacement,moving);

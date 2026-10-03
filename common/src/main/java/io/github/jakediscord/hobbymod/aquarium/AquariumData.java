@@ -11,6 +11,9 @@ public final class AquariumData {
     public enum Size {
         SMALL(5,4,4),MEDIUM(7,4,5),LARGE(9,5,6);
         public final int width,height,depth;
+        public int blocksWide(){return this==SMALL?1:this==MEDIUM?2:4;}
+        public int blocksDeep(){return this==LARGE?2:1;}
+        public int blocksHigh(){return this==LARGE?2:1;}
         Size(int w,int h,int d){width=w;height=h;depth=d;}
         public int volume(){return (width-2)*(height-2)*(depth-2);}
         public boolean shell(int x,int y,int z){return y==0 || x==0 || z==0 || x==width-1 || z==depth-1;}

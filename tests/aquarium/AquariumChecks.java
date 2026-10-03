@@ -16,6 +16,9 @@ public final class AquariumChecks {
             for(int x=0;x<s.width;x++)for(int y=0;y<s.height;y++)for(int z=0;z<s.depth;z++)if(!s.shell(x,y,z) && y<s.height-1)volume++;
             check(volume==s.volume(),"enclosure volume mismatch");
         }
+        check(AquariumData.Size.SMALL.blocksWide()==1 && AquariumData.Size.SMALL.blocksDeep()==1,"small store tank must be 1x1");
+        check(AquariumData.Size.MEDIUM.blocksWide()==2 && AquariumData.Size.MEDIUM.blocksDeep()==1,"medium store tank must be 2x1");
+        check(AquariumData.Size.LARGE.blocksWide()==4 && AquariumData.Size.LARGE.blocksDeep()==2,"large store tank must be 4x2");
         var cycling=new AquariumData();cycling.seed=7;
         var starter=cycling.newFish(AquariumData.Species.GUPPY);
         check(!cycling.add(starter),"dry tank accepted fish");cycling.waterChange();
