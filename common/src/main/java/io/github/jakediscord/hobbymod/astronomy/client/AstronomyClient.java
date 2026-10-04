@@ -22,7 +22,7 @@ public final class AstronomyClient {
         NetworkManager.registerReceiver(NetworkManager.Side.S2C,AstronomyNetworking.State.TYPE,AstronomyNetworking.State.CODEC,(p,c)->c.queue(()->{
             var mc=Minecraft.getInstance();if(mc.level==null)return;if(catalog==null || seed!=p.seed()){seed=p.seed();catalog=new SkyCatalog(seed);}sky=p.sky();tick=mc.level.getGameTime();state=p;journal=AstronomyData.decode(p.journal());
             if(p.kind()==AstronomyNetworking.JOURNAL)mc.setScreen(new FieldJournalScreen());
-            else if(p.kind()==AstronomyNetworking.SCOPE || p.kind()==AstronomyNetworking.NAKED)mc.setScreen(new EyepieceScreen(p.pos(),p.kind()==AstronomyNetworking.NAKED));
+            else if(p.kind()==AstronomyNetworking.SCOPE)mc.setScreen(new EyepieceScreen(p.pos(),p.kind()==AstronomyNetworking.NAKED));
             else if(p.kind()==AstronomyNetworking.CLOSE && active())mc.setScreen(null);
         }));
     }

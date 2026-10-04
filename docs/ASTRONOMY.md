@@ -9,7 +9,7 @@ The equipment uses a modern Minecraft style and a digital field journal.
 
 | Equipment | Use |
 | --- | --- |
-| Astronomy Field Journal | Right-click while looking away from a block to open the catalog, constellation charts and sky map. Carry it to record observations. |
+| Astronomy Field Journal | Right-click while looking away from a block to read the catalog, constellation charts and collection goals. Carry it to record telescope or spyglass observations. |
 | Vanilla spyglass | Observe bright stars and planets normally while carrying the journal. |
 | Tripod Telescope | 80 mm aperture, 6–40× magnification. Place on a platform with a free block above it. |
 | Observatory Telescope | 180 mm aperture, 12–100× magnification and target tracking. Leave two free blocks above it for the tube's full movement arc. |
@@ -19,13 +19,17 @@ respectively. The journal uses paper, iron nuggets, glass and redstone. The
 tripod telescope uses a spyglass, iron/copper ingots and sticks; the larger
 instrument uses a telescope, iron blocks, quartz and a redstone block.
 
-Right-click a telescope to use its eyepiece. Drag to aim; hold Shift for finer
-movement. Arrow keys fine-slew. Wheel adjusts focus and Shift-wheel changes
+Right-click a telescope to use its eyepiece. The target finder lists planets,
+reference stars and deep-sky targets above the horizon. Click a row to point the
+mount and select a useful starting magnification, then adjust focus and hold
+steady. Drag to aim manually; hold Shift for finer movement. Arrow keys fine-slew. Wheel adjusts focus and Shift-wheel changes
 magnification. Sharp targets and higher quality indicate good focus. **T** on
 the observatory telescope locks onto the nearest target in its field; drag or
 arrow-key movement releases tracking. **J** opens the journal; Esc exits.
-The barrel turns with the optical view. Opening the journal's **Observe** mode
-uses an unaided view from the player's eyes.
+The barrel and cradle turn with the optical view. The field journal is strictly
+a record: opening it never moves the camera, magnifies the sky or starts an
+observation. Its Collections page tracks seven planets, four complete
+constellation charts, twenty deep-sky discoveries and fully detailed records.
 
 A GLFW-compatible gamepad provides left-stick slew, right-stick fine slew and
 trigger focus adjustment, with a dead zone. Hardware gamepad testing remains
@@ -49,7 +53,8 @@ therefore takes repeated observations across at least two nights. The eyepiece
 shows cooldown, nightly-limit and completed-entry status. The journal retains
 observation counts, best quality and a small field sketch, plus current azimuth,
 altitude and apparent magnitude. Constellation charts count observed reference
-stars. Sky-map points have hover labels and can be clicked to inspect an entry.
+stars. Planet entries show the same pixel textures as their celestial cubes. Successful
+recordings produce a named notification.
 
 Stars cycle through a simplified thirty-two-day observing season so all the
 reference constellations become visible at night. This is a Minecraft sky at a
@@ -101,11 +106,14 @@ The full shared suite contains 80 tests and the native suite contains 59.
 Graphical checks use the NeoForge client with Java 21, Xvfb and Mesa software
 OpenGL. Captures are opened with the image-viewing tool. Checks include modern
 equipment proportions, native cloud visibility, focus and magnification, an
-identified Jupiter, moving-sky tracking, a generated galaxy, real server-earned
+identified Jupiter, textured planetary cubes, brighter reference stars, moving-sky
+tracking, a generated galaxy, real server-earned
 journal progress, constellation diagrams, daylight/rain/roof obstruction and
 GUI layouts at 1280×800 and 854×480. Clear target-detail captures also use the
 native Clouds Off option, while clouds were separately inspected with Fancy.
-Sound is not verified by the headless audio backend.
+Sound is not verified by the headless audio backend. The astronomy polish was
+rechecked in the real client, including target selection, focus/zoom controls,
+journal camera behavior, record notifications and compact layouts.
 
 ## Client screenshots
 
@@ -114,10 +122,14 @@ inspected during testing.
 
 ![Observatory and tripod telescopes](images/astronomy/equipment.png)
 
-![Jupiter with the observatory tracking mount](images/astronomy/tracking.png)
+![Textured Jupiter in the redesigned eyepiece](images/astronomy/tracking.png)
 
 ![Digital journal with server-earned observations](images/astronomy/journal.png)
 
 ![Recognizable constellation chart](images/astronomy/constellations.png)
 
-![Generated galaxy and explicit nightly observation limit](images/astronomy/deep-sky.png)
+![Collection goals without observation controls](images/astronomy/collections.png)
+
+![Textured Mars with a polar cap](images/astronomy/mars.png)
+
+![Simple bright reference-star cube](images/astronomy/star.png)

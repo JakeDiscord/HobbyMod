@@ -56,14 +56,14 @@ public final class AstronomyNetworking {
             double aperture=b==null?(spy?35:0):b.aperture();double quality=SkyCatalog.quality(target,sky,s.focus,s.mag,aperture,p.level().getRainLevel(1),p.level().getBrightness(LightLayer.BLOCK,BlockPos.containing(eye)),target!=null && clear(p,eye,target.direction(sky)));
             if(b==null && target!=null && target.magnitude()>(spy?4:2.5))quality=0;
             s.quality=quality;
-            if(!hasJournal(p))s.message="Carry a field journal to record";else if(target==null)s.message="";else if(quality==0)s.message=SkyCatalog.night(sky)<.4?"Daylight":p.level().isRaining()?"Cloud cover":target.direction(sky).y()<.08?"Below horizon":target.deep() && aperture<60?"Larger aperture needed":"Obstructed view";else if(quality<.2)s.message="Low observation quality";else s.message="";
+            if(!hasJournal(p))s.message="Carry a field journal to record";else if(target==null)s.message="";else if(quality==0)s.message=SkyCatalog.night(sky)<.4?"Daylight":p.level().isRaining()?"Cloud cover":target.direction(sky).y()<.08?"Below horizon":target.deep() && aperture<60?"Larger aperture needed":Math.abs(s.focus-.72)>=1/3.5?"Adjust focus":"Obstructed view";else if(quality<.2)s.message="Low observation quality";else s.message="";
             var entry=target==null?null:data.journal(p.getUUID()).get(target.id());boolean eligible=true;
             if(entry!=null && quality>=.2 && hasJournal(p)){
                 if(entry.completeness>=100){s.message="Catalog entry complete";eligible=false;}
                 else if(entry.night==Math.floorDiv(sky,24000) && entry.nightPoints>=50){s.message="Night record complete";eligible=false;}
                 else if(game>=entry.lastTick && game-entry.lastTick<600){s.message="Next observation in "+((600-(game-entry.lastTick)+19)/20)+"s";eligible=false;}
             }
-            if(s.exposure.advance(target==null?-1:target.id(),hasJournal(p) && eligible?quality:0,game,sky) && target!=null){if(data.journal(p.getUUID()).record(target.id(),quality,sky,game)){data.setDirty();s.message="Observation saved";}else s.message="Return for another observation";send(p,SYNC,s);}
+            if(s.exposure.advance(target==null?-1:target.id(),hasJournal(p) && eligible?quality:0,game,sky) && target!=null){if(data.journal(p.getUUID()).record(target.id(),quality,sky,game)){data.setDirty();s.message="Observation saved";p.playNotifySound(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP,net.minecraft.sounds.SoundSource.PLAYERS,.35f,1.35f);p.displayClientMessage(net.minecraft.network.chat.Component.literal("Recorded "+target.name()+" · "+data.journal(p.getUUID()).get(target.id()).completeness+"%"),false);}else s.message="Return for another observation";send(p,SYNC,s);}
             if(spy && !SESSIONS.containsKey(p)){SESSIONS.put(p,s);s.heartbeat=game;}if(spy)s.heartbeat=game;
             if(game%20==0)send(p,SYNC,s);
         }
@@ -78,7 +78,7 @@ public final class AstronomyNetworking {
             if(a.kind==CLOSE){SESSIONS.remove(p);return;}
             if(a.kind!=AIM){var previous=REQUESTS.get(p);if(previous!=null && game>=previous && game-previous<5)return;REQUESTS.put(p,game);}
             if(a.kind==JOURNAL){if(hasJournal(p))openJournal(p);return;}
-            if(a.kind==NAKED){if(!hasJournal(p) || p.level().dimension()!=Level.OVERWORLD)return;s=new Session(null);s.yaw=p.getYRot();s.pitch=p.getXRot();s.focus=.72f;s.mag=1;s.heartbeat=game;SESSIONS.put(p,s);send(p,NAKED,s);return;}
+            if(a.kind==NAKED)return; // The field journal never opens an optical view.
             if(a.kind!=AIM || s==null || (s.pos!=null && !s.pos.equals(a.pos)) || game-s.lastAction<3)return;
             if(!Float.isFinite(a.yaw) || !Float.isFinite(a.pitch) || !Float.isFinite(a.focus) || !Float.isFinite(a.magnification))return;
             s.lastAction=game;s.heartbeat=game;s.yaw=net.minecraft.util.Mth.wrapDegrees(a.yaw);s.pitch=Math.clamp(a.pitch,-89,15);s.focus=Math.clamp(a.focus,0,1);
