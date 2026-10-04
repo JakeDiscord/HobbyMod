@@ -35,5 +35,8 @@
   "item.hobbymod.green_pottery_glaze": "Green Pottery Glaze",
   "item.hobbymod.red_pottery_glaze": "Red Pottery Glaze",
   "item.hobbymod.black_pottery_glaze": "Black Pottery Glaze",
-  "item.hobbymod.marble_blueprint": "Marble Blueprint"
+  "item.hobbymod.marble_blueprint": "Marble Blueprint",
+  "block.hobbymod.telescope": "Tripod Telescope",
+  "block.hobbymod.observatory_telescope": "Observatory Telescope",
+  "item.hobbymod.astronomy_journal": "Astronomy Field Journal"
 }
