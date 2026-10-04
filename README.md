@@ -3,6 +3,15 @@
 A Minecraft **1.21.1 / NeoForge** mod combining marble sculpture, astronomy,
 vineries, painting, cameras, woodworking, and other creative hobbies.
 
+## Winery
+
+Grow red and white grapes on wooden trellises, choose their ripeness, and press
+blends into must. Ferment with yeast, rack and age in a cool cellar, then bottle
+and label your vintages. Wine racks display the bottles; tasting reveals notes
+and rewards good quality. Native inventory menus, animated pressing, and
+optional hopper/redstone automation keep the process straightforward.
+See [the Winery guide](docs/WINERY.md) for crafting and the full workflow.
+
 ## Astronomy
 
 Craft a tripod telescope, then an observatory telescope with tracking. Explore
@@ -114,7 +123,7 @@ You must remain within six blocks of the section you carve; moving the camera
 does not move your player or extend their reach.
 
 The models reuse vanilla calcite, quartz, iron, and wood textures. Natural
-marble deposits and astronomy are future work.
+marble deposits are future work.
 
 ## Marble blueprints
 
@@ -196,7 +205,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for 80 tests covering sculpting, pottery, blueprints, aquarium care/layout, painting, rendering caches, terrarium care/motion/terrain, DJ project/scheduling/audio, and astronomy catalog/observations. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for 90 tests covering sculpting, pottery, blueprints, aquarium care/layout, painting, rendering caches, terrarium care/motion/terrain, DJ project/scheduling/audio, wine batches/aging/issuance, and astronomy catalog/observations. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -207,12 +216,13 @@ blank, survival and symmetry, creative and smoothing, stale revisions and perman
 coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
 Nine additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
 Nine aquarium GameTests cover placement, item returns, care, aquascaping and persistence.
+Ten Winery GameTests cover processing costs, elapsed time, duplicate casks, inventory guards, hopper automation, racks and tasting.
 Six DJ GameTests cover recording costs, project loading, edit authorization, transport, speaker range, pickup and one-shot completion.
 
 Nine terrarium GameTests cover land placement, survival care supplies, colony collection, precise rotation, carrying the planted enclosure, wild capture, biome spawn coverage and permanent death/body cleanup.
 Four astronomy GameTests cover survival telescope placement/headroom, saved optics/mining, observation permissions and journal/catalog persistence.
 Six painting GameTests cover supplies, strokes, signatures, canvas saves, wall support and the two-block easel.
-Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, nine `TERRARIUM_TEST_PASS`, six `DJ_TEST_PASS`, four `ASTRONOMY_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
+Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, nine `TERRARIUM_TEST_PASS`, six `DJ_TEST_PASS`, ten `WINERY_TEST_PASS`, four `ASTRONOMY_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
 above. Do not rebuild without `-Pgametest` while these tests are starting: that
 removes test classes from the development output. If also launching a client,

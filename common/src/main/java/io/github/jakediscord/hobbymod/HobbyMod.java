@@ -14,6 +14,10 @@ public final class HobbyMod {
 
     public static void init() {
         HobbyContent.register();
+        io.github.jakediscord.hobbymod.winery.WineryContent.register();
+        io.github.jakediscord.hobbymod.winery.WineryNetworking.register();
+        dev.architectury.utils.EnvExecutor.runInEnv(dev.architectury.utils.Env.CLIENT,
+                () -> io.github.jakediscord.hobbymod.winery.client.WineryClient::init);
         io.github.jakediscord.hobbymod.astronomy.AstronomyContent.register();
         io.github.jakediscord.hobbymod.astronomy.AstronomyNetworking.register();
         dev.architectury.utils.EnvExecutor.runInEnv(dev.architectury.utils.Env.CLIENT,

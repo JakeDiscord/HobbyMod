@@ -1,0 +1,27 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "material": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "hobbymod:white_grapes"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "material"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "hobbymod:white_grape_cutting_from_grapes"
+    ]
+  }
+}

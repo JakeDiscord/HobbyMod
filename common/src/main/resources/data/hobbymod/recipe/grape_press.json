@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " I ",
+    "PPP",
+    "SBS"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "S": {
+      "tag": "minecraft:wooden_slabs"
+    },
+    "B": {
+      "item": "minecraft:piston"
+    }
+  },
+  "result": {
+    "id": "hobbymod:grape_press",
+    "count": 1
+  }
+}

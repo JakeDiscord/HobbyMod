@@ -1,0 +1,244 @@
+{
+  "variants": {
+    "vine=empty,facing=north": {
+      "model": "hobbymod:block/grape_trellis",
+      "y": 0
+    },
+    "vine=empty,facing=east": {
+      "model": "hobbymod:block/grape_trellis",
+      "y": 90
+    },
+    "vine=empty,facing=south": {
+      "model": "hobbymod:block/grape_trellis",
+      "y": 180
+    },
+    "vine=empty,facing=west": {
+      "model": "hobbymod:block/grape_trellis",
+      "y": 270
+    },
+    "vine=red,age=0,facing=north": {
+      "model": "hobbymod:block/grape_vine_red_0",
+      "y": 0
+    },
+    "vine=red,age=0,facing=east": {
+      "model": "hobbymod:block/grape_vine_red_0",
+      "y": 90
+    },
+    "vine=red,age=0,facing=south": {
+      "model": "hobbymod:block/grape_vine_red_0",
+      "y": 180
+    },
+    "vine=red,age=0,facing=west": {
+      "model": "hobbymod:block/grape_vine_red_0",
+      "y": 270
+    },
+    "vine=red,age=1,facing=north": {
+      "model": "hobbymod:block/grape_vine_red_1",
+      "y": 0
+    },
+    "vine=red,age=1,facing=east": {
+      "model": "hobbymod:block/grape_vine_red_1",
+      "y": 90
+    },
+    "vine=red,age=1,facing=south": {
+      "model": "hobbymod:block/grape_vine_red_1",
+      "y": 180
+    },
+    "vine=red,age=1,facing=west": {
+      "model": "hobbymod:block/grape_vine_red_1",
+      "y": 270
+    },
+    "vine=red,age=2,facing=north": {
+      "model": "hobbymod:block/grape_vine_red_2",
+      "y": 0
+    },
+    "vine=red,age=2,facing=east": {
+      "model": "hobbymod:block/grape_vine_red_2",
+      "y": 90
+    },
+    "vine=red,age=2,facing=south": {
+      "model": "hobbymod:block/grape_vine_red_2",
+      "y": 180
+    },
+    "vine=red,age=2,facing=west": {
+      "model": "hobbymod:block/grape_vine_red_2",
+      "y": 270
+    },
+    "vine=red,age=3,facing=north": {
+      "model": "hobbymod:block/grape_vine_red_3",
+      "y": 0
+    },
+    "vine=red,age=3,facing=east": {
+      "model": "hobbymod:block/grape_vine_red_3",
+      "y": 90
+    },
+    "vine=red,age=3,facing=south": {
+      "model": "hobbymod:block/grape_vine_red_3",
+      "y": 180
+    },
+    "vine=red,age=3,facing=west": {
+      "model": "hobbymod:block/grape_vine_red_3",
+      "y": 270
+    },
+    "vine=red,age=4,facing=north": {
+      "model": "hobbymod:block/grape_vine_red_4",
+      "y": 0
+    },
+    "vine=red,age=4,facing=east": {
+      "model": "hobbymod:block/grape_vine_red_4",
+      "y": 90
+    },
+    "vine=red,age=4,facing=south": {
+      "model": "hobbymod:block/grape_vine_red_4",
+      "y": 180
+    },
+    "vine=red,age=4,facing=west": {
+      "model": "hobbymod:block/grape_vine_red_4",
+      "y": 270
+    },
+    "vine=red,age=5,facing=north": {
+      "model": "hobbymod:block/grape_vine_red_5",
+      "y": 0
+    },
+    "vine=red,age=5,facing=east": {
+      "model": "hobbymod:block/grape_vine_red_5",
+      "y": 90
+    },
+    "vine=red,age=5,facing=south": {
+      "model": "hobbymod:block/grape_vine_red_5",
+      "y": 180
+    },
+    "vine=red,age=5,facing=west": {
+      "model": "hobbymod:block/grape_vine_red_5",
+      "y": 270
+    },
+    "vine=red,age=6,facing=north": {
+      "model": "hobbymod:block/grape_vine_red_6",
+      "y": 0
+    },
+    "vine=red,age=6,facing=east": {
+      "model": "hobbymod:block/grape_vine_red_6",
+      "y": 90
+    },
+    "vine=red,age=6,facing=south": {
+      "model": "hobbymod:block/grape_vine_red_6",
+      "y": 180
+    },
+    "vine=red,age=6,facing=west": {
+      "model": "hobbymod:block/grape_vine_red_6",
+      "y": 270
+    },
+    "vine=white,age=0,facing=north": {
+      "model": "hobbymod:block/grape_vine_white_0",
+      "y": 0
+    },
+    "vine=white,age=0,facing=east": {
+      "model": "hobbymod:block/grape_vine_white_0",
+      "y": 90
+    },
+    "vine=white,age=0,facing=south": {
+      "model": "hobbymod:block/grape_vine_white_0",
+      "y": 180
+    },
+    "vine=white,age=0,facing=west": {
+      "model": "hobbymod:block/grape_vine_white_0",
+      "y": 270
+    },
+    "vine=white,age=1,facing=north": {
+      "model": "hobbymod:block/grape_vine_white_1",
+      "y": 0
+    },
+    "vine=white,age=1,facing=east": {
+      "model": "hobbymod:block/grape_vine_white_1",
+      "y": 90
+    },
+    "vine=white,age=1,facing=south": {
+      "model": "hobbymod:block/grape_vine_white_1",
+      "y": 180
+    },
+    "vine=white,age=1,facing=west": {
+      "model": "hobbymod:block/grape_vine_white_1",
+      "y": 270
+    },
+    "vine=white,age=2,facing=north": {
+      "model": "hobbymod:block/grape_vine_white_2",
+      "y": 0
+    },
+    "vine=white,age=2,facing=east": {
+      "model": "hobbymod:block/grape_vine_white_2",
+      "y": 90
+    },
+    "vine=white,age=2,facing=south": {
+      "model": "hobbymod:block/grape_vine_white_2",
+      "y": 180
+    },
+    "vine=white,age=2,facing=west": {
+      "model": "hobbymod:block/grape_vine_white_2",
+      "y": 270
+    },
+    "vine=white,age=3,facing=north": {
+      "model": "hobbymod:block/grape_vine_white_3",
+      "y": 0
+    },
+    "vine=white,age=3,facing=east": {
+      "model": "hobbymod:block/grape_vine_white_3",
+      "y": 90
+    },
+    "vine=white,age=3,facing=south": {
+      "model": "hobbymod:block/grape_vine_white_3",
+      "y": 180
+    },
+    "vine=white,age=3,facing=west": {
+      "model": "hobbymod:block/grape_vine_white_3",
+      "y": 270
+    },
+    "vine=white,age=4,facing=north": {
+      "model": "hobbymod:block/grape_vine_white_4",
+      "y": 0
+    },
+    "vine=white,age=4,facing=east": {
+      "model": "hobbymod:block/grape_vine_white_4",
+      "y": 90
+    },
+    "vine=white,age=4,facing=south": {
+      "model": "hobbymod:block/grape_vine_white_4",
+      "y": 180
+    },
+    "vine=white,age=4,facing=west": {
+      "model": "hobbymod:block/grape_vine_white_4",
+      "y": 270
+    },
+    "vine=white,age=5,facing=north": {
+      "model": "hobbymod:block/grape_vine_white_5",
+      "y": 0
+    },
+    "vine=white,age=5,facing=east": {
+      "model": "hobbymod:block/grape_vine_white_5",
+      "y": 90
+    },
+    "vine=white,age=5,facing=south": {
+      "model": "hobbymod:block/grape_vine_white_5",
+      "y": 180
+    },
+    "vine=white,age=5,facing=west": {
+      "model": "hobbymod:block/grape_vine_white_5",
+      "y": 270
+    },
+    "vine=white,age=6,facing=north": {
+      "model": "hobbymod:block/grape_vine_white_6",
+      "y": 0
+    },
+    "vine=white,age=6,facing=east": {
+      "model": "hobbymod:block/grape_vine_white_6",
+      "y": 90
+    },
+    "vine=white,age=6,facing=south": {
+      "model": "hobbymod:block/grape_vine_white_6",
+      "y": 180
+    },
+    "vine=white,age=6,facing=west": {
+      "model": "hobbymod:block/grape_vine_white_6",
+      "y": 270
+    }
+  }
+}

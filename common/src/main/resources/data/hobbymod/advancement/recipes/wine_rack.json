@@ -1,0 +1,27 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "material": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "hobbymod:wine_bottle"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "material"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "hobbymod:wine_rack"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "hobbymod:block/wine_rack",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "hobbymod:block/wine_rack",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "hobbymod:block/wine_rack",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "hobbymod:block/wine_rack",
+      "y": 270
+    }
+  }
+}
