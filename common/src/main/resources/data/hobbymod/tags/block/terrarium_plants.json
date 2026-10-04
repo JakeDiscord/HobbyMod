@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:moss_block",
+    "minecraft:fern",
+    "minecraft:azalea",
+    "minecraft:poppy",
+    "minecraft:oak_sapling"
+  ]
+}

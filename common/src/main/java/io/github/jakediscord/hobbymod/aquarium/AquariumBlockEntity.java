@@ -42,35 +42,46 @@ public final class AquariumBlockEntity extends BlockEntity {
                 worldPosition.getX()+blocksWide(),worldPosition.getY()+data.size.blocksHigh(),worldPosition.getZ()+blocksDeep());
     }
     public BlockPos maximum(){return worldPosition.offset(blocksWide()-1,data.size.blocksHigh()-1,blocksDeep()-1);}
-    public void changed(){setChanged();if(level!=null)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
+    public void changed(){updateLight();setChanged();if(level!=null)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
+    private void updateLight(){
+        if(level==null || level.isClientSide)return;var state=getBlockState();boolean lit=data.terrarium!=null && (data.terrarium.heatLamp || data.terrarium.lamp);
+        if(state.hasProperty(AquariumControllerBlock.LIT) && state.getValue(AquariumControllerBlock.LIT)!=lit)level.setBlock(worldPosition,state.setValue(AquariumControllerBlock.LIT,lit),3);
+    }
     public Condition inspect(){
         if(level==null || !level.hasChunksAt(worldPosition,maximum()))return condition=Condition.UNLOADED;
         for(int y=0;y<data.size.blocksHigh();y++)for(int x=0;x<blocksWide();x++)for(int z=0;z<blocksDeep();z++){
             if(x==0 && y==0 && z==0)continue;
             if(!level.getBlockState(worldPosition.offset(x,y,z)).is(AquariumContent.PART.get()))return condition=Condition.BROKEN_GLASS;
         }
-        return condition=data.filled?Condition.READY:Condition.EMPTY;
+        return condition=data.terrarium!=null || data.filled?Condition.READY:Condition.EMPTY;
     }
     public boolean water(boolean fill){
+        if(data.terrarium!=null)return false;
         if(inspect()==Condition.UNLOADED || condition==Condition.BROKEN_GLASS)return false;
         if(fill){if(!data.filled)clock.reset();data.waterChange();}else data.drain();
         inspect();changed();return true;
     }
     public boolean restoreWater(){inspect();changed();return true;}
     public String warning(){
+        if(data.terrarium!=null && condition==Condition.UNLOADED)return "Load the whole enclosure.";
+        if(data.terrarium!=null && condition==Condition.BROKEN_GLASS)return "Repair the enclosure.";
+        if(data.terrarium!=null)return data.terrarium.advice(io.github.jakediscord.hobbymod.terrarium.TerrariumActions.plants(data));
         return switch(condition){case UNLOADED->"Tank partly unloaded.";case BROKEN_GLASS->"Repair tank walls.";
             case MISSING_WATER->"Refill missing water.";case EMPTY->"Fill the tank.";case READY->data.issue(true);};
     }
     public static void tick(Level level,BlockPos pos,BlockState state,AquariumBlockEntity tank){
         if(level.isClientSide)return;
         if(level.getGameTime()%20==0){
-            Condition previous=tank.condition;boolean filled=tank.data.filled;
-            tank.inspect();if(previous!=tank.condition || filled!=tank.data.filled)tank.changed();
+            tank.updateLight();Condition previous=tank.condition;boolean filled=tank.data.filled;
+            tank.inspect();boolean lighting=false;
+            if(tank.data.terrarium!=null){var d=tank.data.terrarium;int actual=d.heatLamp?14:d.lamp?12:level.getMaxLocalRawBrightness(pos.above());lighting=d.light!=actual;d.light=actual;}
+            if(previous!=tank.condition || filled!=tank.data.filled || lighting)tank.changed();
         }
         if(tank.condition==Condition.UNLOADED){tank.clock.reset();return;}
         if(!tank.clock.poll(level.getGameTime()))return;
         tank.inspect();if(tank.condition==Condition.UNLOADED){tank.clock.reset();return;}
-        tank.data.advance(tank.condition==Condition.READY,level.getMaxLocalRawBrightness(pos.above())>=9);
+        if(tank.data.terrarium!=null)tank.data.terrarium.advance(tank.condition==Condition.READY,io.github.jakediscord.hobbymod.terrarium.TerrariumActions.plants(tank.data),level.getMaxLocalRawBrightness(pos.above()),tank.data.seed);
+        else tank.data.advance(tank.condition==Condition.READY,level.getMaxLocalRawBrightness(pos.above())>=9);
         tank.changed();
     }
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){

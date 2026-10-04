@@ -56,11 +56,25 @@ public final class AquariumOrbit {
         var t=tank();if(t==null)return null;var mc=Minecraft.getInstance();Vec3 world=mc.gameRenderer.getMainCamera().getPosition();Vec3 o=t.toLocal(world);Vec3 end=t.toLocal(world.add(ray(mx,my,partial).scale(48)));
         double nearest=Double.MAX_VALUE;java.util.UUID found=null;
         for(var piece:t.data.scape.pieces()){
-            var b=AquariumScape.bounds(piece,t.data.size);var box=new AABB(b.x(),b.y(),b.z(),b.X(),b.Y(),b.Z());
+            var b=io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.bounds(piece,t.data);var box=new AABB(b.x(),b.y(),b.z(),b.X(),b.Y(),b.Z());
             var hit=box.clip(o,end);double dist=box.contains(o)?0:hit.map(v->v.distanceToSqr(o)).orElse(Double.MAX_VALUE);
             if(dist<nearest){nearest=dist;found=piece.id();}
         }
         return found;
+    }
+    public static Vec3 terrain(double mx,double my,float partial){
+        var t=tank();if(t==null || t.data.terrarium==null || !t.data.substrate)return null;var s=t.data.size;var land=t.data.terrarium;var world=Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 o=t.toLocal(world),dir=t.toLocal(world.add(ray(mx,my,partial))).subtract(o);double best=Double.POSITIVE_INFINITY;
+        int nx=io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.X,nz=io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.Z;double ay=(s.blocksHigh()*.88-.24)/(s.height-2);
+        for(int x=0;x<nx;x++)for(int z=0;z<nz;z++){
+            double X=.08+x*(s.blocksWide()-.16)/nx,XX=.08+(x+1)*(s.blocksWide()-.16)/nx,Z=.08+z*(s.blocksDeep()-.16)/nz,ZZ=.08+(z+1)*(s.blocksDeep()-.16)/nz;
+            var a=new Vec3(X,.1+land.terrain.vertex(land,x,z)*ay,Z);var b=new Vec3(X,.1+land.terrain.vertex(land,x,z+1)*ay,ZZ);var c=new Vec3(XX,.1+land.terrain.vertex(land,x+1,z+1)*ay,ZZ);var d=new Vec3(XX,.1+land.terrain.vertex(land,x+1,z)*ay,Z);
+            best=Math.min(best,Math.min(triangle(o,dir,a,b,c),triangle(o,dir,a,c,d)));
+        }return Double.isFinite(best)?o.add(dir.scale(best)):null;
+    }
+    private static double triangle(Vec3 o,Vec3 dir,Vec3 a,Vec3 b,Vec3 c){
+        var edge=b.subtract(a);var other=c.subtract(a);var cross=dir.cross(other);double det=edge.dot(cross);if(Math.abs(det)<1e-8)return Double.POSITIVE_INFINITY;
+        var offset=o.subtract(a);double u=offset.dot(cross)/det;if(u<0 || u>1)return Double.POSITIVE_INFINITY;var q=offset.cross(edge);double v=dir.dot(q)/det;if(v<0 || u+v>1)return Double.POSITIVE_INFINITY;double distance=other.dot(q)/det;return distance>=0?distance:Double.POSITIVE_INFINITY;
     }
     public static Vec3 plane(double mx,double my,float partial,double y){
         Vec3 o=Minecraft.getInstance().gameRenderer.getMainCamera().getPosition(),d=ray(mx,my,partial);

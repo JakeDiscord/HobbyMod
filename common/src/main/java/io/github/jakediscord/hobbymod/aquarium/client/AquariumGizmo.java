@@ -10,7 +10,7 @@ import org.joml.Vector3f;
 /** Camera-projected 3D handles anchored to the selected piece, drawn over glass. */
 final class AquariumGizmo {
     record Point(double x,double y) {}
-    record Handle(int axis,boolean scale,Vec3 direction,Vec3 center,Vec3 end) {}
+    record Handle(int axis,boolean scale,boolean rotate,Vec3 direction,Vec3 center,Vec3 end) {}
     static AquariumScape.Piece piece(){var t=AquariumOrbit.tank();return t==null || AquariumOrbit.selected==null?null:t.data.scape.pieces().stream().filter(p->p.id().equals(AquariumOrbit.selected)).findFirst().orElse(null);}
     static Point project(Vec3 local,float partial){
         var mc=Minecraft.getInstance();var t=AquariumOrbit.tank();if(t==null)return null;
@@ -24,29 +24,48 @@ final class AquariumGizmo {
     }
     static java.util.List<Handle> handles(){
         var p=piece();var t=AquariumOrbit.tank();if(p==null || t==null)return java.util.List.of();
-        var b=AquariumScape.bounds(p,t.data.size);var center=new Vec3((b.x()+b.X())/2,(b.y()+b.Y())/2,(b.z()+b.Z())/2);
-        double angle=p.rotation()*Math.PI/2,c=Math.cos(angle),s=Math.sin(angle);
-        Vec3[] axes={new Vec3(c,0,-s),new Vec3(0,1,0),new Vec3(s,0,c)};
+        var b=io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.bounds(p,t.data);var center=new Vec3((b.x()+b.X())/2,(b.y()+b.Y())/2,(b.z()+b.Z())/2);
+        Vec3[] axes=new Vec3[3];var size=t.data.size;
+        double ax=(size.blocksWide()-.16)/(size.width-2),ay=(size.blocksHigh()*.88-.24)/(size.height-2),az=(size.blocksDeep()-.16)/(size.depth-2);
+        for(int i=0;i<3;i++){var v=AquariumScape.rotate(p,i==0?1:0,i==1?1:0,i==2?1:0);axes[i]=new Vec3(v[0]*ax,v[1]*ay,v[2]*az).normalize();}
         double[] ext={p.rotation()%2==0?b.X()-b.x():b.Z()-b.z(),b.Y()-b.y(),p.rotation()%2==0?b.Z()-b.z():b.X()-b.x()};
+        if(AquariumScape.precise(p))for(int i=0;i<3;i++)ext[i]=Math.abs(axes[i].x)*(b.X()-b.x())+Math.abs(axes[i].y)*(b.Y()-b.y())+Math.abs(axes[i].z)*(b.Z()-b.z());
         var result=new java.util.ArrayList<Handle>();
         for(int axis=0;axis<3;axis++){
             double length=ext[axis]/2+.22;
-            result.add(new Handle(axis,false,axes[axis],center,center.add(axes[axis].scale(length))));
-            result.add(new Handle(axis,true,axes[axis].scale(-1),center,center.subtract(axes[axis].scale(length))));
+            result.add(new Handle(axis,false,false,axes[axis],center,center.add(axes[axis].scale(length))));
+            result.add(new Handle(axis,true,false,axes[axis].scale(-1),center,center.subtract(axes[axis].scale(length))));
+        }
+        if(t.data.terrarium!=null){
+            double yaw=Math.toRadians(p.rotation()*90+p.yaw()),pitch=Math.toRadians(p.pitch());
+            Vec3[] rotationAxes={new Vec3(Math.cos(yaw),0,-Math.sin(yaw)),new Vec3(0,1,0),new Vec3(Math.sin(yaw)*Math.cos(pitch),-Math.sin(pitch),Math.cos(yaw)*Math.cos(pitch))};
+            double radius=Math.max(.32,Math.min(.75,Math.max(b.X()-b.x(),Math.max(b.Y()-b.y(),b.Z()-b.z()))*.65+.18));
+            for(int i=0;i<3;i++)result.add(new Handle(i,false,true,rotationAxes[i].normalize(),center,center.add(radius,0,0)));
         }
         return result;
     }
     static Handle pick(double x,double y,float partial){
         Handle found=null;double best=100;
-        for(var h:handles()){var p=project(h.end,partial);if(p==null)continue;double distance=(p.x-x)*(p.x-x)+(p.y-y)*(p.y-y);if(distance<best){best=distance;found=h;}}
+        for(var h:handles()){
+            if(h.rotate){if(found!=null && !found.rotate && best<36)continue;Point previous=null;for(int i=0;i<=64;i++){var p=project(ring(h,i*Math.PI*2/64),partial);if(p!=null && previous!=null){double distance=segmentDistance(x,y,previous,p);if(distance<best){best=distance;found=h;}}previous=p;}}
+            else{var p=project(h.end,partial);if(p==null)continue;double distance=(p.x-x)*(p.x-x)+(p.y-y)*(p.y-y);if(distance<best){best=distance;found=h;}}
+        }
         return found;
     }
     static void draw(GuiGraphics g,double mouseX,double mouseY,float partial,Handle active){
         var hovered=pick(mouseX,mouseY,partial);
         for(var h:handles()){
+            if(h.rotate){
+                int color=h.axis==0?0xFFFF6262:h.axis==1?0xFF6CE989:0xFF669DFF;
+                boolean highlighted=(active!=null && active.rotate && active.axis==h.axis) || h.equals(hovered);if(highlighted)color=0xFFFFE69B;
+                Point previous=null;for(int i=0;i<=64;i++){var p=project(ring(h,i*Math.PI*2/64),partial);if(p!=null && previous!=null)line(g,previous,p,color,highlighted?2:1);previous=p;}
+                var end=project(ring(h,Math.PI*.35),partial);var before=project(ring(h,Math.PI*.35-.14),partial);
+                if(end!=null && before!=null){arrow(g,before,end,color);g.drawString(Minecraft.getInstance().font,"↻"+(h.axis==0?"X":h.axis==1?"Y":"Z"),(int)end.x+6,(int)end.y-3,color,false);}
+                continue;
+            }
             var start=project(h.center,partial);var end=project(h.end,partial);if(start==null || end==null)continue;
             int color=h.axis==0?0xFFFF6262:h.axis==1?0xFF6CE989:0xFF669DFF;
-            if((active!=null && active.axis==h.axis && active.scale==h.scale) || h.equals(hovered))color=0xFFFFE69B;
+            if((active!=null && active.axis==h.axis && active.scale==h.scale && !active.rotate) || h.equals(hovered))color=0xFFFFE69B;
             line(g,start,end,color,h.scale?1:2);
             if(h.scale){
                 double r=Math.clamp(AquariumOrbit.distance*.018,.035,.14);var corners=new Point[8];
@@ -68,7 +87,25 @@ final class AquariumGizmo {
             }
             g.drawString(Minecraft.getInstance().font,"XYZ".substring(h.axis,h.axis+1),(int)end.x+7,(int)end.y-4,color,false);
         }
-        if(hovered!=null)g.drawString(Minecraft.getInstance().font,(hovered.scale?"Scale ":"Move ")+"XYZ".charAt(hovered.axis),(int)mouseX+12,(int)mouseY+10,0xFFFFFFFF);
+        if(hovered!=null)g.drawString(Minecraft.getInstance().font,(hovered.rotate?"Rotate ":hovered.scale?"Scale ":"Move ")+"XYZ".charAt(hovered.axis),(int)mouseX+12,(int)mouseY+10,0xFFFFFFFF);
+    }
+    private static Vec3 ring(Handle h,double angle){
+        var ref=Math.abs(h.direction.y)<.9?new Vec3(0,1,0):new Vec3(1,0,0);Vec3 a=h.direction.cross(ref).normalize(),b=h.direction.cross(a).normalize();
+        return h.center.add(a.scale(Math.cos(angle)*h.center.distanceTo(h.end))).add(b.scale(Math.sin(angle)*h.center.distanceTo(h.end)));
+    }
+    static Vec3 rotationVector(Handle h,double x,double y,float partial){
+        var tank=AquariumOrbit.tank();if(tank==null)return null;var world=Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();Vec3 origin=tank.toLocal(world),direction=tank.toLocal(world.add(AquariumOrbit.ray(x,y,partial))).subtract(origin);
+        double dot=direction.dot(h.direction);if(Math.abs(dot)<.001)return null;double distance=h.center.subtract(origin).dot(h.direction)/dot;if(distance<0)return null;
+        var v=origin.add(direction.scale(distance)).subtract(h.center);return v.lengthSqr()<.0001?null:v.normalize();
+    }
+    private static double segmentDistance(double x,double y,Point a,Point b){double dx=b.x-a.x,dy=b.y-a.y,n=dx*dx+dy*dy,t=n==0?0:Math.clamp(((x-a.x)*dx+(y-a.y)*dy)/n,0,1);return Math.pow(x-a.x-t*dx,2)+Math.pow(y-a.y-t*dy,2);}
+    private static void arrow(GuiGraphics g,Point before,Point end,int color){double dx=end.x-before.x,dy=end.y-before.y,n=Math.hypot(dx,dy);if(n<1)return;dx/=n;dy/=n;line(g,end,new Point(end.x-dx*7+dy*4,end.y-dy*7-dx*4),color,2);line(g,end,new Point(end.x-dx*7-dy*4,end.y-dy*7+dx*4),color,2);}
+    static void terrainCursor(GuiGraphics g,double x,double y,float partial,double radius,double anchorX,double anchorZ){
+        var t=AquariumOrbit.tank();var hit=AquariumOrbit.terrain(x,y,partial);if(t==null || hit==null && !Double.isFinite(anchorX))return;var s=t.data.size;double px=Double.isFinite(anchorX)?anchorX:(hit.x-.08)/(s.blocksWide()-.16),pz=Double.isFinite(anchorX)?anchorZ:(hit.z-.08)/(s.blocksDeep()-.16);
+        Point previous=null;for(int i=0;i<=48;i++){double a=i*Math.PI/24,u=Math.clamp(px+Math.cos(a)*radius,0,1),v=Math.clamp(pz+Math.sin(a)*radius,0,1);
+            var p=project(new Vec3(.08+u*(s.blocksWide()-.16),.105+t.data.terrarium.terrain.sample(t.data.terrarium,u,v)*(s.blocksHigh()*.88-.24)/(s.height-2),.08+v*(s.blocksDeep()-.16)),partial);
+            if(p!=null && previous!=null)line(g,previous,p,0xFFFFE69B,2);previous=p;
+        }
     }
     private static int shade(int color,double factor){return 0xFF000000|((int)(((color>>16)&255)*factor)<<16)|((int)(((color>>8)&255)*factor)<<8)|(int)((color&255)*factor);}
     private static void fill(GuiGraphics g,Point[] polygon,int color){

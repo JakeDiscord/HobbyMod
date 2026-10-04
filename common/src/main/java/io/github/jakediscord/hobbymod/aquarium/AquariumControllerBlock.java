@@ -21,8 +21,9 @@ import net.minecraft.world.phys.BlockHitResult;
 public final class AquariumControllerBlock extends BaseEntityBlock {
     public static final MapCodec<AquariumControllerBlock> CODEC=simpleCodec(AquariumControllerBlock::new);
     public static final net.minecraft.world.level.block.state.properties.DirectionProperty FACING=net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
-    public AquariumControllerBlock(Properties p){super(p);registerDefaultState(stateDefinition.any().setValue(FACING,Direction.SOUTH));}
-    @Override protected void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition.Builder<Block,BlockState> builder){builder.add(FACING);}
+    public static final net.minecraft.world.level.block.state.properties.BooleanProperty LIT=net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT;
+    public AquariumControllerBlock(Properties p){super(p);registerDefaultState(stateDefinition.any().setValue(FACING,Direction.SOUTH).setValue(LIT,false));}
+    @Override protected void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition.Builder<Block,BlockState> builder){builder.add(FACING,LIT);}
     @Override public BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context){return defaultBlockState().setValue(FACING,context.getHorizontalDirection());}
     @Override public BlockState rotate(BlockState state,Rotation rotation){return state.setValue(FACING,rotation.rotate(state.getValue(FACING)));}
     @Override public BlockState mirror(BlockState state,Mirror mirror){return rotate(state,mirror.getRotation(state.getValue(FACING)));}
@@ -53,6 +54,7 @@ public final class AquariumControllerBlock extends BaseEntityBlock {
         if(!(level.getBlockEntity(pos) instanceof AquariumBlockEntity tank))return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if(level.isClientSide)return ItemInteractionResult.SUCCESS;
         AquariumData d=tank.data;tank.inspect();
+        if(d.terrarium!=null)return io.github.jakediscord.hobbymod.terrarium.TerrariumActions.apply(stack,tank,player,hand);
         if(tank.condition==AquariumBlockEntity.Condition.UNLOADED){message(player,"Load the whole tank first.");return ItemInteractionResult.CONSUME;}
         SoundEvent sound=SoundEvents.AZALEA_PLACE;boolean changed=false;
         if(stack.isEmpty()){
@@ -136,7 +138,7 @@ public final class AquariumControllerBlock extends BaseEntityBlock {
         if((kind==AquariumScape.Material.SEAGRASS || kind==AquariumScape.Material.KELP) && !d.substrate){message(player,"Lay sand or gravel before planting.");return false;}
         String block=kind==AquariumScape.Material.BLOCK?net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(((BlockItem)stack.getItem()).getBlock()).toString():"";
         if(!d.scape.add(new AquariumScape.Piece(kind,x,z,Math.floorMod(rotation,4),0,1,1,1,java.util.UUID.randomUUID(),block))){message(player,"Decoration limit reached, or position outside the tank.");return false;}
-        d.scape.fitAll(d.size);d.syncScape();consume(stack,player);tank.changed();message(player,"Placed "+stack.getHoverName().getString()+".");return true;
+        String label=stack.getHoverName().getString();d.scape.fitAll(d.size);d.syncScape();consume(stack,player);tank.changed();message(player,"Placed "+label+".");return true;
     }
     public static boolean removeDecor(Player player,AquariumBlockEntity tank,int index){
         tank.data.ensureScape();var piece=tank.data.scape.remove(index);if(piece==null)return false;
@@ -161,7 +163,7 @@ public final class AquariumControllerBlock extends BaseEntityBlock {
     @Override protected List<ItemStack> getDrops(BlockState state,LootParams.Builder builder){
         var entity=builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         var size=entity instanceof AquariumBlockEntity tank?tank.data.size:AquariumData.Size.SMALL;
-        ItemStack stack=new ItemStack(AquariumContent.KITS.get(size).get());
+        ItemStack stack=new ItemStack(entity instanceof AquariumBlockEntity t && t.data.terrarium!=null?io.github.jakediscord.hobbymod.terrarium.TerrariumContent.KIT.get():AquariumContent.KITS.get(size).get());
         if(entity instanceof AquariumBlockEntity tank)stack.set(DataComponents.BLOCK_ENTITY_DATA,CustomData.of(tank.saveWithId(tank.getLevel().registryAccess())));
         return List.of(stack);
     }

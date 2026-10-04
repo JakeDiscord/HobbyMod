@@ -47,6 +47,7 @@ public final class AquariumData {
         }
         public String label(){return name.isEmpty()?species.label:name;}
     }
+    public io.github.jakediscord.hobbymod.terrarium.TerrariumData terrarium;
     public final AquariumScape scape=new AquariumScape();
     public boolean gravel;
     public int births,discovered;

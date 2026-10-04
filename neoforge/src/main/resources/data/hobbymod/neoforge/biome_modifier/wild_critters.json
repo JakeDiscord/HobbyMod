@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#hobbymod:wild_critter_habitats",
+  "spawners": [
+    {
+      "type": "hobbymod:wild_critter",
+      "weight": 6,
+      "minCount": 1,
+      "maxCount": 2
+    }
+  ]
+}
