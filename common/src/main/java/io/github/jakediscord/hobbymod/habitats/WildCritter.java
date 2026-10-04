@@ -17,7 +17,7 @@ public final class WildCritter extends PathfinderMob {
     public WildCritter(EntityType<? extends WildCritter> type,Level level){super(type,level);}
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder){super.defineSynchedData(builder);builder.define(KIND,0);builder.define(VARIANT,0);}
     public TerrariumData.Species species(){return TerrariumData.Species.values()[Math.clamp(entityData.get(KIND),0,TerrariumData.Species.values().length-1)];}
-    public TerrariumData.Resident resident(){var r=new TerrariumData.Resident(getUUID(),species(),Math.clamp(entityData.get(VARIANT),0,3));r.vigor=Math.clamp((int)(getHealth()/getMaxHealth()*100),20,100);return r;}
+    public TerrariumData.Resident resident(){var r=new TerrariumData.Resident(getUUID(),species(),Math.clamp(entityData.get(VARIANT),0,3));r.vigor=Math.clamp((int)(getHealth()/getMaxHealth()*100),0,100);return r;}
     public void setSpecies(TerrariumData.Species species,int variant){entityData.set(KIND,species.ordinal());entityData.set(VARIANT,Math.clamp(variant,0,3));getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(species==TerrariumData.Species.SNAIL?.065:species.vertebrate()?.15:.10);}
     public static AttributeSupplier.Builder attributes(){return Mob.createMobAttributes().add(Attributes.MAX_HEALTH,6).add(Attributes.MOVEMENT_SPEED,.10).add(Attributes.FOLLOW_RANGE,12);}
     @Override protected void registerGoals(){goalSelector.addGoal(0,new FloatGoal(this));goalSelector.addGoal(1,new PanicGoal(this,1.3));goalSelector.addGoal(3,new WaterAvoidingRandomStrollGoal(this,.7,.001F));goalSelector.addGoal(4,new LookAtPlayerGoal(this,Player.class,4));goalSelector.addGoal(5,new RandomLookAroundGoal(this));}

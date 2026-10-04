@@ -51,4 +51,11 @@ class AquariumHobbyTest {
         }
     }
 
+    @Test void deadFishNeverReviveBreedOrEnterCarryingBuckets(){
+        var d=new AquariumData();d.filled=true;d.cycle=5;d.filter=true;var fish=d.newFish(AquariumData.Species.GUPPY);assertTrue(d.add(fish));
+        for(int i=0;i<20;i++)d.advance(true,false);assertFalse(fish.alive());assertEquals(1,d.bodies());assertNull(d.capture());assertEquals(1,d.fish().size());assertEquals(0,d.load());
+        d.food=100;d.plants=5;d.quality=100;for(int i=0;i<20;i++)d.advance(true,false);assertFalse(fish.alive());assertEquals(0,d.births);assertFalse(d.canAdd(fish).isEmpty());
+        var saved=new AquariumData();AquariumNbt.load(saved,AquariumNbt.save(d));assertEquals(1,saved.bodies());assertEquals(1,saved.removeBodies());assertEquals(0,saved.removeBodies());assertTrue(saved.fish().isEmpty());
+    }
+
 }

@@ -15,7 +15,7 @@ public final class AquariumOverlay {
         var c=Minecraft.getInstance();
         if(c.level==null || c.player==null || c.screen!=null || c.options.hideGui || !(c.hitResult instanceof BlockHitResult hit))return;
         var tank=AquariumPartBlock.find(c.level,hit.getBlockPos());if(tank==null)return;
-        String text=tank.data.terrarium==null?"Right-click to manage aquarium":"Right-click to manage terrarium";var g=event.getGuiGraphics();int x=(g.guiWidth()-c.font.width(text))/2,y=g.guiHeight()-65;
+        String text=tank.warning();if(text.isEmpty())return;var g=event.getGuiGraphics();int x=(g.guiWidth()-c.font.width(text))/2,y=g.guiHeight()-65;
         g.fill(x-4,y-3,x+c.font.width(text)+4,y+12,0xA0000000);g.drawString(c.font,text,x,y,0xFFFFFF,true);
     }
 }

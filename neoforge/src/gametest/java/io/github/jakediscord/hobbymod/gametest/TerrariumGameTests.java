@@ -81,4 +81,12 @@ public final class TerrariumGameTests {
         var species=new java.util.HashSet<>(io.github.jakediscord.hobbymod.habitats.WildAquariumFish.speciesFor(river));species.addAll(io.github.jakediscord.hobbymod.habitats.WildAquariumFish.speciesFor(ocean));h.assertTrue(species.size()==AquariumData.Species.values().length,"Warm oceans and cool rivers together must offer all eight fish");pass(h,"naturalSpawnBiomesOfferEveryResidentSpecies");
     }
 
+    @GameTest(template="aquarium_empty") public static void unhealthyResidentsDieAndCleanupDoesNotCreateLiveCarriers(GameTestHelper h){
+        var p=player(h);var tank=tank(h,p);use(p,tank,Items.DIRT,1);use(p,tank,TerrariumContent.FROGS.get(),1);var land=tank.data.terrarium;var frog=land.residents().getFirst();frog.vigor=1;land.food=0;land.advance(true,0,8,42);h.assertTrue(!frog.alive(),"Unhealthy animals must die");
+        p.setShiftKeyDown(true);use(p,tank,TerrariumContent.FROGS.get(),1);p.setShiftKeyDown(false);h.assertTrue(land.bodies()==1,"Collection must not resurrect a body into a carrier");
+        var saved=new AquariumData();AquariumNbt.load(saved,AquariumNbt.save(tank.data));h.assertTrue(saved.terrarium.bodies()==1,"Saved body remains dead");int carriers=p.getInventory().countItem(TerrariumContent.FROGS.get());h.assertTrue(tank.removeBodies()==1 && tank.removeBodies()==0,"Cleanup removes a corpse exactly once");h.assertTrue(p.getInventory().countItem(TerrariumContent.FROGS.get())==carriers,"Cleanup creates no living animals");
+        tank.data.terrarium=null;tank.data.filled=true;tank.data.cycle=5;var fish=tank.data.newFish(AquariumData.Species.GUPPY);tank.data.add(fish);fish.health=1;tank.data.food=0;tank.data.advance(true,false);h.assertTrue(!fish.alive(),"Unhealthy fish must die");
+        p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.BUCKET));AquariumContent.CONTROLLER.get().applyItem(p.getMainHandItem(),tank.getBlockState(),p.level(),tank.getBlockPos(),p,InteractionHand.MAIN_HAND,new BlockHitResult(Vec3.atCenterOf(tank.getBlockPos()),Direction.UP,tank.getBlockPos(),false));h.assertTrue(tank.data.bodies()==1 && p.getMainHandItem().is(Items.BUCKET),"Dead fish cannot be captured as living fish or consume a bucket");h.assertTrue(tank.removeBodies()==1 && tank.data.fish().isEmpty(),"Aquarium body cleanup must work on the actual tank");pass(h,"unhealthyResidentsDieAndCleanupDoesNotCreateLiveCarriers");
+    }
+
 }

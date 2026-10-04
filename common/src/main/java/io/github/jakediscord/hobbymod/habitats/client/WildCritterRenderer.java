@@ -14,7 +14,7 @@ public final class WildCritterRenderer extends EntityRenderer<WildCritter> {
     @Override public ResourceLocation getTextureLocation(WildCritter e){return ResourceLocation.fromNamespaceAndPath("hobbymod","textures/entity/aquarium_white.png");}
     @Override public void render(WildCritter e,float yaw,float partial,PoseStack poses,MultiBufferSource buffers,int light){
         var r=e.resident();double time=e.tickCount+partial,gait=e.walkAnimation.position(partial)*4;
-        var p=new TerrariumMotion.Pose(0,0,Math.toRadians(e.yBodyRot+90),e.onGround()?0:.018,gait,Math.toRadians(e.yHeadRot-e.yBodyRot),e.getDeltaMovement().horizontalDistanceSqr()>.00001?TerrariumMotion.Activity.EXPLORE:TerrariumMotion.Activity.REST);
-        poses.pushPose();float scale=r.species.vertebrate()?2:3;poses.scale(scale,scale,scale);models.render(r,p,e.level(),time,partial,poses,buffers,light,net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY,false);poses.popPose();super.render(e,yaw,partial,poses,buffers,light);
+        var p=new TerrariumMotion.Pose(0,0,Math.toRadians(e.yBodyRot+90),e.onGround()?0:.018,gait,Math.toRadians(e.yHeadRot-e.yBodyRot),e.getDeltaMovement().horizontalDistanceSqr()>.00001?TerrariumMotion.Activity.EXPLORE:TerrariumMotion.Activity.REST,e.onGround()?-1:.5);
+        poses.pushPose();float scale=r.species.vertebrate()?2:3;poses.scale(scale,scale,scale);models.render(r,e.getUUID(),p,e.level(),time,partial,poses,buffers,light,net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY,false);poses.popPose();super.render(e,yaw,partial,poses,buffers,light);
     }
 }

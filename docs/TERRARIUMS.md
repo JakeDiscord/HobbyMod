@@ -8,7 +8,7 @@ Existing aquariums keep their fish and water care.
 ## Setup and supplies
 
 Craft the enclosure with eight glass surrounding a copper ingot. Place it on a
-solid surface, then right-click to open **Ecosystem**, **Layout** or **Guide**.
+solid surface, then right-click to open **Ecosystem** or **Layout**.
 The displayed inventory is your real inventory; supplies are consumed in
 survival, and successful misting/trimming wears the tool.
 
@@ -87,13 +87,16 @@ room lighting change.
 
 ![A sculpted sand landscape with thicker drainage and indoor heat-lamp lighting](terrarium-terrain.png)
 
-## A gentle display ecosystem
+## Care and mortality
 
 The server advances care once per loaded minute. Moisture, humidity, light,
 food and average resident comfort are visible in the care screen. Plants help
 retain humidity; a lamp overrides environmental light. Leaf litter is consumed
-slowly, and a dry or hungry colony loses comfort rather than dying randomly.
-Misting and feeding allow it to recover. Unloaded or broken enclosures pause
+slowly. Poor conditions reduce health by two points per loaded minute; healthy
+conditions restore two. Misting and feeding allow recovery before health reaches
+zero. At zero, residents die and remain visible as stationary bodies.
+**Remove bodies** clears them without creating living carriers. Dead residents
+never recover, breed or get collected as living animals. Unloaded or broken enclosures pause
 simulation; elapsed unloaded time does not cause a care penalty on return.
 
 Closed, planted, comfortable colonies with at least two mature inhabitants can
@@ -112,13 +115,15 @@ future extensions.
 
 ## Validation
 
-Eleven shared terrarium tests cover recoverable neglect, long-running capped breeding,
+Thirteen shared terrarium tests cover recoverable neglect, long-running capped breeding,
 resident collection, save compatibility, 6,000 rotated layouts and bounded
-seeded motion. Eight native GameTests exercise real land-kit placement,
+seeded motion, trapped-agent recovery, frame-rate independent hops and permanent
+death. Nine native GameTests exercise real land-kit placement,
 survival supply consumption and refunds, colony identity round trips, arbitrary
 rotation, mining/replacement, wild capture without duplication, fish water vessels,
-native entity settings and biome spawn coverage. These bring the suite to 51 shared tests and
-48 native GameTests. The normal release build excludes development GameTests.
+native entity settings, biome spawn coverage and corpse cleanup without live
+item duplication. These bring the suite to 54 shared tests and
+49 native GameTests. The normal release build excludes development GameTests.
 
 Graphical NeoForge client testing used Java 21, Xvfb and Mesa software OpenGL.
 Screenshots were captured and opened with the image-viewing tool. Checks
@@ -174,3 +179,25 @@ rotation reset and Y-arrow burial. Survival mouse interactions captured a real
 wild gecko and fish; fish capture without a water bucket showed the recovery
 hint. Spawn biomes and complete fish species availability were checked by native
 GameTests, rather than waiting for random sightings in the flat QA world.
+
+## Movement, plants and simpler controls
+
+Blocked residents choose a clear route or rest without repeatedly rotating; they
+resume exploration when an obstacle is removed. Frogs are smaller, with brief
+vanilla jump animations and pauses between hops. Animation advances on game
+ticks rather than rendering frames, and each enclosure has its own frog proxies.
+Saplings and azalea use culled native cutout faces to avoid drawing both sides
+of a plant plane at the same depth.
+
+Care screens now contain Ecosystem/Fish and Layout tabs, essential statistics,
+normal item tooltips and actual warnings. Repeated tutorials and guide panels
+have been removed. The 3D editor keeps its handles and concise control names.
+
+The follow-up graphical play-test opened captures at 854×480 and 1280×800.
+Front and side views showed complete plant faces, smaller upright frogs,
+changing bug positions and stationary bodies. Clicking Remove bodies removed
+two residents, reduced the count and disabled the empty cleanup control.
+
+![Simplified terrarium care after removing two bodies](terrarium-body-cleanup.png)
+
+![Native plant faces and smaller frogs behind glass](terrarium-plant-faces.png)

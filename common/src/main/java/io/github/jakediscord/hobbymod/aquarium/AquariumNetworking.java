@@ -102,6 +102,7 @@ public final class AquariumNetworking {
                     || !(player.level().getBlockEntity(a.pos) instanceof AquariumBlockEntity tank))return;
             long now=player.level().getGameTime();Long last=LAST.get(player);if(last!=null && now>=last && now-last<2)return;LAST.put(player,now);
             NetworkManager.sendToPlayer(player,new Notice(""));
+            if(a.slot==-3){int count=tank.removeBodies();NetworkManager.sendToPlayer(player,new Notice(count==0?"No bodies":"Removed "+count+" bodies"));player.connection.send(tank.getUpdatePacket());return;}
             if(tank.data.terrarium!=null && a.slot==-2){tank.data.terrarium.open=!tank.data.terrarium.open;tank.changed();player.connection.send(tank.getUpdatePacket());return;}
             if(a.fishId!=null){int found=-1;for(int i=0;i<tank.data.fish().size();i++)if(tank.data.fish().get(i).id.equals(a.fishId)){found=i;break;}if(found<0){NetworkManager.sendToPlayer(player,new Notice("That fish has moved. Select a resident again."));return;}tank.data.selected=found;}
             else if(a.resident>=0 && a.resident<tank.data.fish().size())tank.data.selected=a.resident;

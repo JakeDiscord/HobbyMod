@@ -50,12 +50,9 @@ removing a different piece cannot redirect your edit.
 Kelp and seagrass differ in height. Driftwood has branches;
 rocks stack into small formations. Plants sway in the water.
 
-**Fish guide** explains all eight species, water temperatures, stocking loads,
-schooling and incompatibilities. The journal remembers species introduced to
-this tank even after they move elsewhere. Healthy adult pairs produce fry with
-inherited colors; your tank records how many fry have been born. Hover a fish
-for acclimation and habitat advice. Schooling advice is helpful, not an extra
-punishment for keeping fewer than three.
+The **Fish** tab shows resident health, sex, age and acclimation. Healthy adult
+pairs produce fry with inherited colors. The screen retains actual water and
+compatibility warnings while omitting tutorial panels.
 
 1. Fill the aquarium with a water bucket.
 2. Lay sand or gravel and arrange plants, rocks and driftwood.
@@ -115,7 +112,9 @@ twelve load per minute. The screen estimates the minutes of food remaining.
 
 Poor water, no food, incompatible fish, wrong temperature, drainage or excessive
 stocking cause 8 health loss per minute. Healthy conditions restore 4. Fish are
-never silently deleted at zero health. Healthy, fed, acclimated adult pairs of
+dead at zero health and remain as stationary bodies on the substrate. Use
+**Remove bodies** in the Fish tab to clear them; bodies cannot recover or be
+captured as living fish, and add waste until removed. Healthy, fed, acclimated adult pairs of
 the same species breed at quality 75% or above, with a six-minute cooldown and
 at most four fry per update. Fry inherit color/form alleles and parent IDs,
 and mature over eight minutes. Stocking and compatibility limits also apply
@@ -185,7 +184,7 @@ as well. Audio was unavailable in the cloud graphical session.
 
 ![Arrange the aquarium with real inventory items](aquarium-aquascape.png)
 
-![Fish guide and the tank’s species journal](aquarium-fish-guide.png)
+The earlier screenshot set predates removal of the Fish guide panel.
 
 ![Fish gather near the surface after feeding](aquarium-feeding.png)
 
@@ -239,3 +238,14 @@ Its species, color genes and identity are retained. Wild aquarium fish also
 accept the usual direct water-bucket interaction. Existing bag recipes remain
 available. Aquarium editors now include **Reset rotation** beside the other
 layout controls.
+
+## Mortality and simplified care validation
+
+The follow-up graphical client check opened screenshots at 854×480 and
+1280×800. A zero-health guppy remained visibly colored and motionless on the
+substrate behind the water and glass. Remove bodies cleared it, reduced the
+resident count and disabled the control. Shared and native tests verify that
+care cannot revive bodies, carrying preserves death and cleanup cannot create
+live fish or animal items.
+
+![Simplified fish care with a dead resident and body removal](aquarium-body-care.png)

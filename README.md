@@ -176,7 +176,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for forty-eight tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, three blueprint serialization/validation tests, seven aquarium layout/care/persistence tests, seven painting raster/shape/persistence tests, three rendering geometry/cache tests, and eight terrarium ecosystem/rotation/motion/terrain tests. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for 54 tests covering sculpting, pottery, blueprints, aquarium care/layout, painting, rendering caches and terrarium care/motion/terrain. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -187,9 +187,9 @@ blank, survival and symmetry, creative and smoothing, stale revisions and perman
 coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
 Nine additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
 Nine aquarium GameTests cover placement, item returns, care, aquascaping and persistence.
-Eight terrarium GameTests cover land placement, survival care supplies, colony collection, precise rotation, carrying the planted enclosure, wild capture and biome spawn coverage.
+Nine terrarium GameTests cover land placement, survival care supplies, colony collection, precise rotation, carrying the planted enclosure, wild capture, biome spawn coverage and permanent death/body cleanup.
 Six painting GameTests cover supplies, strokes, signatures, canvas saves, wall support and the two-block easel.
-Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, five `TERRARIUM_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
+Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, nine `TERRARIUM_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
 above. Do not rebuild without `-Pgametest` while these tests are starting: that
 removes test classes from the development output. If also launching a client,

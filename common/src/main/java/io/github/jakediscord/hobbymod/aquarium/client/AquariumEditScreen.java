@@ -68,8 +68,6 @@ public final class AquariumEditScreen extends Screen {
                 if(AquariumOrbit.tank().data.terrarium!=null)g.drawString(font,String.format(java.util.Locale.ROOT,"Rotation %.1f / %.1f / %.1f",p.rotation()*90+p.yaw(),p.pitch(),p.roll()),8,146,0xFFFFFF);
             }
         }
-        g.drawString(font,terrainMode?"Hold to sculpt · Shift lowers · Shift-wheel brush size":AquariumOrbit.tank().data.terrarium!=null?"Arrows move · Cubes scale · Curved arrows rotate":"Arrows move · Cubes scale",8,height-43,0xFFFFFF);
-        g.drawString(font,"Right-drag orbit · Wheel zoom",8,height-29,0xFFFFFF);
         if(!notice.isEmpty())g.drawString(font,notice,8,height-15,0xFFE6A0);
     }
     @Override public boolean mouseClicked(double x,double y,int button){

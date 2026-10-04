@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public final class AquariumBlockEntity extends BlockEntity {
+    public int removeBodies(){if(level==null || level.isClientSide)return 0;int count=data.terrarium==null?data.removeBodies():data.terrarium.removeBodies();if(count>0)changed();return count;}
     public enum Condition { READY,EMPTY,MISSING_WATER,BROKEN_GLASS,UNLOADED }
     public final AquariumData data=new AquariumData();
     public long fedAt=-1000;
