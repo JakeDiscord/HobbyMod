@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "hobbymod:red_grapes",
+    {
+      "id": "vinery:red_grape",
+      "required": false
+    }
+  ]
+}

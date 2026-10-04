@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "hobbymod:pottery_wheel"
+    "hobbymod:pottery_wheel",
+    "hobbymod:grape_trellis",
+    "hobbymod:grape_press",
+    "hobbymod:fermentation_barrel",
+    "hobbymod:wine_rack"
   ]
 }

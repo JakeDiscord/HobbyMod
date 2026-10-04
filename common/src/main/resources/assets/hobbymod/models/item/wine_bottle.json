@@ -1,0 +1,17 @@
+{
+  "parent": "hobbymod:block/wine_bottle_red",
+  "overrides": [
+    {
+      "predicate": {
+        "hobbymod:wine_color": 0.5
+      },
+      "model": "hobbymod:item/wine_bottle_white"
+    },
+    {
+      "predicate": {
+        "hobbymod:wine_color": 1
+      },
+      "model": "hobbymod:item/wine_bottle_rose"
+    }
+  ]
+}

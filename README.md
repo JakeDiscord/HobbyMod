@@ -3,6 +3,15 @@
 A Minecraft **1.21.1 / NeoForge** mod combining marble sculpture, astronomy,
 vineries, painting, cameras, woodworking, and other creative hobbies.
 
+## Winery
+
+Grow red and white grapes on wooden trellises, choose their ripeness, and press
+blends into must. Ferment with yeast, rack and age in a cool cellar, then bottle
+and label your vintages. Wine racks display the bottles; tasting reveals notes
+and rewards good quality. Native inventory menus, animated pressing, and
+optional hopper/redstone automation keep the process straightforward.
+See [the Winery guide](docs/WINERY.md) for crafting and the full workflow.
+
 ## DJ and music production
 
 Craft a **DJ Workstation** to compose and perform music in a Minecraft-style DAW.
@@ -186,7 +195,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for 72 tests covering sculpting, pottery, blueprints, aquarium care/layout, painting, rendering caches, terrarium care/motion/terrain and DJ project/scheduling/audio. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for 82 tests covering sculpting, pottery, blueprints, aquarium care/layout, painting, rendering caches, terrarium care/motion/terrain, DJ project/scheduling/audio and wine batches/aging/issuance. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -197,11 +206,12 @@ blank, survival and symmetry, creative and smoothing, stale revisions and perman
 coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
 Nine additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
 Nine aquarium GameTests cover placement, item returns, care, aquascaping and persistence.
+Ten Winery GameTests cover processing costs, elapsed time, duplicate casks, inventory guards, hopper automation, racks and tasting.
 Six DJ GameTests cover recording costs, project loading, edit authorization, transport, speaker range, pickup and one-shot completion.
 
 Nine terrarium GameTests cover land placement, survival care supplies, colony collection, precise rotation, carrying the planted enclosure, wild capture, biome spawn coverage and permanent death/body cleanup.
 Six painting GameTests cover supplies, strokes, signatures, canvas saves, wall support and the two-block easel.
-Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, nine `TERRARIUM_TEST_PASS`, six `DJ_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
+Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, nine `TERRARIUM_TEST_PASS`, six `DJ_TEST_PASS`, ten `WINERY_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
 above. Do not rebuild without `-Pgametest` while these tests are starting: that
 removes test classes from the development output. If also launching a client,

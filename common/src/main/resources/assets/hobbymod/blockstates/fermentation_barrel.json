@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "hobbymod:block/fermentation_barrel",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "hobbymod:block/fermentation_barrel",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "hobbymod:block/fermentation_barrel",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "hobbymod:block/fermentation_barrel",
+      "y": 270
+    }
+  }
+}
