@@ -101,7 +101,9 @@ exposures, repeated-night limits, invalid quality, observing conditions and
 rare synchronized meteor windows. Four native GameTests cover survival item
 consumption and headroom, saved optics and mining drops, distance/existing-mount
 permissions, inventory journals, journal serialization and shared catalog seeds.
-The full shared suite contains 80 tests and the native suite contains 59.
+The astronomy implementation and polish passed the 80 shared tests and 59
+native tests available before Winery integration. README tracks the current
+full-suite totals.
 
 Graphical checks use the NeoForge client with Java 21, Xvfb and Mesa software
 OpenGL. Captures are opened with the image-viewing tool. Checks include modern
