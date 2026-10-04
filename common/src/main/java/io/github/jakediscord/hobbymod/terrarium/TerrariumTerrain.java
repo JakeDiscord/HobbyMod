@@ -5,9 +5,11 @@ import io.github.jakediscord.hobbymod.aquarium.*;
 /** Small saved height field shared by terrain rendering, brush picking and resident grounding. */
 public final class TerrariumTerrain {
     public static final int X=8,Z=4,COUNT=(X+1)*(Z+1);
+    private long revision;
+    public long revision(){return revision;}
     private final int[] heights=new int[COUNT]; // Millimetres of model height relative to the substrate bed.
     public int[] saved(){return heights.clone();}
-    public void load(int[] saved){java.util.Arrays.fill(heights,0);for(int i=0;i<Math.min(COUNT,saved.length);i++)heights[i]=Math.clamp(saved[i],-220,800);}
+    public void load(int[] saved){revision++;java.util.Arrays.fill(heights,0);for(int i=0;i<Math.min(COUNT,saved.length);i++)heights[i]=Math.clamp(saved[i],-220,800);}
     public static double drainage(TerrariumData d){return d.drainage?.16:0;}
     public static double bed(TerrariumData d){return d.substrate==TerrariumData.Substrate.NONE?drainage(d):drainage(d)+switch(d.substrate){case SAND->.26;case SOIL->.22;case MOSS->.18;default->0;};}
     public double vertex(TerrariumData d,int x,int z){return Math.clamp(bed(d)+heights[z*(X+1)+x]/1000.0,Math.max(.08,drainage(d)+.04),1.2);}
@@ -27,7 +29,7 @@ public final class TerrariumTerrain {
             int next;if(mode==2){int sum=0,n=0;for(int dz=-1;dz<=1;dz++)for(int dx=-1;dx<=1;dx++)if(ix+dx>=0 && ix+dx<=X && iz+dz>=0 && iz+dz<=Z){sum+=before[(iz+dz)*(X+1)+ix+dx];n++;}next=(int)Math.round(before[i]+(sum/(double)n-before[i])*weight*.4);}
             else next=before[i]+(int)Math.round((mode==0?60:-60)*weight);
             next=Math.clamp(next,-220,800);if(next!=heights[i]){heights[i]=next;changed=true;}
-        }return changed;
+        }if(changed)revision++;return changed;
     }
     public static AquariumScape.Bounds bounds(AquariumScape.Piece p,AquariumData d){
         var b=AquariumScape.bounds(p,d.size);if(d.terrarium==null)return b;

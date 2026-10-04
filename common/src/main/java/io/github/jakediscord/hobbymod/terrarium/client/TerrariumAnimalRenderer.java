@@ -16,21 +16,31 @@ import net.minecraft.world.level.Level;
 /** Small pixel-shaped animals with distance-driven feet, feelers, breathing and native frog animation. */
 public final class TerrariumAnimalRenderer {
     private static final ResourceLocation WHITE=ResourceLocation.fromNamespaceAndPath("hobbymod","textures/entity/aquarium_white.png");
-    private final Map<UUID,Frog> frogs=new LinkedHashMap<>(64,.75f,true){protected boolean removeEldestEntry(Map.Entry<UUID,Frog> e){return size()>128;}};
+    private record FrogKey(Object enclosure,UUID resident){}
+    private final Map<FrogKey,Frog> frogs=new LinkedHashMap<>(64,.75f,true){protected boolean removeEldestEntry(Map.Entry<FrogKey,Frog> e){if(size()>128){frogTicks.remove(e.getKey());return true;}return false;}};
     private Level world;
+    private final Map<FrogKey,Integer> frogTicks=new HashMap<>();
     private static void cube(VertexConsumer out,PoseStack poses,double x,double y,double z,double X,double Y,double Z,int color,int light,int overlay){AquariumRenderer.box(out,poses.last(),null,x,y,z,X,Y,Z,color,light,overlay);}
-    public void render(TerrariumData.Resident r,TerrariumMotion.Pose p,Level level,double time,float partial,PoseStack poses,MultiBufferSource buffers,int light,int overlay,boolean distant){
-        if(world!=level){world=level;frogs.clear();}
+    public void render(TerrariumData.Resident r,Object enclosure,TerrariumMotion.Pose p,Level level,double time,float partial,PoseStack poses,MultiBufferSource buffers,int light,int overlay,boolean distant){
+        if(world!=level){world=level;frogs.clear();frogTicks.clear();}
         if(r.species==TerrariumData.Species.TREE_FROG){
-            var frog=frogs.computeIfAbsent(r.id,id->new Frog(EntityType.FROG,level));frog.setNoAi(true);frog.tickCount=(int)time;
+            var key=new FrogKey(enclosure,r.id);var frog=frogs.computeIfAbsent(key,id->new Frog(EntityType.FROG,level));frog.setNoAi(true);frog.tickCount=(int)time;
             var variants=level.registryAccess().registryOrThrow(Registries.FROG_VARIANT);
             frog.setVariant(variants.getHolder(ResourceLocation.withDefaultNamespace(new String[]{"temperate","warm","cold","temperate"}[r.variant])).orElseThrow());
             float yaw=(float)(Math.toDegrees(p.yaw())-90);frog.yBodyRot=frog.yBodyRotO=yaw;frog.yHeadRot=frog.yHeadRotO=yaw+(float)Math.toDegrees(p.head());frog.setYRot(yaw);frog.yRotO=yaw;
-            boolean hop=p.bob()>.008;frog.jumpAnimationState.animateWhen(hop,frog.tickCount);frog.croakAnimationState.animateWhen(p.activity()==TerrariumMotion.Activity.GROOM,frog.tickCount);
-            frog.walkAnimation.update(hop?.5f:p.activity()==TerrariumMotion.Activity.EXPLORE?.2f:0,.25f);
-            poses.pushPose();poses.scale(.34f,.34f,.34f);Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(frog).render(frog,yaw,partial,poses,buffers,light);poses.popPose();return;
+            int tick=(int)Math.floor(time);Integer previous=frogTicks.put(key,tick);
+            if(previous==null || previous!=tick){
+                boolean jumping=r.alive() && p.jump()>=0;
+                if(jumping){int start=tick-(int)Math.round(p.jump()*TerrariumMotion.HOP_TICKS);if(!frog.jumpAnimationState.isStarted())frog.jumpAnimationState.start(start);}else frog.jumpAnimationState.stop();
+                frog.croakAnimationState.animateWhen(r.alive() && p.activity()==TerrariumMotion.Activity.GROOM,tick);
+                // One update per game tick. Hopping and walking never play on top of each other.
+                frog.walkAnimation.update(0,1);
+            }
+            frog.deathTime=r.alive()?0:20;
+            poses.pushPose();if(!r.alive())poses.translate(0,.045,0);poses.scale(.28f,.28f,.28f);Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(frog).render(frog,yaw,partial,poses,buffers,light);poses.popPose();return;
         }
         poses.pushPose();poses.mulPose(Axis.YP.rotationDegrees((float)TerrariumMotion.modelYaw(p.yaw())));
+        if(!r.alive()){poses.translate(0,.025,0);poses.mulPose(Axis.ZP.rotationDegrees(90));}
         var out=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));int color;
         if(r.species==TerrariumData.Species.GECKO){
             color=new int[]{0x7C9B43,0xD6B05D,0x8A9F91,0xC47950}[r.variant];

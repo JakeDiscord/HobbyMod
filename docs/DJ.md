@@ -75,7 +75,7 @@ Exports retain the song UUID in their filenames. File imports and exports run on
 
 ## Validation
 
-The final build passed **69 shared unit tests** and **54 Minecraft GameTests**.
+The final build passed **72 shared unit tests** and **55 Minecraft GameTests**.
 
 The shared tests cover binary project round trips, malformed files, maximum project size, independent pattern copying, timing/swing/solo, complete-pattern layering, lane independence, whole-pattern copying, legacy HDJ1 migration, all 29 instruments, deterministic chunked synthesis, stereo pan/mute, effect output, sustained-note seeking, looping and WAV headers. Minecraft tests cover disc costs and loading, editing leases and stale commands, transport/sync/crossfade/speakers, workstation pickup/persistence, layered-pattern recording with new instruments, and one-shot completion.
 

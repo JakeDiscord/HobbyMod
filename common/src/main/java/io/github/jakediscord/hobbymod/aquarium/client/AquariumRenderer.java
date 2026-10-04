@@ -87,7 +87,7 @@ public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity
                     // Native block-sheet buffers otherwise flush after the water shell and fail its depth test.
                     // Share the aquascape passes, preserving separate textures for special block renderers.
                     Minecraft.getInstance().getBlockRenderer().renderSingleBlock(net.minecraft.core.registries.BuiltInRegistries.BLOCK.get(id).defaultBlockState(),poses,type->buffers.getBuffer(
-                            type==Sheets.cutoutBlockSheet()?RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS):
+                            type==Sheets.cutoutBlockSheet()?RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS):
                             type==Sheets.translucentCullBlockSheet() || type==Sheets.translucentItemSheet()?
                                     RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS):type),light,overlay);
                     out=buffers.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
@@ -118,15 +118,17 @@ public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity
         double time=tank.getLevel()==null?0:tank.getLevel().getGameTime()+partial;
         if(distant)time=Math.floor(time/20)*20;
         if(land==null)for(var fish:d.fish()){
-            var p=AquariumMotion.pose(fish,s,time,d.filled);
+            var p=AquariumMotion.pose(fish,s,fish.alive()?time:0,d.filled);
             poses.pushPose();double fx=Math.clamp(.08+(p.x()-1)/(s.width-2)*(W-.16),.3,W-.3);
             double fz=Math.clamp(.08+(p.z()-1)/(s.depth-2)*(D-.16),.28,D-.28);
             double fy=.10+(p.y()-1)/(s.height-2)*(H-.24);
-            double feeding=Math.clamp((time-tank.fedAt)/160.0,0,1),attraction= d.filled && feeding>0 && feeding<1?Math.sin(feeding*Math.PI):0;
+            double feeding=Math.clamp((time-tank.fedAt)/160.0,0,1),attraction= fish.alive() && d.filled && feeding>0 && feeding<1?Math.sin(feeding*Math.PI):0;
             fx=fx*(1-attraction*.75)+W*.5*attraction*.75;fz=fz*(1-attraction*.75)+D*.5*attraction*.75;fy=fy*(1-attraction)+Math.max(.3,H-.32)*attraction;
-            poses.translate(fx,fy-.10*fish.size(),fz);
+            if(!fish.alive())fy=.10+(d.substrate?.08:.01)*(H-.24)/(s.height-2)+.055*fish.size();
+            poses.translate(fx,fish.alive()?fy-.10*fish.size():fy,fz);
+            if(!fish.alive())poses.mulPose(Axis.ZP.rotationDegrees(90));
             if(!d.filled)poses.mulPose(Axis.XP.rotationDegrees(65));
-            fishModels.render(fish,tank.getLevel(),time,partial,(float)(-90-Math.toDegrees(p.yaw())),poses,buffers,light);
+            fishModels.render(fish,tank.getLevel(),fish.alive()?time:0,fish.alive()?partial:0,(float)(-90-Math.toDegrees(p.yaw())),poses,buffers,light);
             poses.popPose();
         }
 
@@ -143,7 +145,7 @@ public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity
                 var p=crawlers.computeIfAbsent(new AgentKey(tank.getBlockPos(),resident.id),id->new io.github.jakediscord.hobbymod.terrarium.TerrariumMotion.Agent(resident)).advance(resident,time,d);
                 poses.pushPose();poses.translate(.08+p.x()*(W-.16),.10+land.terrain.sample(land,p.x(),p.z())*(H-.24)/(s.height-2)+.003+p.bob(),.08+p.z()*(D-.16));
                 float size=resident.age<8?.6f:1;poses.scale(size,size,size);
-                animalModels.render(resident,p,tank.getLevel(),time,partial,poses,buffers,light,overlay,distant);
+                animalModels.render(resident,tank.getBlockPos(),p,tank.getLevel(),time,partial,poses,buffers,light,overlay,distant);
                 poses.popPose();
             }
             if(land.humidity>75 && !land.open){

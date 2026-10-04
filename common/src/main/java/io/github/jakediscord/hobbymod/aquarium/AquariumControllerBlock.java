@@ -72,6 +72,7 @@ public final class AquariumControllerBlock extends BaseEntityBlock {
                 if(!d.filled){message(player,"No full tank to drain.");return ItemInteractionResult.CONSUME;}
                 if(tank.water(false)){if(!player.getAbilities().instabuild)player.setItemInHand(hand,new ItemStack(Items.WATER_BUCKET));changed=true;sound=SoundEvents.BUCKET_FILL;}
             }else{
+                if(d.selected()!=null && !d.selected().alive()){message(player,"Remove the body from the tank.");return ItemInteractionResult.CONSUME;}
                 var fish=d.capture();if(fish!=null){
                     ItemStack caught=AquariumFishItem.capture(fish);
                     if(!player.getAbilities().instabuild){stack.shrink(1);if(stack.isEmpty())player.setItemInHand(hand,caught);else if(!player.addItem(caught))player.drop(caught,false);}

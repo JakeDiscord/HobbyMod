@@ -45,6 +45,7 @@ public final class AquariumData {
             int b=Math.min(255,Math.max(20,(base&255)+(shift-8)*6));
             return (r<<16)|(g<<8)|b;
         }
+        public boolean alive(){return health>0;}
         public String label(){return name.isEmpty()?species.label:name;}
     }
     public io.github.jakediscord.hobbymod.terrarium.TerrariumData terrarium;
@@ -65,7 +66,7 @@ public final class AquariumData {
     public int quality=100,cycle,food,algae,plants,rocks,wood,steps,selected;
     public boolean filled,warm=true,substrate,filter;
     public List<Fish> fish(){if(fishSnapshot==null)fishSnapshot=List.copyOf(fish);return fishSnapshot;}
-    public int load(){return fish.stream().mapToInt(f->f.species.load).sum();}
+    public int load(){return fish.stream().mapToInt(f->f.alive()?f.species.load:0).sum();}
     public int capacity(){return Math.min(MAX_FISH,size.volume());}
     public Fish selected(){return fish.isEmpty()?null:fish.get(Math.floorMod(selected,fish.size()));}
     public void selectNext(){if(!fish.isEmpty())selected=Math.floorMod(selected+1,fish.size());}
@@ -75,6 +76,7 @@ public final class AquariumData {
         return !((a.species==Species.ANGELFISH && b.species==Species.NEON_TETRA)||(b.species==Species.ANGELFISH && a.species==Species.NEON_TETRA));
     }
     public String canAdd(Fish f){
+        if(f==null || !f.alive())return "That fish is dead.";
         if(!filled)return "Fill the tank.";
         if(cycle<5)return "Water is cycling: "+cycle+"/5 min.";
         if(quality<65)return "Change the water first.";
@@ -82,11 +84,13 @@ public final class AquariumData {
         if(fish.size()>=MAX_FISH)return "Resident limit reached.";
         if(load()+f.species.load>size.volume())return "Stocking load full ("+load()+"/"+size.volume()+").";
         if(fish.stream().anyMatch(a->a.id.equals(f.id)))return "That fish is already here.";
-        for(Fish a:fish)if(!compatible(a,f))return "Incompatible with "+a.species.label+".";
+        for(Fish a:fish)if(a.alive() && !compatible(a,f))return "Incompatible with "+a.species.label+".";
         return "";
     }
     public boolean add(Fish f){if(!canAdd(f).isEmpty())return false;f.acclimation=2;fishSnapshot=null;fish.add(f);discovered|=1<<f.species.ordinal();selected=fish.size()-1;return true;}
-    public Fish capture(){Fish f=selected();if(f!=null){fishSnapshot=null;fish.remove(f);selected=Math.max(0,Math.min(selected,fish.size()-1));}return f;}
+    public int bodies(){return (int)fish.stream().filter(f->!f.alive()).count();}
+    public int removeBodies(){int count=bodies();if(count>0){fish.removeIf(f->!f.alive());fishSnapshot=null;selected=Math.max(0,Math.min(selected,fish.size()-1));}return count;}
+    public Fish capture(){Fish f=selected();if(f!=null && !f.alive())return null;if(f!=null && f.alive()){fishSnapshot=null;fish.remove(f);selected=Math.max(0,Math.min(selected,fish.size()-1));}return f;}
     public Fish newFish(Species species){
         Random random=new Random(seed+nextId*7919);
         Fish f=new Fish(new UUID(seed,nextId++),species);
@@ -97,6 +101,7 @@ public final class AquariumData {
     public void feed(){if(food>=80)quality=Math.max(0,quality-8);food=Math.min(100,food+20);}
     public void clean(){algae=Math.max(0,algae-30);quality=Math.min(100,quality+10);}
     public String issue(boolean intact){
+        if(bodies()>0)return bodies()+" dead fish";
         if(!intact)return "Repair glass / refill water.";
         if(!filled)return "Fill the tank.";
         if(cycle<5)return "Cycling "+cycle+"/5 min";
@@ -106,7 +111,7 @@ public final class AquariumData {
         if(!fish.isEmpty() && food==0)return "Feed fish.";
         for(Fish f:fish){
             if(f.species.warm!=warm)return "Wrong temperature.";
-            for(Fish other:fish)if(other!=f && !compatible(f,other))return "Incompatible fish.";
+            for(Fish other:fish)if(other.alive() && other!=f && !compatible(f,other))return "Incompatible fish.";
         }
         return "";
     }
@@ -115,14 +120,15 @@ public final class AquariumData {
         if(filled && intact){
             if(quality>=60)cycle=Math.min(5,cycle+1);
             algae=clamp(algae+(bright?2:0)+(food>80?3:0)-plants/4,100);
-            quality=clamp(quality-Math.max(fish.isEmpty()?0:1,load()/4)-(food>80?3:0)-(algae>70?2:0)+plants/3+(filter?3:0),100);
+            quality=clamp(quality-bodies()*2-Math.max(load()==0?0:1,load()/4)-(food>80?3:0)-(algae>70?2:0)+plants/3+(filter?3:0),100);
         }
         boolean fed=food>0;
         for(Fish f:fish){
+            if(!f.alive())continue;
             f.age=clamp(f.age+1,1_000_000);f.cooldown=Math.max(0,f.cooldown-1);
             if(intact && filled)f.acclimation=Math.max(0,f.acclimation-1);
             boolean stress=!intact || !filled || quality<50 || !fed || f.species.warm!=warm || load()>size.volume();
-            for(Fish other:fish)if(other!=f && !compatible(f,other))stress=true;
+            for(Fish other:fish)if(other.alive() && other!=f && !compatible(f,other))stress=true;
             f.health=clamp(f.health+(stress?-8:4),100);
         }
         food=Math.max(0,food-foodUse());

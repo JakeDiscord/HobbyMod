@@ -6,10 +6,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TerrariumHobbyTest {
-    @Test void gentleConditionsNeverDeleteResidentsAndRecover(){
-        var d=new TerrariumData();assertFalse(d.introduce(TerrariumData.Species.ISOPOD,17));d.substrate=TerrariumData.Substrate.SOIL;assertTrue(d.introduce(TerrariumData.Species.ISOPOD,17));
-        for(int i=0;i<500;i++)d.advance(true,0,0,17);assertEquals(3,d.residents().size());assertTrue(d.residents().stream().allMatch(r->r.vigor>=20));
-        d.moisture=50;d.humidity=65;d.food=80;d.lamp=true;for(int i=0;i<20;i++){d.mist();d.moisture=60;d.advance(true,3,0,17);}assertTrue(d.residents().stream().allMatch(r->r.vigor>=60));assertEquals(12,d.light);
+    @Test void decliningHealthRecoversUntilDeathAndBodiesRequireRemoval(){
+        var d=new TerrariumData();d.substrate=TerrariumData.Substrate.SOIL;d.introduce(TerrariumData.Species.ISOPOD,17);
+        for(int i=0;i<20;i++)d.advance(true,0,0,17);assertTrue(d.residents().stream().allMatch(r->r.vigor<100 && r.alive()));
+        d.humidity=65;d.food=80;d.lamp=true;for(int i=0;i<30;i++){d.moisture=60;d.advance(true,3,0,17);}assertTrue(d.residents().stream().allMatch(r->r.vigor==100));assertEquals(12,d.light);
+        int count=d.residents().size();d.food=0;for(int i=0;i<100;i++)d.advance(true,0,0,17);assertEquals(count,d.bodies());assertTrue(d.take(TerrariumData.Species.ISOPOD).isEmpty());
+        var loaded=TerrariumNbt.load(TerrariumNbt.save(d));loaded.residents().getFirst().age=2;loaded.food=100;loaded.humidity=65;for(int i=0;i<20;i++){loaded.moisture=60;loaded.advance(true,3,12,17);}assertEquals(count,loaded.bodies());assertEquals(2,loaded.residents().getFirst().age,"Dead juveniles must not continue growing");
+        assertEquals(count,loaded.removeBodies());assertEquals(0,loaded.removeBodies());assertTrue(loaded.residents().isEmpty());
     }
     @Test void breedingIsBoundedAndCollectingKeepsIndividualVariants(){
         var d=new TerrariumData();d.substrate=TerrariumData.Substrate.MOSS;d.food=100;d.introduce(TerrariumData.Species.SPRINGTAIL,44);d.introduce(TerrariumData.Species.ISOPOD,44);
@@ -77,7 +80,7 @@ class TerrariumHobbyTest {
             var r=new TerrariumData.Resident(new UUID(91,species.ordinal()+4),species,0);var agent=new TerrariumMotion.Agent(r);
             var first=agent.advance(r,0,null);var prev=first;boolean moved=false,rested=false;
             for(int t=1;t<4000;t++){
-                var p=agent.advance(r,t,null);assertTrue(p.x()>=.07 && p.x()<=.93 && p.z()>=.07 && p.z()<=.93);assertTrue(Math.hypot(p.x()-prev.x(),p.z()-prev.z())<.0041);
+                var p=agent.advance(r,t,null);assertTrue(p.x()>=.07 && p.x()<=.93 && p.z()>=.07 && p.z()<=.93);assertTrue(Math.hypot(p.x()-prev.x(),p.z()-prev.z())<(species==TerrariumData.Species.TREE_FROG?.0101:.0041));
                 assertTrue(Math.abs(Math.atan2(Math.sin(p.yaw()-prev.yaw()),Math.cos(p.yaw()-prev.yaw())))<=.151);
                 moved|=Math.hypot(p.x()-first.x(),p.z()-first.z())>.025;rested|=p.activity()==TerrariumMotion.Activity.REST;prev=p;
             }
@@ -89,6 +92,24 @@ class TerrariumHobbyTest {
         for(var species:TerrariumData.Species.values())assertTrue(d.introduce(species,51));assertEquals(9,d.residents().size());
         var restored=TerrariumNbt.load(TerrariumNbt.save(d));assertEquals(9,restored.residents().size());
         for(int i=0;i<9;i++){assertEquals(d.residents().get(i).id,restored.residents().get(i).id);assertEquals(d.residents().get(i).species,restored.residents().get(i).species);}
+    }
+
+    @Test void trappedResidentsRestWithoutSpinningAndResumeAfterObstacleRemoval(){
+        for(var species:TerrariumData.Species.values()){
+            var d=new AquariumData();d.size=AquariumData.Size.MEDIUM;d.terrarium=new TerrariumData();d.terrarium.substrate=TerrariumData.Substrate.SAND;
+            var r=new TerrariumData.Resident(new UUID(66,species.ordinal()+11),species,0);var agent=new TerrariumMotion.Agent(r);var initial=agent.advance(r,0,d);
+            d.scape.add(new AquariumScape.Piece(AquariumScape.Material.ROCK,initial.x(),initial.z(),0,0,2,2,2,UUID.randomUUID(),""));
+            var prev=initial;for(int t=1;t<=1000;t++){var next=agent.advance(r,t,d);assertEquals(initial.x(),next.x(),1e-9);assertEquals(initial.z(),next.z(),1e-9);assertEquals(initial.yaw(),next.yaw(),1e-9);prev=next;}
+            d.scape.remove(0);boolean moved=false;for(int t=1001;t<=2500;t++){var next=agent.advance(r,t,d);moved|=Math.hypot(next.x()-initial.x(),next.z()-initial.z())>.02;}assertTrue(moved,species.toString());
+            r.vigor=0;var body=agent.advance(r,2501,d);for(int t=2502;t<2700;t++){var next=agent.advance(r,t,d);assertEquals(body,next);}
+        }
+    }
+    @Test void motionAndHopTimingDoNotDependOnRenderFrameRate(){
+        var r=new TerrariumData.Resident(new UUID(72,19),TerrariumData.Species.TREE_FROG,0);var slow=new TerrariumMotion.Agent(r);var fast=new TerrariumMotion.Agent(r);slow.advance(r,0,null);fast.advance(r,0,null);
+        int hopping=0;for(int tick=1;tick<=2000;tick++){
+            for(int frame=1;frame<=6;frame++)fast.advance(r,tick-1+frame/6.0,null);
+            var a=slow.advance(r,tick,null);var b=fast.advance(r,tick,null);assertEquals(a,b);if(a.jump()>=0)hopping++;
+        }assertTrue(hopping>0 && hopping<500,"Hops are brief, separated by idle intervals");
     }
 
 }

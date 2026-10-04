@@ -7,7 +7,7 @@ public final class TerrariumData {
     public static final int MAX_RESIDENTS=48;
     public enum Substrate { NONE,SOIL,SAND,MOSS }
     public enum Species {
-        SPRINGTAIL("Springtails",3,.035),ISOPOD("Isopods",3,.09),SNAIL("Snails",1,.10),TREE_FROG("Tree frogs",1,.18),GECKO("Geckos",1,.18);
+        SPRINGTAIL("Springtails",3,.035),ISOPOD("Isopods",3,.09),SNAIL("Snails",1,.10),TREE_FROG("Tree frogs",1,.15),GECKO("Geckos",1,.18);
         public final String label;public final int starter;public final double body;
         Species(String label,int starter,double body){this.label=label;this.starter=starter;this.body=body;}
         public boolean vertebrate(){return this==TREE_FROG || this==GECKO;}
@@ -15,6 +15,7 @@ public final class TerrariumData {
     public static final class Resident {
         public final UUID id;public final Species species;
         public UUID parent;public int variant,age=8,vigor=100;
+        public boolean alive(){return vigor>0;}
         public Resident(UUID id,Species species,int variant){this.id=id;this.species=species;this.variant=variant;}
     }
     public Substrate substrate=Substrate.NONE;
@@ -35,18 +36,21 @@ public final class TerrariumData {
         for(int i=0;i<species.starter;i++)accept(newResident(species,seed));return true;
     }
     public List<Resident> take(Species species){
-        var result=new ArrayList<Resident>();for(var r:residents)if(r.species==species && result.size()<3)result.add(r);
+        var result=new ArrayList<Resident>();for(var r:residents)if(r.alive() && r.species==species && result.size()<3)result.add(r);
         residents.removeAll(result);snapshot=null;return List.copyOf(result);
     }
+    public int bodies(){return (int)residents.stream().filter(r->!r.alive()).count();}
+    public int removeBodies(){int count=bodies();if(count>0){residents.removeIf(r->!r.alive());snapshot=null;}return count;}
     public void mist(){moisture=Math.min(100,moisture+18);humidity=Math.min(100,humidity+15);}
     public String advice(int plants){
-        if(substrate==Substrate.NONE)return "Choose a substrate, then arrange your plants.";
-        if(moisture<25)return "A light mist would help.";
-        if(moisture>85 && !drainage)return "Add gravel drainage or open the lid.";
-        if(humidity<40 && plants>0)return "Close the lid or mist to raise humidity.";
-        if(light<5 && plants>0)return "Move into light or add a lamp.";
-        if(!residents.isEmpty() && food==0)return "Offer a little leaf litter.";
-        return "Comfortable ecosystem · "+births+" young born";
+        if(bodies()>0)return bodies()+" dead residents";
+        if(substrate==Substrate.NONE)return "No substrate";
+        if(moisture<25)return "Dry substrate";
+        if(moisture>85 && !drainage)return "Waterlogged substrate";
+        if(humidity<40 && plants>0)return "Low humidity";
+        if(light<5 && plants>0)return "Low light";
+        if(!residents.isEmpty() && food==0)return "Food empty";
+        return "";
     }
     public void advance(boolean intact,int plants,int daylight,long seed){
         minutes=Math.min(1_000_000,minutes+1);light=heatLamp?14:lamp?12:Math.clamp(daylight,0,15);
@@ -56,7 +60,7 @@ public final class TerrariumData {
         humidity+=Integer.compare(target,humidity)*Math.min(3,Math.abs(target-humidity));
         if(!residents.isEmpty() && minutes%5==0)food=Math.max(0,food-1);
         boolean comfortable=moisture>=30 && moisture<=85 && humidity>=45 && food>0;
-        for(var r:residents){r.age=Math.min(1_000_000,r.age+1);r.vigor=Math.clamp(r.vigor+(comfortable?2:-1),20,100);}
+        for(var r:residents){if(!r.alive())continue;r.age=Math.min(1_000_000,r.age+1);r.vigor=Math.clamp(r.vigor+(comfortable?2:-2),0,100);}
         if(comfortable && plants>0 && !open && minutes%8==0){
             for(var species:Species.values()){
                 var adults=residents.stream().filter(r->r.species==species && r.age>=8 && r.vigor>=70).toList();

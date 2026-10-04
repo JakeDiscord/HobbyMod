@@ -47,7 +47,7 @@ public final class TerrariumActions {
                 if(colony==null || colony.isEmpty()){changed=d.introduce(species,tank.data.seed);}
                 else if(colony.size()<=3 && d.residents().size()+colony.size()<=TerrariumData.MAX_RESIDENTS){
                     var residents=new java.util.ArrayList<TerrariumData.Resident>();boolean valid=true;
-                    for(int i=0;i<colony.size();i++){var r=TerrariumNbt.resident(colony.getCompound(i));if(r==null || r.species!=species || d.residents().stream().anyMatch(a->a.id.equals(r.id)) || residents.stream().anyMatch(a->a.id.equals(r.id))){valid=false;break;}residents.add(r);}
+                    for(int i=0;i<colony.size();i++){var r=TerrariumNbt.resident(colony.getCompound(i));if(r==null || !r.alive() || r.species!=species || d.residents().stream().anyMatch(a->a.id.equals(r.id)) || residents.stream().anyMatch(a->a.id.equals(r.id))){valid=false;break;}residents.add(r);}
                     if(valid){for(var r:residents)d.accept(r);changed=true;}
                 }
                 if(changed)consume(stack,player);else notice(player,"Colony cannot be added: duplicate residents or enclosure full.");

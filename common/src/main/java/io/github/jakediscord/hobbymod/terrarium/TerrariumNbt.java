@@ -6,7 +6,7 @@ public final class TerrariumNbt {
     public static CompoundTag resident(TerrariumData.Resident r){var t=new CompoundTag();t.putUUID("Id",r.id);t.putString("Species",r.species.name());t.putInt("Variant",r.variant);t.putInt("Age",r.age);t.putInt("Vigor",r.vigor);if(r.parent!=null)t.putUUID("Parent",r.parent);return t;}
     public static TerrariumData.Resident resident(CompoundTag t){
         if(!t.hasUUID("Id"))return null;
-        try{var r=new TerrariumData.Resident(t.getUUID("Id"),TerrariumData.Species.valueOf(t.getString("Species")),Math.clamp(t.getInt("Variant"),0,3));r.age=Math.clamp(t.getInt("Age"),0,1_000_000);r.vigor=Math.clamp(t.getInt("Vigor"),20,100);if(t.hasUUID("Parent"))r.parent=t.getUUID("Parent");return r;}catch(IllegalArgumentException e){return null;}
+        try{var r=new TerrariumData.Resident(t.getUUID("Id"),TerrariumData.Species.valueOf(t.getString("Species")),Math.clamp(t.getInt("Variant"),0,3));r.age=Math.clamp(t.getInt("Age"),0,1_000_000);r.vigor=Math.clamp(t.getInt("Vigor"),0,100);if(t.hasUUID("Parent"))r.parent=t.getUUID("Parent");return r;}catch(IllegalArgumentException e){return null;}
     }
     public static CompoundTag save(TerrariumData d){
         var t=new CompoundTag();t.putString("Substrate",d.substrate.name());t.putBoolean("Drainage",d.drainage);t.putBoolean("Open",d.open);t.putBoolean("Lamp",d.lamp);t.putBoolean("Warm",d.warm);t.putBoolean("HeatLamp",d.heatLamp);t.putIntArray("Terrain",d.terrain.saved());
