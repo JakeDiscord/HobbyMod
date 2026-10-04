@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "hobbymod:block/dj_cabinet",
+    "north": "hobbymod:block/dj_speaker",
+    "south": "hobbymod:block/dj_cabinet",
+    "east": "hobbymod:block/dj_cabinet",
+    "west": "hobbymod:block/dj_cabinet",
+    "up": "hobbymod:block/dj_cabinet",
+    "down": "hobbymod:block/dj_cabinet"
+  }
+}

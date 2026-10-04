@@ -3,6 +3,16 @@
 A Minecraft **1.21.1 / NeoForge** mod combining marble sculpture, astronomy,
 vineries, painting, cameras, woodworking, and other creative hobbies.
 
+## DJ and music production
+
+Craft a **DJ Workstation** to compose and perform music in a Minecraft-style DAW.
+It has eight instrument channels, editable drum patterns and piano-roll chords,
+a 64-bar song arrangement, channel mixing with pan/filter/delay/reverb, and two
+live decks with cueing, tempo sync, looping, headphone monitoring and a crossfader.
+Save editable music discs or share `.hobbytrack` projects and export stereo WAV.
+Nearby speakers extend the listening range; the deck audio runs through Minecraft's
+sound engine. See [the DJ guide](docs/DJ.md) and [a captured live set](docs/dj-live-set.wav).
+
 ## Painting
 
 Paint on a two-block easel using a dye-loaded palette and paintbrush. Square,
@@ -165,7 +175,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for forty tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, three blueprint serialization/validation tests, seven aquarium layout/care/persistence tests, seven painting raster/shape/persistence tests, and three rendering geometry/cache tests. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for fifty-one tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, three blueprint serialization/validation tests, seven aquarium layout/care/persistence tests, seven painting raster/shape/persistence tests, three rendering geometry/cache tests, and eleven DJ project/scheduling/audio tests. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -176,6 +186,7 @@ blank, survival and symmetry, creative and smoothing, stale revisions and perman
 coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
 Nine additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
 Nine aquarium GameTests cover placement, item returns, care, aquascaping and persistence.
+Five DJ GameTests cover recording costs, project loading, edit authorization, transport, speaker range, pickup and one-shot completion.
 Six painting GameTests cover supplies, strokes, signatures, canvas saves, wall support and the two-block easel.
 Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, eight `AQUARIUM_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
