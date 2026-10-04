@@ -122,8 +122,9 @@ death. Nine native GameTests exercise real land-kit placement,
 survival supply consumption and refunds, colony identity round trips, arbitrary
 rotation, mining/replacement, wild capture without duplication, fish water vessels,
 native entity settings, biome spawn coverage and corpse cleanup without live
-item duplication. These bring the suite to 54 shared tests and
-49 native GameTests. The normal release build excludes development GameTests.
+item duplication. The habitat checks passed 54 shared tests and
+49 native GameTests before the DJ integration. With the DJ tests, the combined
+suite contains 65 shared tests and 54 native GameTests. The normal release build excludes development GameTests.
 
 Graphical NeoForge client testing used Java 21, Xvfb and Mesa software OpenGL.
 Screenshots were captured and opened with the image-viewing tool. Checks

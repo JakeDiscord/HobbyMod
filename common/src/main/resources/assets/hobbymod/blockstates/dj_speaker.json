@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "hobbymod:block/dj_speaker",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "hobbymod:block/dj_speaker",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "hobbymod:block/dj_speaker",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "hobbymod:block/dj_speaker",
+      "y": 270
+    }
+  }
+}
