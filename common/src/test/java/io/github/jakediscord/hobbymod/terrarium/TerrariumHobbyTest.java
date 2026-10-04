@@ -31,6 +31,32 @@ class TerrariumHobbyTest {
             assertFalse(scape.angles(id,size,Double.NaN,0,0));assertFalse(scape.angles(id,size,0,361,0));
         }
     }
+    @Test void modelForwardMatchesCrawlerTravelHeading(){
+        for(int i=-360;i<=360;i++){
+            double heading=Math.toRadians(i),yaw=Math.toRadians(TerrariumMotion.modelYaw(heading));
+            assertEquals(Math.cos(heading),-Math.sin(yaw),1e-9);assertEquals(Math.sin(heading),-Math.cos(yaw),1e-9);
+        }
+    }
+    @Test void sculptedTerrainIsBoundedSmoothAndSurvivesCarry(){
+        var d=new AquariumData();d.terrarium=new TerrariumData();d.terrarium.substrate=TerrariumData.Substrate.SAND;d.terrarium.drainage=true;d.terrarium.heatLamp=true;
+        var t=d.terrarium;assertEquals(.42,t.terrain.sample(t,.5,.5),1e-9);
+        for(int i=0;i<25;i++)t.terrain.brush(t,.25,.5,.3,0);
+        assertTrue(t.terrain.sample(t,.25,.5)>.60);for(int i=0;i<30;i++)t.terrain.brush(t,.75,.5,.3,1);
+        assertTrue(t.terrain.sample(t,.75,.5)<.30);var before=t.terrain.saved();assertTrue(t.terrain.brush(t,.25,.5,.3,2));assertFalse(java.util.Arrays.equals(before,t.terrain.saved()));
+        for(double x=0;x<=1;x+=.02)for(double z=0;z<=1;z+=.02){double y=t.terrain.sample(t,x,z);assertTrue(y>=.20-1e-9 && y<=1.2);}
+        assertFalse(t.terrain.brush(t,Double.NaN,0,.2,0));assertFalse(t.terrain.brush(t,.5,.5,99,0));assertFalse(t.terrain.brush(t,.5,.5,.2,4));
+        var restored=new AquariumData();AquariumNbt.load(restored,AquariumNbt.save(d));assertArrayEquals(t.terrain.saved(),restored.terrarium.terrain.saved());assertTrue(restored.terrarium.heatLamp);
+        restored.terrarium.advance(true,3,0,42);assertEquals(14,restored.terrarium.light);
+    }
+    @Test void raisedTerrainKeepsDecorationsWithinGlass(){
+        var d=new AquariumData();d.size=AquariumData.Size.MEDIUM;d.terrarium=new TerrariumData();d.terrarium.substrate=TerrariumData.Substrate.SAND;d.terrarium.drainage=true;
+        var id=UUID.randomUUID();d.scape.add(new AquariumScape.Piece(AquariumScape.Material.BLOCK,.5,.5,0,0,2,3,2,id,"minecraft:fern"));
+        for(int i=0;i<30;i++)d.terrarium.terrain.brush(d.terrarium,.5,.5,.5,0);
+        var loaded=new AquariumData();AquariumNbt.load(loaded,AquariumNbt.save(d));assertTrue(TerrariumTerrain.bounds(loaded.scape.pieces().getFirst(),loaded).Y()<=loaded.size.blocksHigh()*.88-.14+1e-8);
+        TerrariumTerrain.fitDecor(d);
+        var p=d.scape.pieces().getFirst();var b=TerrariumTerrain.bounds(p,d);assertTrue(b.Y()<=d.size.blocksHigh()*.88-.14+1e-8);
+        assertEquals(.1+d.terrarium.terrain.sample(d.terrarium,.5,.5)*(.88-.24)/(d.size.height-2),b.y(),1e-9);
+    }
     @Test void manyCrawlersStayInsideAndClockPausesOnUnloadOrDiscontinuousTime(){
         for(int i=0;i<1000;i++){var r=new TerrariumData.Resident(new UUID(918,i),TerrariumData.Species.ISOPOD,i%4);for(int t=-1000;t<=10000;t+=50){var p=TerrariumMotion.pose(r,t);assertTrue(p.x()>=.1 && p.x()<=.9 && p.z()>=.1 && p.z()<=.9);assertTrue(Double.isFinite(p.yaw()));}}
         var clock=new AquariumClock();for(int t=0;t<1190;t++)assertFalse(clock.poll(t));assertFalse(clock.poll(10000));for(int t=10001;t<11200;t++)assertFalse(clock.poll(t));assertTrue(clock.poll(11200));

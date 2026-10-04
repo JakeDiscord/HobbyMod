@@ -52,6 +52,8 @@ public final class TerrariumActions {
                 }
                 if(changed)consume(stack,player);else notice(player,"Colony cannot be added: duplicate residents or enclosure full.");
             }
+        }else if(stack.is(TerrariumContent.HEAT_LAMP.get())){
+            if(remove && d.heatLamp){d.heatLamp=false;refund(player,new ItemStack(TerrariumContent.HEAT_LAMP.get()));changed=true;}else if(!remove && !d.heatLamp){d.heatLamp=true;d.warm=true;d.light=14;consume(stack,player);changed=true;}
         }else if(stack.is(Items.GLOWSTONE_DUST)){
             if(remove && d.lamp){d.lamp=false;refund(player,new ItemStack(Items.GLOWSTONE_DUST));changed=true;}else if(!remove && !d.lamp){d.lamp=true;d.light=12;consume(stack,player);changed=true;}
         }else if(stack.is(Items.MAGMA_CREAM) || stack.is(Items.SNOWBALL)){
@@ -62,14 +64,14 @@ public final class TerrariumActions {
             if(changed){if(!player.getAbilities().instabuild)stack.hurtAndBreak(1,player,LivingEntity.getSlotForHand(hand));notice(player,"Plant trimmed.");}else notice(player,"No plant needs trimming.");
         }
         else notice(player,"Choose a habitat supply, or place a block in Layout.");
-        if(changed){tank.data.substrate=d.substrate!=TerrariumData.Substrate.NONE;tank.changed();}
+        if(changed){TerrariumTerrain.fitDecor(tank.data);tank.data.substrate=d.substrate!=TerrariumData.Substrate.NONE;tank.changed();}
         return ItemInteractionResult.CONSUME;
     }
     public static boolean add(Player player,AquariumBlockEntity tank,ItemStack stack,double x,double z,int rotation){
         if(plant(stack) && tank.data.terrarium.substrate==TerrariumData.Substrate.NONE){notice(player,"Lay a substrate before planting.");return false;}
         boolean plant=plant(stack),moss=stack.is(Items.MOSS_BLOCK);
         if(!AquariumControllerBlock.addDecor(player,tank,stack,x,z,rotation))return false;
-        if(plant){var p=tank.data.scape.pieces().getLast();tank.data.scape.transform(p.id(),tank.data.size,p.x(),p.y(),p.z(),p.rotation(),moss?1.6:2,moss?.28:2.5,moss?1.6:2);tank.changed();}
+        if(plant){var p=tank.data.scape.pieces().getLast();tank.data.scape.transform(p.id(),tank.data.size,p.x(),p.y(),p.z(),p.rotation(),moss?1.6:2,moss?.28:2.5,moss?1.6:2);TerrariumTerrain.fitDecor(tank.data);tank.changed();}
         return true;
     }
     private TerrariumActions(){}

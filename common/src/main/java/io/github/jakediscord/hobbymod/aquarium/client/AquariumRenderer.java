@@ -47,13 +47,29 @@ public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity
         poses.translate(-1,-1,-1);
         var out=buffers.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
         var sand=sprite(land==null?(d.gravel?"gravel":"sand"):switch(land.substrate){case SOIL->"dirt";case SAND->"sand";case MOSS->"moss_block";case NONE->"dirt";});
-        if(land!=null && land.drainage)for(int x=1;x<s.width-1;x++)for(int z=1;z<s.depth-1;z++)box(out,poses.last(),sprite("gravel"),x,1.005,z,x+1,1.04,z+1,0xD5D7CF,light,overlay);
-        if(d.substrate)for(int x=1;x<s.width-1;x++)for(int z=1;z<s.depth-1;z++)box(out,poses.last(),sand,x,land!=null && land.drainage?1.04:1.005,z,x+1,1.08,z+1,land!=null && land.moisture>60?0xBAC2AA:0xFFFFFF,light,overlay);
+        if(land!=null){
+            double drainage=io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.drainage(land);
+            if(land.drainage)box(out,poses.last(),sprite("gravel"),1,1.005,1,s.width-1,1+drainage,s.depth-1,0xD5D7CF,light,overlay);
+            if(d.substrate){
+                int nx=io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.X,nz=io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.Z;
+                int tint=land.moisture>60?0xBAC2AA:0xFFFFFF;
+                for(int ix=0;ix<nx;ix++)for(int iz=0;iz<nz;iz++){
+                    double x=1+ix*(s.width-2)/(double)nx,X=1+(ix+1)*(s.width-2)/(double)nx,z=1+iz*(s.depth-2)/(double)nz,Z=1+(iz+1)*(s.depth-2)/(double)nz;
+                    double a=1+land.terrain.vertex(land,ix,iz),b=1+land.terrain.vertex(land,ix,iz+1),c=1+land.terrain.vertex(land,ix+1,iz+1),e=1+land.terrain.vertex(land,ix+1,iz);
+                    quad(out,poses.last(),sand,new Vec3(x,a,z),new Vec3(x,b,Z),new Vec3(X,c,Z),new Vec3(X,e,z),tint,light,overlay);
+                    double bottom=1+drainage;
+                    if(iz==0)quad(out,poses.last(),sand,new Vec3(x,bottom,z),new Vec3(x,a,z),new Vec3(X,e,z),new Vec3(X,bottom,z),tint,light,overlay);
+                    if(iz==nz-1)quad(out,poses.last(),sand,new Vec3(x,bottom,Z),new Vec3(X,bottom,Z),new Vec3(X,c,Z),new Vec3(x,b,Z),tint,light,overlay);
+                    if(ix==0)quad(out,poses.last(),sand,new Vec3(x,bottom,z),new Vec3(x,bottom,Z),new Vec3(x,b,Z),new Vec3(x,a,z),tint,light,overlay);
+                    if(ix==nx-1)quad(out,poses.last(),sand,new Vec3(X,bottom,z),new Vec3(X,e,z),new Vec3(X,c,Z),new Vec3(X,bottom,Z),tint,light,overlay);
+                }
+            }
+        }else if(d.substrate)for(int x=1;x<s.width-1;x++)for(int z=1;z<s.depth-1;z++)box(out,poses.last(),sand,x,1.005,z,x+1,1.08,z+1,0xFFFFFF,light,overlay);
         d.ensureScape();
         for(var piece:d.scape.pieces()){
             double x=1+piece.x()*(s.width-2),z=1+piece.z()*(s.depth-2);
             poses.pushPose();double lift=AquariumScape.precise(piece)?-AquariumScape.extents(piece,s).y():0;
-            poses.translate(x,1.08+piece.y()*(s.height-2)+lift,z);poses.mulPose(Axis.YP.rotationDegrees((float)(piece.rotation()*90+piece.yaw())));poses.mulPose(Axis.XP.rotationDegrees((float)piece.pitch()));poses.mulPose(Axis.ZP.rotationDegrees((float)piece.roll()));poses.scale((float)piece.scaleX(),(float)piece.scaleY(),(float)piece.scaleZ());
+            poses.translate(x,1+(land==null?.08:land.terrain.sample(land,piece.x(),piece.z()))+piece.y()*(s.height-2)+lift,z);poses.mulPose(Axis.YP.rotationDegrees((float)(piece.rotation()*90+piece.yaw())));poses.mulPose(Axis.XP.rotationDegrees((float)piece.pitch()));poses.mulPose(Axis.ZP.rotationDegrees((float)piece.roll()));poses.scale((float)piece.scaleX(),(float)piece.scaleY(),(float)piece.scaleZ());
             if(piece.material()==AquariumScape.Material.ROCK){
                 box(out,poses.last(),sprite("cobblestone"),-.25,0,-.23,.25,.28,.23,0xFFFFFF,light,overlay);
                 box(out,poses.last(),sprite("stone"),-.18,.28,-.17,.14,.45,.17,0xFFFFFF,light,overlay);
@@ -93,7 +109,8 @@ public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity
         TextureAtlasSprite texture=null;
         out=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));
         // Internal aquarium lamp provides a minimum light level, without full-bright fish.
-        light=Math.max(light&0xFFFF,10<<4) | (Math.max((light>>>16)&0xFFFF,10<<4)<<16);
+        if(land==null)light=Math.max(light&0xFFFF,10<<4) | (Math.max((light>>>16)&0xFFFF,10<<4)<<16);
+        else light=Math.max(light&0xFFFF,(land.heatLamp?14:land.lamp?12:0)<<4) | (light&0xFFFF0000);
         double time=tank.getLevel()==null?0:tank.getLevel().getGameTime()+partial;
         if(distant)time=Math.floor(time/20)*20;
         if(land==null)for(var fish:d.fish()){
@@ -111,11 +128,17 @@ public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity
 
         if(land!=null){
             if(land.lamp)box(buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE)),poses.last(),null,W*.5-.08,H-.05,D*.5-.035,W*.5+.08,H-.025,D*.5+.035,0xEBDD9D,0xF000F0,overlay);
+            if(land.heatLamp){
+                var hood=buffers.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
+                box(hood,poses.last(),sprite("iron_block"),W*.72-.10,H-.055,D*.5-.085,W*.72+.10,H-.02,D*.5+.085,0x60656B,light,overlay);
+                box(hood,poses.last(),sprite("iron_block"),W*.72-.07,H-.12,D*.5-.065,W*.72+.07,H-.055,D*.5+.065,0xCDD0CB,light,overlay);
+                box(buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE)),poses.last(),null,W*.72-.055,H-.125,D*.5-.05,W*.72+.055,H-.11,D*.5+.05,0xFFCE78,0xF000F0,overlay);
+            }
             var agents=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));
             int[] colors={0x899BA1,0xD8CBA4,0x5F789B,0x9F8678};int[] springColors={0xE0E4D3,0xF0EADB,0xD4DFE5,0xE8D6D0};
             for(var resident:land.residents()){
                 var p=io.github.jakediscord.hobbymod.terrarium.TerrariumMotion.pose(resident,distant?Math.floor(time/20)*20:time);
-                poses.pushPose();poses.translate(.08+p.x()*(W-.16),.10+.08*(H-.24)/(s.height-2)+.01+p.bob(),.08+p.z()*(D-.16));poses.mulPose(Axis.YP.rotationDegrees((float)(-Math.toDegrees(p.yaw()))));
+                poses.pushPose();poses.translate(.08+p.x()*(W-.16),.10+land.terrain.sample(land,p.x(),p.z())*(H-.24)/(s.height-2)+.003+p.bob(),.08+p.z()*(D-.16));poses.mulPose(Axis.YP.rotationDegrees((float)io.github.jakediscord.hobbymod.terrarium.TerrariumMotion.modelYaw(p.yaw())));
                 float size=resident.age<8?.6f:1;poses.scale(size,size,size);
                 boolean isopod=resident.species==io.github.jakediscord.hobbymod.terrarium.TerrariumData.Species.ISOPOD;
                 if(isopod){
@@ -137,7 +160,7 @@ public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity
 
         if(AquariumOrbit.active() && AquariumOrbit.tank()==tank && AquariumOrbit.selected!=null){
             for(var piece:d.scape.pieces())if(piece.id().equals(AquariumOrbit.selected)){
-                var b=AquariumScape.bounds(piece,s);LevelRenderer.renderLineBox(poses,buffers.getBuffer(RenderType.lines()),b.x(),b.y(),b.z(),b.X(),b.Y(),b.Z(),1,.8f,.2f,1);
+                var b=io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.bounds(piece,d);LevelRenderer.renderLineBox(poses,buffers.getBuffer(RenderType.lines()),b.x(),b.y(),b.z(),b.X(),b.Y(),b.Z(),1,.8f,.2f,1);
             }
         }
         if(land==null && d.filled && time-tank.fedAt>=0 && time-tank.fedAt<160){out=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));for(int i=0;i<7;i++){double px=W*.5+Math.sin(i*2.4)*.12,pz=D*.5+Math.cos(i*2.4)*.1,py=H-.14-(time-tank.fedAt)*.001;box(out,poses.last(),null,px,py,pz,px+.018,py+.012,pz+.018,0xAD7541,light,overlay);}}

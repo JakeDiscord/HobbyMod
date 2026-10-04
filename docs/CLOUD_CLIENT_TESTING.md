@@ -102,7 +102,9 @@ land enclosure and precise three-axis editing. Check native plants through
 front and side glass, open/closed mesh lids, wet soil and condensation, tiny
 resident colors, colony collection, loaded breeding and unload pause. Test the
 editor at both 1280×800 and 854×480; saved decimal angles must remain exact
-when reselected, with visible handles outside the rotated piece.
+when reselected, with visible handles outside the rotated piece. Rotate by
+dragging curved arrows on the selection, shape terrain with Raise/Lower/Smooth,
+and compare the same sealed room with its heat lamp installed and removed.
 
 ## Prepared cloud session
 

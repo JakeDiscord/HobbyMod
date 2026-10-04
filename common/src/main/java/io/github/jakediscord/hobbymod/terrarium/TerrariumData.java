@@ -13,7 +13,8 @@ public final class TerrariumData {
         public Resident(UUID id,Species species,int variant){this.id=id;this.species=species;this.variant=variant;}
     }
     public Substrate substrate=Substrate.NONE;
-    public boolean drainage,open,lamp,warm=true;
+    public boolean drainage,open,lamp,heatLamp,warm=true;
+    public final TerrariumTerrain terrain=new TerrariumTerrain();
     public int humidity=65,moisture=55,light=8,food,minutes,births;
     public long nextId=1;
     private final List<Resident> residents=new ArrayList<>();
@@ -43,9 +44,9 @@ public final class TerrariumData {
         return "Comfortable ecosystem · "+births+" young born";
     }
     public void advance(boolean intact,int plants,int daylight,long seed){
-        minutes=Math.min(1_000_000,minutes+1);light=lamp?12:Math.clamp(daylight,0,15);
+        minutes=Math.min(1_000_000,minutes+1);light=heatLamp?14:lamp?12:Math.clamp(daylight,0,15);
         if(!intact)return;
-        moisture=Math.clamp(moisture-(open?2:minutes%(warm?4:6)==0?1:0),0,100);
+        moisture=Math.clamp(moisture-(open?2:minutes%(warm || heatLamp?4:6)==0?1:0),0,100);
         int target=Math.clamp(30+moisture/2+Math.min(8,plants*2)-(open?15:0),0,100);
         humidity+=Integer.compare(target,humidity)*Math.min(3,Math.abs(target-humidity));
         if(!residents.isEmpty() && minutes%5==0)food=Math.max(0,food-1);

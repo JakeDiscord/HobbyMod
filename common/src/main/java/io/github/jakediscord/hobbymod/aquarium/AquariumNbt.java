@@ -42,6 +42,7 @@ public final class AquariumNbt {
         d.filled=t.getBoolean("Filled");d.warm=t.getBoolean("Warm");d.substrate=t.getBoolean("Substrate");d.filter=t.getBoolean("Filter");
         d.gravel=t.getBoolean("Gravel");d.births=AquariumData.clamp(t.getInt("Births"),1_000_000);d.discovered=AquariumData.clamp(t.getInt("Discovered"),255);d.scape.clear();
         if(t.contains("Scape")){var decor=t.getList("Scape",Tag.TAG_COMPOUND);for(int i=0;i<Math.min(28,decor.size());i++){var o=decor.getCompound(i);try{d.scape.add(new AquariumScape.Piece(AquariumScape.Material.valueOf(o.getString("Material")),o.getDouble("X"),o.getDouble("Z"),Math.floorMod(o.getInt("Rotation"),4),o.getDouble("Y"),o.contains("ScaleX")?o.getDouble("ScaleX"):1,o.contains("ScaleY")?o.getDouble("ScaleY"):1,o.contains("ScaleZ")?o.getDouble("ScaleZ"):1,o.hasUUID("Id")?o.getUUID("Id"):java.util.UUID.randomUUID(),o.getString("Block"),o.getDouble("Yaw"),o.getDouble("Pitch"),o.getDouble("Roll")));}catch(IllegalArgumentException ignored){}}d.syncScape();}else d.ensureScape();
+        io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.fitDecor(d);
         ListTag residents=t.getList("Residents",Tag.TAG_COMPOUND);
         for(int i=0;i<Math.min(AquariumData.MAX_FISH,residents.size());i++)d.acceptLoaded(fish(residents.getCompound(i)));
         for(var f:d.fish())if(f.id.getMostSignificantBits()==d.seed && f.id.getLeastSignificantBits()>0 && f.id.getLeastSignificantBits()<1_000_000_000L)d.nextId=Math.max(d.nextId,f.id.getLeastSignificantBits()+1);

@@ -18,6 +18,7 @@ survival, and successful misting/trimming wears the tool.
 | Dirt, sand or moss block | Select one of three substrate beds; swapping returns the old material |
 | Terrarium mister | Raise moisture and humidity; craft from a glass bottle and iron nugget |
 | Glowstone dust | Install a light strip for dark rooms |
+| Terrarium heat lamp | Warm the enclosure and emit real level-14 Minecraft block light; craft three iron ingots over glass/redstone/glass, with blaze powder below |
 | Magma cream / snowball | Select warm 24–28°C / mild 18–24°C; warmer closed enclosures dry slightly faster |
 | Leaf litter | Feed colonies; craft leaves plus dried kelp for four portions |
 | Springtail colony | Introduce three tiny inhabitants; craft litter, sugar and white dye |
@@ -43,17 +44,43 @@ placed material.
 
 Choose **Edit in 3D**, then click a piece in the actual world. Drag its arrows to
 move it or its cubes to stretch along an axis. Right-drag orbits; wheel zooms.
-The shared editor also provides reset size and a 90° rotation shortcut.
-Terrariums additionally expose **Yaw**, **Pitch** and **Roll** fields: enter
-finite decimal degrees from −360 through 360 and press Enter. Each field uses
-an absolute angle, so entering 37.5 twice keeps the same rotation. The server
+Curved rotation arrows now surround the selected piece alongside its move
+arrows and scale cubes. Drag the red ring for pitch, green for yaw or blue for
+roll; hold Shift while dragging to snap the rotation change to 15° steps.
+Angles remain precise without typing into separate GUI fields. The server
 checks distance, permissions and bounds; tilted pieces shrink or move to fit
-entirely inside the enclosure. Decoration orientation, scale and location are
-saved and carried with the tank.
+inside the enclosure. Decoration orientation, scale and location are saved
+and carried with the tank. Reset size remains available; aquariums retain their
+existing 90° rotation shortcut.
 
-![Precise yaw, pitch and roll with handles on the selected rock](terrarium-precise-editor.png)
+![Curved rotation arrows alongside movement and scale handles](terrarium-precise-editor.png)
 
 ![Planted terrariums with native block models and cosmetic residents](terrarium-display.png)
+
+## Peaks, valleys and indoor lighting
+
+From the 3D editor choose **Edit terrain**. Select **Raise**, **Lower** or
+**Smooth**, then hold or drag on the substrate. A brush outline follows the
+surface. Shift temporarily lowers; Shift + wheel changes brush size. Hold in
+one place to keep changing that spot as the surface rises or falls. Choose
+**Edit objects** to return to decoration handles. Soil, sand and moss all
+support shaping; the saved height field stays bounded beneath the glass.
+Decorations stay grounded and shrink if necessary to fit beneath the lid;
+residents follow the terrain height while crawling forward.
+
+Gravel drainage and the sand bed are substantially thicker than the original
+flat layer. Valleys retain a minimum substrate thickness above drainage. Relief
+is saved when chunks unload and when the enclosure is mined and carried.
+
+A **Terrarium Heat Lamp** mounts a small hood and warm bulb under the lid.
+Install it from Ecosystem or remove it in Remove / collect mode. It emits real
+Minecraft block light, warms the habitat and supplies light level 14 indoors;
+ordinary light strips supply ecosystem light level 12. The lamp and terrain
+survive carrying. Unlit habitats use ambient lighting rather than making tiny
+inhabitants glow in a dark room. The care light readout refreshes as lamps or
+room lighting change.
+
+![A sculpted sand landscape with thicker drainage and indoor heat-lamp lighting](terrarium-terrain.png)
 
 ## A gentle display ecosystem
 
@@ -80,12 +107,12 @@ future extensions.
 
 ## Validation
 
-Five new shared tests cover recoverable neglect, long-running capped breeding,
+Eight shared terrarium tests cover recoverable neglect, long-running capped breeding,
 resident collection, save compatibility, 6,000 rotated layouts and bounded
-seeded motion. Four native GameTests exercise real land-kit placement,
+seeded motion. Five native GameTests exercise real land-kit placement,
 survival supply consumption and refunds, colony identity round trips, arbitrary
-rotation and mining/replacement. These bring the suite to 45 shared tests and
-44 native GameTests. The normal release build excludes development GameTests.
+rotation and mining/replacement. These bring the suite to 48 shared tests and
+45 native GameTests. The normal release build excludes development GameTests.
 
 Graphical NeoForge client testing used Java 21, Xvfb and Mesa software OpenGL.
 Screenshots were captured and opened with the image-viewing tool. Checks
@@ -94,4 +121,8 @@ water plane, tiny colored residents, all five plants, real supply clicks,
 colony collection and restoration, breeding after loaded time advancement,
 unloaded-time pause, open/closed lid controls, exact 37.5° / 12.25° / −8.5°
 rotation, multiple nearby enclosures and editor/care layouts at smaller window
-sizes. Compiled code and simulations alone do not establish visual correctness.
+sizes. The follow-up checks exercised curved rotation handles, hold-to-raise,
+lowering, smoothing, thicker sand/gravel, forward-facing crawlers over hills,
+and installing/removing a heat lamp in a sealed room. Additional tests cover
+model heading alignment, bounded relief, decoration grounding and carrying
+the shaped enclosure with its emitted lamp light. Compiled code and simulations alone do not establish visual correctness.

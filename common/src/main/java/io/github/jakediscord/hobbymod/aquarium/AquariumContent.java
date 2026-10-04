@@ -15,7 +15,7 @@ public final class AquariumContent {
     private static final DeferredRegister<Item> ITEMS=DeferredRegister.create(HobbyMod.MOD_ID,Registries.ITEM);
     private static final DeferredRegister<BlockEntityType<?>> ENTITIES=DeferredRegister.create(HobbyMod.MOD_ID,Registries.BLOCK_ENTITY_TYPE);
     private static final DeferredRegister<CreativeModeTab> TABS=DeferredRegister.create(HobbyMod.MOD_ID,Registries.CREATIVE_MODE_TAB);
-    public static final RegistrySupplier<AquariumControllerBlock> CONTROLLER=BLOCKS.register("aquarium_controller",()->new AquariumControllerBlock(Block.Properties.of().strength(1.5F).sound(SoundType.GLASS).noOcclusion()));
+    public static final RegistrySupplier<AquariumControllerBlock> CONTROLLER=BLOCKS.register("aquarium_controller",()->new AquariumControllerBlock(Block.Properties.of().strength(1.5F).sound(SoundType.GLASS).noOcclusion().lightLevel(s->s.getValue(AquariumControllerBlock.LIT)?14:0)));
     public static final RegistrySupplier<Block> PART=BLOCKS.register("aquarium_part",()->new AquariumPartBlock(Block.Properties.of().strength(1.5F).sound(SoundType.GLASS).noOcclusion()));
     public static final RegistrySupplier<BlockEntityType<AquariumBlockEntity>> TANK_ENTITY=ENTITIES.register("aquarium",()->BlockEntityType.Builder.of(AquariumBlockEntity::new,CONTROLLER.get()).build(null));
     public static final Map<AquariumData.Size,RegistrySupplier<Item>> KITS=new EnumMap<>(AquariumData.Size.class);
@@ -31,7 +31,7 @@ public final class AquariumContent {
     public static final RegistrySupplier<CreativeModeTab> TAB=TABS.register("aquariums",()->CreativeTabRegistry.create(b->b.title(Component.literal("HobbyMod: Habitats"))
             .icon(()->new ItemStack(KITS.get(AquariumData.Size.SMALL).get())).displayItems((p,o)->{
                 KITS.values().forEach(item->o.accept(item.get()));
-                o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.KIT.get());o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.MISTER.get());o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.FOOD.get());o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.SPRINGTAILS.get());o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.ISOPODS.get());o.accept(FOOD.get());o.accept(FILTER.get());o.accept(STARTER.get());FISH.values().forEach(item->o.accept(item.get()));
+                o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.HEAT_LAMP.get());o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.KIT.get());o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.MISTER.get());o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.FOOD.get());o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.SPRINGTAILS.get());o.accept(io.github.jakediscord.hobbymod.terrarium.TerrariumContent.ISOPODS.get());o.accept(FOOD.get());o.accept(FILTER.get());o.accept(STARTER.get());FISH.values().forEach(item->o.accept(item.get()));
             })));
     public static void register(){BLOCKS.register();ITEMS.register();ENTITIES.register();TABS.register();}
     private AquariumContent(){}

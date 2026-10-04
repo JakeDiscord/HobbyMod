@@ -44,14 +44,30 @@ public final class AquariumNetworking {
         public static final StreamCodec<RegistryFriendlyByteBuf,Angles> CODEC=StreamCodec.of((b,p)->{b.writeBlockPos(p.pos);b.writeUUID(p.id);b.writeDouble(p.yaw);b.writeDouble(p.pitch);b.writeDouble(p.roll);},b->new Angles(b.readBlockPos(),b.readUUID(),b.readDouble(),b.readDouble(),b.readDouble()));
         public Type<Angles> type(){return TYPE;}
     }
+    public record Terrain(BlockPos pos,double x,double z,double radius,int mode) implements CustomPacketPayload {
+        public static final Type<Terrain> TYPE=new Type<>(ResourceLocation.fromNamespaceAndPath("hobbymod","terrarium_terrain"));
+        public static final StreamCodec<RegistryFriendlyByteBuf,Terrain> CODEC=StreamCodec.of((b,p)->{b.writeBlockPos(p.pos);b.writeDouble(p.x);b.writeDouble(p.z);b.writeDouble(p.radius);b.writeInt(p.mode);},b->new Terrain(b.readBlockPos(),b.readDouble(),b.readDouble(),b.readDouble(),b.readInt()));
+        public Type<Terrain> type(){return TYPE;}
+    }
     private static final java.util.Map<ServerPlayer,Long> LAST=new java.util.WeakHashMap<>();
     public static void register(){
+        NetworkManager.registerReceiver(NetworkManager.Side.C2S,Terrain.TYPE,Terrain.CODEC,(a,c)->c.queue(()->{
+            if(!(c.getPlayer() instanceof ServerPlayer player) || !player.level().hasChunkAt(a.pos)
+                    || !io.github.jakediscord.hobbymod.pottery.PotteryNetworking.permitted(player,a.pos)
+                    || !(player.level().getBlockEntity(a.pos) instanceof AquariumBlockEntity tank) || tank.data.terrarium==null
+                    || tank.inspect()!=AquariumBlockEntity.Condition.READY)return;
+            long now=player.level().getGameTime();Long last=LAST.get(player);if(last!=null && now>=last && now-last<2)return;LAST.put(player,now);
+            if(tank.data.terrarium.terrain.brush(tank.data.terrarium,a.x,a.z,a.radius,a.mode)){
+                io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.fitDecor(tank.data);tank.changed();
+            }
+            player.connection.send(tank.getUpdatePacket());
+        }));
         NetworkManager.registerReceiver(NetworkManager.Side.C2S,Angles.TYPE,Angles.CODEC,(a,c)->c.queue(()->{
             if(!(c.getPlayer() instanceof ServerPlayer player) || !player.level().hasChunkAt(a.pos)
                     || !io.github.jakediscord.hobbymod.pottery.PotteryNetworking.permitted(player,a.pos)
                     || !(player.level().getBlockEntity(a.pos) instanceof AquariumBlockEntity tank) || tank.data.terrarium==null)return;
             long now=player.level().getGameTime();Long last=LAST.get(player);if(last!=null && now>=last && now-last<2)return;LAST.put(player,now);
-            if(tank.data.scape.angles(a.id,tank.data.size,a.yaw,a.pitch,a.roll))tank.changed();
+            if(tank.data.scape.angles(a.id,tank.data.size,a.yaw,a.pitch,a.roll)){io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.fitDecor(tank.data);tank.changed();}
             else NetworkManager.sendToPlayer(player,new Notice("Rotation is invalid or the selected piece moved."));
             player.connection.send(tank.getUpdatePacket());
         }));
@@ -60,7 +76,7 @@ public final class AquariumNetworking {
                     || !io.github.jakediscord.hobbymod.pottery.PotteryNetworking.permitted(player,a.pos)
                     || !(player.level().getBlockEntity(a.pos) instanceof AquariumBlockEntity tank))return;
             long now=player.level().getGameTime();Long last=LAST.get(player);if(last!=null && now>=last && now-last<2)return;LAST.put(player,now);
-            if(tank.data.scape.transform(a.id,tank.data.size,a.x,a.y,a.z,a.rotation,a.sx,a.sy,a.sz)){tank.changed();}
+            if(tank.data.scape.transform(a.id,tank.data.size,a.x,a.y,a.z,a.rotation,a.sx,a.sy,a.sz)){io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.fitDecor(tank.data);tank.changed();}
             else NetworkManager.sendToPlayer(player,new Notice("Decoration changed or transform is invalid. Select it again."));
             player.connection.send(tank.getUpdatePacket());
         }));
