@@ -6,8 +6,8 @@ vineries, painting, cameras, woodworking, and other creative hobbies.
 ## DJ and music production
 
 Craft a **DJ Workstation** to compose and perform music in a Minecraft-style DAW.
-It has eight instrument channels, editable drum patterns and piano-roll chords,
-a 64-bar song arrangement, channel mixing with pan/filter/delay/reverb, and two
+It has eight instrument channels with 29 sounds, editable drum patterns and piano-roll chords,
+a 64-bar playlist with overlapping complete patterns, channel mixing with pan/filter/delay/reverb, and two
 live decks with cueing, tempo sync, looping, headphone monitoring and a crossfader.
 Save editable music discs or share `.hobbytrack` projects and export stereo WAV.
 Nearby speakers extend the listening range; the deck audio runs through Minecraft's
@@ -186,7 +186,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for sixty-two tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, three blueprint serialization/validation tests, seven aquarium layout/care/persistence tests, seven painting raster/shape/persistence tests, three rendering geometry/cache tests, eleven terrarium ecosystem/rotation/motion/terrain tests, and eleven DJ project/scheduling/audio tests. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for sixty-nine tests: thirteen sculpting geometry tests, seven pottery geometry/process tests, three blueprint serialization/validation tests, seven aquarium layout/care/persistence tests, seven painting raster/shape/persistence tests, three rendering geometry/cache tests, eleven terrarium ecosystem/rotation/motion/terrain tests, and eighteen DJ project/scheduling/audio tests. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -197,11 +197,11 @@ blank, survival and symmetry, creative and smoothing, stale revisions and perman
 coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
 Nine additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
 Nine aquarium GameTests cover placement, item returns, care, aquascaping and persistence.
-Five DJ GameTests cover recording costs, project loading, edit authorization, transport, speaker range, pickup and one-shot completion.
+Six DJ GameTests cover recording costs, project loading, edit authorization, transport, speaker range, pickup and one-shot completion.
 
 Eight terrarium GameTests cover land placement, survival care supplies, colony collection, precise rotation, carrying the planted enclosure, wild capture and biome spawn coverage.
 Six painting GameTests cover supplies, strokes, signatures, canvas saves, wall support and the two-block easel.
-Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, eight `TERRARIUM_TEST_PASS`, five `DJ_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
+Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, eight `TERRARIUM_TEST_PASS`, six `DJ_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
 above. Do not rebuild without `-Pgametest` while these tests are starting: that
 removes test classes from the development output. If also launching a client,

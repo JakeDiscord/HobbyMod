@@ -21,7 +21,7 @@ public final class DjClient {
         dev.architectury.event.events.client.ClientLifecycleEvent.CLIENT_SETUP.register(c->{dev.architectury.registry.client.rendering.BlockEntityRendererRegistry.register(DjContent.ENTITY.get(),DjRenderer::new);dev.architectury.registry.client.rendering.RenderTypeRegistry.register(net.minecraft.client.renderer.RenderType.cutout(),DjContent.WORKSTATION.get());});
         NetworkManager.registerReceiver(NetworkManager.Side.S2C,DjNetworking.State.TYPE,DjNetworking.State.CODEC,(p,c)->c.queue(()->{
             var mc=Minecraft.getInstance();if(mc.level==null || !(mc.level.getBlockEntity(p.pos()) instanceof DjBlockEntity b))return;b.loadWithComponents(p.data(),mc.level.registryAccess());
-            if(p.open())mc.setScreen(new DjScreen(p.pos()));else if(mc.screen instanceof DjScreen s && s.pos.equals(p.pos()))s.ack(p.message());
+            if(p.open())mc.setScreen(new DjScreen(p.pos()));else{DjScreen editor=mc.screen instanceof DjScreen s?s:mc.screen instanceof DjEditorOverlay overlay?overlay.editor():null;if(editor!=null && editor.pos.equals(p.pos()))editor.ack(p.message());}
         }));
         ClientTickEvent.CLIENT_POST.register(DjClient::tick);
     }
