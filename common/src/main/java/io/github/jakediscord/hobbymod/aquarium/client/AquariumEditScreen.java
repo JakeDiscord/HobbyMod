@@ -19,6 +19,7 @@ public final class AquariumEditScreen extends Screen {
     private Vec3 start;
     private String notice="";
     private boolean terrainMode,painting;
+    private Button resetRotation,terrainToggle;
     private int brushMode;
     private double brushRadius=.28,mouseX,mouseY,rotationDelta;
     private Vec3 rotationLast;
@@ -34,9 +35,10 @@ public final class AquariumEditScreen extends Screen {
     @Override protected void init(){
         button("Back to care",8,8,100,this::onClose);
         button("Reset size",8,34,100,()->{var p=piece();if(p!=null){change(p,p.x(),p.y(),p.z(),p.rotation(),1,1,1);send();}});
-        terrainButtons.clear();var t=AquariumOrbit.tank();if(t==null || t.data.terrarium==null)button("Rotate 90°",8,60,100,()->{var p=piece();if(p!=null){change(p,p.x(),p.y(),p.z(),(p.rotation()+1)%4,p.scaleX(),p.scaleY(),p.scaleZ());send();}});
+        terrainButtons.clear();var t=AquariumOrbit.tank();if(t==null || t.data.terrarium==null){button("Reset rotation",8,86,100,()->{var p=piece();if(p!=null){change(p,p.x(),p.y(),p.z(),0,p.scaleX(),p.scaleY(),p.scaleZ());send();notice="Rotation reset";}});button("Rotate 90°",8,60,100,()->{var p=piece();if(p!=null){change(p,p.x(),p.y(),p.z(),(p.rotation()+1)%4,p.scaleX(),p.scaleY(),p.scaleZ());send();}});}
         if(t!=null && t.data.terrarium!=null){
-            addRenderableWidget(Button.builder(Component.literal("Edit terrain"),b->{terrainMode=!terrainMode;AquariumOrbit.selected=null;b.setMessage(Component.literal(terrainMode?"Edit objects":"Edit terrain"));}).bounds(8,60,100,20).build());
+            resetRotation=addRenderableWidget(Button.builder(Component.literal("Reset rotation"),b->{var p=piece();var tank=AquariumOrbit.tank();if(p!=null && tank!=null){tank.data.scape.angles(p.id(),tank.data.size,0,0,0);io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.fitDecor(tank.data);NetworkManager.sendToServer(new AquariumNetworking.Angles(tank.getBlockPos(),p.id(),0,0,0));notice="Rotation reset";}}).bounds(8,60,100,20).build());
+            terrainToggle=addRenderableWidget(Button.builder(Component.literal("Edit terrain"),b->{terrainMode=!terrainMode;AquariumOrbit.selected=null;b.setMessage(Component.literal(terrainMode?"Edit objects":"Edit terrain"));}).bounds(8,86,100,20).build());
             String[] names={"Raise","Lower","Smooth"};for(int i=0;i<3;i++){int mode=i;var b=addRenderableWidget(Button.builder(Component.literal(names[i]),v->{brushMode=mode;}).bounds(8,100+i*24,100,20).build());terrainButtons.add(b);}
         }
 
@@ -44,7 +46,7 @@ public final class AquariumEditScreen extends Screen {
     private AquariumScape.Piece piece(){var t=AquariumOrbit.tank();if(t==null || AquariumOrbit.selected==null)return null;return t.data.scape.pieces().stream().filter(p->p.id().equals(AquariumOrbit.selected)).findFirst().orElse(null);}
     private void change(AquariumScape.Piece p,double x,double y,double z,int r,double sx,double sy,double sz){
         var t=AquariumOrbit.tank();if(t==null)return;
-        t.data.scape.transform(p.id(),t.data.size,Math.clamp(x,.08,.92),Math.clamp(y,0,.92),Math.clamp(z,.08,.92),r,Math.clamp(sx,.15,4),Math.clamp(sy,.15,4),Math.clamp(sz,.15,4));
+        t.data.scape.transform(p.id(),t.data.size,Math.clamp(x,.08,.92),Math.clamp(y,t.data.terrarium==null?0:-.45,.92),Math.clamp(z,.08,.92),r,Math.clamp(sx,.15,4),Math.clamp(sy,.15,4),Math.clamp(sz,.15,4));
         io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.fitDecor(t.data);
     }
     private void send(){var p=piece();var t=AquariumOrbit.tank();if(p==null || t==null)return;NetworkManager.sendToServer(new AquariumNetworking.Transform(t.getBlockPos(),p.id(),p.x(),p.y(),p.z(),p.rotation(),p.scaleX(),p.scaleY(),p.scaleZ()));notice="Layout saved";}
@@ -54,16 +56,16 @@ public final class AquariumEditScreen extends Screen {
         if(t==null || minecraft.player==null || !minecraft.player.isAlive() || minecraft.player.hurtTime>0 || !io.github.jakediscord.hobbymod.pottery.PotteryNetworking.permitted(minecraft.player,t.getBlockPos())){AquariumOrbit.close();minecraft.setScreen(null);}
     }
     @Override public void render(GuiGraphics g,int x,int y,float partial){
-        this.partial=partial;mouseX=x;mouseY=y;for(var b:terrainButtons)b.visible=terrainMode;
-        g.fill(4,4,112,terrainMode?176:84,0xAA15242A);super.render(g,x,y,partial);
+        this.partial=partial;mouseX=x;mouseY=y;if(resetRotation!=null){resetRotation.visible=!terrainMode;resetRotation.active=piece()!=null;terrainToggle.setY(terrainMode?60:86);}for(var b:terrainButtons)b.visible=terrainMode;
+        g.fill(4,4,112,terrainMode?176:110,0xAA15242A);super.render(g,x,y,partial);
         if(terrainMode){
             AquariumGizmo.terrainCursor(g,x,y,partial,brushRadius,painting && strokeSet?strokeX:Double.NaN,strokeZ);
             g.drawString(font,"Terrain brush",8,88,0xFFFFFF);g.drawString(font,new String[]{"Raise","Lower","Smooth"}[brushMode]+" · "+String.format(java.util.Locale.ROOT,"%.2f",brushRadius),8,176,0xFFE6A0);
         }else{
             AquariumGizmo.draw(g,x,y,partial,handle);var p=piece();if(p!=null){
-                g.drawString(font,AquariumControllerBlock.decorItem(p).getDescription().getString(),8,94,0xFFE6A0);
-                g.drawString(font,String.format(java.util.Locale.ROOT,"Size %.2f / %.2f / %.2f",p.scaleX(),p.scaleY(),p.scaleZ()),8,108,0xFFFFFF);
-                if(AquariumOrbit.tank().data.terrarium!=null)g.drawString(font,String.format(java.util.Locale.ROOT,"Rotation %.1f / %.1f / %.1f",p.rotation()*90+p.yaw(),p.pitch(),p.roll()),8,122,0xFFFFFF);
+                g.drawString(font,AquariumControllerBlock.decorItem(p).getDescription().getString(),8,118,0xFFE6A0);
+                g.drawString(font,String.format(java.util.Locale.ROOT,"Size %.2f / %.2f / %.2f",p.scaleX(),p.scaleY(),p.scaleZ()),8,132,0xFFFFFF);
+                if(AquariumOrbit.tank().data.terrarium!=null)g.drawString(font,String.format(java.util.Locale.ROOT,"Rotation %.1f / %.1f / %.1f",p.rotation()*90+p.yaw(),p.pitch(),p.roll()),8,146,0xFFFFFF);
             }
         }
         g.drawString(font,terrainMode?"Hold to sculpt · Shift lowers · Shift-wheel brush size":AquariumOrbit.tank().data.terrarium!=null?"Arrows move · Cubes scale · Curved arrows rotate":"Arrows move · Cubes scale",8,height-43,0xFFFFFF);

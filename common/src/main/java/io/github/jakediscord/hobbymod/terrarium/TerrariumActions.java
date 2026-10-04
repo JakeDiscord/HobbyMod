@@ -38,8 +38,8 @@ public final class TerrariumActions {
             else if(!remove && d.substrate!=kind){if(d.substrate!=TerrariumData.Substrate.NONE)refund(player,new ItemStack(substrate(d.substrate)));d.substrate=kind;consume(stack,player);changed=true;}
         }else if(stack.is(TerrariumContent.FOOD.get())){
             if(d.food<=80){d.food=Math.min(100,d.food+20);consume(stack,player);changed=true;}else notice(player,"There is plenty of leaf litter already.");
-        }else if(stack.is(TerrariumContent.SPRINGTAILS.get()) || stack.is(TerrariumContent.ISOPODS.get())){
-            var species=stack.is(TerrariumContent.SPRINGTAILS.get())?TerrariumData.Species.SPRINGTAIL:TerrariumData.Species.ISOPOD;
+        }else if(TerrariumContent.species(stack)!=null){
+            var species=TerrariumContent.species(stack);
             if(remove){var taken=d.take(species);if(!taken.isEmpty()){var returned=new ItemStack(TerrariumContent.colony(species));var tag=new CompoundTag();var list=new ListTag();for(var r:taken)list.add(TerrariumNbt.resident(r));tag.put("Colony",list);returned.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));if(!player.addItem(returned))player.drop(returned,false);changed=true;}}
             else if(d.substrate==TerrariumData.Substrate.NONE)notice(player,"Lay substrate before adding a colony.");
             else{

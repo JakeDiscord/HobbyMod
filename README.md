@@ -7,7 +7,9 @@ vineries, painting, cameras, woodworking, and other creative hobbies.
 
 Craft eight glass around a copper ingot for a 2×1 glass land enclosure. Right-click
 for ecosystem care and layout: choose soil, sand or moss, arrange plants and
-hardscape, mist, light, and optionally introduce springtail or isopod colonies.
+hardscape, mist, light, and optionally introduce bugs, snails, tree frogs or geckos.
+Find inhabitants in the wild and capture them with a habitat collection net;
+aquarium fish also require a water bucket.
 The shared 3D editor has move arrows, scale cubes and curved rotation arrows. Sculpt peaks and valleys in the
 substrate, and install heat lamps for indoor light.
 See [the terrarium guide](docs/TERRARIUMS.md) for supplies, controls and testing.
@@ -185,7 +187,7 @@ blank, survival and symmetry, creative and smoothing, stale revisions and perman
 coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
 Nine additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
 Nine aquarium GameTests cover placement, item returns, care, aquascaping and persistence.
-Five terrarium GameTests cover land placement, survival care supplies, colony collection, precise rotation and carrying the planted enclosure.
+Eight terrarium GameTests cover land placement, survival care supplies, colony collection, precise rotation, carrying the planted enclosure, wild capture and biome spawn coverage.
 Six painting GameTests cover supplies, strokes, signatures, canvas saves, wall support and the two-block easel.
 Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, five `TERRARIUM_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described

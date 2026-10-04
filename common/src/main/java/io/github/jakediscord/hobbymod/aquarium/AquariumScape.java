@@ -24,7 +24,7 @@ public final class AquariumScape {
     public static boolean valid(Piece p){
         return p!=null && p.material!=null && p.id!=null && p.block!=null && p.block.length()<=128
                 && finite(p.x,p.y,p.z,p.scaleX,p.scaleY,p.scaleZ,p.yaw,p.pitch,p.roll) && Math.abs(p.yaw)<=360 && Math.abs(p.pitch)<=360 && Math.abs(p.roll)<=360 && p.x>=.08 && p.x<=.92 && p.z>=.08 && p.z<=.92
-                && p.y>=0 && p.y<=.92 && p.scaleX>=.15 && p.scaleX<=4 && p.scaleY>=.15 && p.scaleY<=4 && p.scaleZ>=.15 && p.scaleZ<=4 && p.rotation>=0 && p.rotation<4;
+                && p.y>=-.45 && p.y<=.92 && p.scaleX>=.15 && p.scaleX<=4 && p.scaleY>=.15 && p.scaleY<=4 && p.scaleZ>=.15 && p.scaleZ<=4 && p.rotation>=0 && p.rotation<4;
     }
     private static boolean finite(double... values){for(double v:values)if(!Double.isFinite(v))return false;return true;}
     public static double baseWidth(Material m){return switch(m){case ROCK->.5;case WOOD->.8;case SEAGRASS,KELP->.44;case BLOCK->.5;};}
@@ -39,7 +39,7 @@ public final class AquariumScape {
         double rx=(p.rotation%2==0?baseWidth(p.material)*sx:baseDepth(p.material)*sz)/2/w+.01;
         double rz=(p.rotation%2==0?baseDepth(p.material)*sz:baseWidth(p.material)*sx)/2/d+.01;
         return new Piece(p.material,Math.clamp(p.x,Math.max(.08,rx),Math.min(.92,1-rx)),Math.clamp(p.z,Math.max(.08,rz),Math.min(.92,1-rz)),p.rotation,
-                Math.clamp(p.y,0,Math.max(0,Math.min(.92,(h-.18-baseHeight(p.material,s)*sy)/h))),sx,sy,sz,p.id,p.block);
+                Math.clamp(p.y,-.45,Math.max(0,Math.min(.92,(h-.18-baseHeight(p.material,s)*sy)/h))),sx,sy,sz,p.id,p.block);
     }
     public boolean transform(UUID id,AquariumData.Size size,double x,double y,double z,int rotation,double sx,double sy,double sz){
         for(int i=0;i<pieces.size();i++)if(pieces.get(i).id.equals(id)){
@@ -76,7 +76,7 @@ public final class AquariumScape {
         var q=new Piece(p.material,p.x,p.z,p.rotation,p.y,Math.max(.15,p.scaleX*factor),Math.max(.15,p.scaleY*factor),Math.max(.15,p.scaleZ*factor),p.id,p.block,p.yaw,p.pitch,p.roll);
         e=extents(q,s);
         return new Piece(p.material,Math.clamp(p.x,Math.max(.08,-e.x/w+.01),Math.min(.92,1-e.X/w-.01)),Math.clamp(p.z,Math.max(.08,-e.z/d+.01),Math.min(.92,1-e.Z/d-.01)),p.rotation,
-                Math.clamp(p.y,0,Math.max(0,Math.min(.92,(h-.18-(e.Y-e.y))/h))),q.scaleX,q.scaleY,q.scaleZ,p.id,p.block,p.yaw,p.pitch,p.roll);
+                Math.clamp(p.y,-.45,Math.max(0,Math.min(.92,(h-.18-(e.Y-e.y))/h))),q.scaleX,q.scaleY,q.scaleZ,p.id,p.block,p.yaw,p.pitch,p.roll);
     }
     private static Bounds preciseBounds(Piece p,AquariumData.Size s){
         var e=extents(p,s);double ax=(s.blocksWide()-.16)/(s.width-2),ay=(s.blocksHigh()*.88-.24)/(s.height-2),az=(s.blocksDeep()-.16)/(s.depth-2);

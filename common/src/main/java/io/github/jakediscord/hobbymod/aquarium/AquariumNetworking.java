@@ -76,7 +76,7 @@ public final class AquariumNetworking {
                     || !io.github.jakediscord.hobbymod.pottery.PotteryNetworking.permitted(player,a.pos)
                     || !(player.level().getBlockEntity(a.pos) instanceof AquariumBlockEntity tank))return;
             long now=player.level().getGameTime();Long last=LAST.get(player);if(last!=null && now>=last && now-last<2)return;LAST.put(player,now);
-            if(tank.data.scape.transform(a.id,tank.data.size,a.x,a.y,a.z,a.rotation,a.sx,a.sy,a.sz)){io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.fitDecor(tank.data);tank.changed();}
+            if((tank.data.terrarium!=null || a.y>=0) && tank.data.scape.transform(a.id,tank.data.size,a.x,a.y,a.z,a.rotation,a.sx,a.sy,a.sz)){io.github.jakediscord.hobbymod.terrarium.TerrariumTerrain.fitDecor(tank.data);tank.changed();}
             else NetworkManager.sendToPlayer(player,new Notice("Decoration changed or transform is invalid. Select it again."));
             player.connection.send(tank.getUpdatePacket());
         }));

@@ -226,3 +226,16 @@ including independent X/Y/Z scaling, arrow movement, orbiting and GUI scales
 2 and 3. The test world's saved edits survived the client restart.
 
 ![Generic blocks visible through a filled aquarium](aquarium-blocks-visible.png)
+
+
+## Collecting wild fish
+
+Aquarium species now spawn naturally in rivers and warm/lukewarm oceans using
+normal Minecraft fish spawn caps. Craft a habitat collection net from three
+string, an iron nugget and a stick (pattern in [Terrariums](TERRARIUMS.md)).
+Right-click a fish while carrying a water bucket. The bucket becomes its carrying
+vessel; introducing the individual into the aquarium refunds an empty bucket.
+Its species, color genes and identity are retained. Wild aquarium fish also
+accept the usual direct water-bucket interaction. Existing bag recipes remain
+available. Aquarium editors now include **Reset rotation** beside the other
+layout controls.

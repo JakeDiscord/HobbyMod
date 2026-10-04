@@ -6,7 +6,12 @@ import java.util.*;
 public final class TerrariumData {
     public static final int MAX_RESIDENTS=48;
     public enum Substrate { NONE,SOIL,SAND,MOSS }
-    public enum Species { SPRINGTAIL,ISOPOD }
+    public enum Species {
+        SPRINGTAIL("Springtails",3,.035),ISOPOD("Isopods",3,.09),SNAIL("Snails",1,.10),TREE_FROG("Tree frogs",1,.18),GECKO("Geckos",1,.18);
+        public final String label;public final int starter;public final double body;
+        Species(String label,int starter,double body){this.label=label;this.starter=starter;this.body=body;}
+        public boolean vertebrate(){return this==TREE_FROG || this==GECKO;}
+    }
     public static final class Resident {
         public final UUID id;public final Species species;
         public UUID parent;public int variant,age=8,vigor=100;
@@ -26,8 +31,8 @@ public final class TerrariumData {
     }
     public Resident newResident(Species species,long seed){var id=new UUID(seed,nextId++);return new Resident(id,species,new Random(id.getLeastSignificantBits()^seed).nextInt(4));}
     public boolean introduce(Species species,long seed){
-        if(substrate==Substrate.NONE || residents.size()+3>MAX_RESIDENTS)return false;
-        for(int i=0;i<3;i++)accept(newResident(species,seed));return true;
+        if(substrate==Substrate.NONE || residents.size()+species.starter>MAX_RESIDENTS)return false;
+        for(int i=0;i<species.starter;i++)accept(newResident(species,seed));return true;
     }
     public List<Resident> take(Species species){
         var result=new ArrayList<Resident>();for(var r:residents)if(r.species==species && result.size()<3)result.add(r);

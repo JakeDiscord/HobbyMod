@@ -46,8 +46,9 @@ public final class TerrariumScreen extends Screen {
             bar(g,"Moisture "+d.moisture+"%",d.moisture,x+9,y+44,0x579b83);bar(g,"Humidity "+d.humidity+"%",d.humidity,x+164,y+44,0x5b94bb);
             bar(g,"Light "+d.light+"/15",d.light*100/15,x+9,y+65,0xc0ad66);bar(g,"Leaf litter "+d.food+"%",d.food,x+164,y+65,0x9b865d);
             text(g,"Substrate: "+d.substrate.name().toLowerCase(java.util.Locale.ROOT),x+9,y+86,145);text(g,"Drainage: "+(d.drainage?"gravel":"none"),x+164,y+86,145);
-            int spring=0,isopods=0;for(var r:d.residents())if(r.species==TerrariumData.Species.SPRINGTAIL)spring++;else isopods++;
-            text(g,"Springtails "+spring+" · Isopods "+isopods,x+9,y+106,168);
+            int[] counts=new int[TerrariumData.Species.values().length];for(var r:d.residents())counts[r.species.ordinal()]++;
+            text(g,"Springtails "+counts[0]+" · Isopods "+counts[1],x+9,y+99,168);
+            text(g,"Snails "+counts[2]+" · Frogs "+counts[3]+" · Geckos "+counts[4],x+9,y+112,168);
         }else if(tab==1){
             text(g,remove?"Click a piece to collect it":"Choose a block, then click the top view",x+9,y+44,300);
             g.fill(x+9,y+56,x+151,y+99,0xff46674e);g.fill(x+11,y+58,x+149,y+97,d.substrate==TerrariumData.Substrate.SAND?0xffb9ad86:d.substrate==TerrariumData.Substrate.MOSS?0xff648c47:0xff866d53);
@@ -57,14 +58,14 @@ public final class TerrariumScreen extends Screen {
             text(g,"1. Add gravel drainage and soil, sand or moss.",x+9,y+44,300);
             text(g,"2. Arrange moss, fern, azalea, poppy or oak.",x+9,y+58,300);
             text(g,"3. Mist; add a lamp if the room is dark.",x+9,y+72,300);
-            text(g,"4. Optional colonies enjoy moist plants + litter.",x+9,y+86,300);
-            text(g,"Closed, comfortable colonies slowly breed.",x+9,y+100,170);
+            text(g,"4. Net wild bugs, snails, frogs or geckos.",x+9,y+86,300);
+            text(g,"Feed litter; comfortable residents breed.",x+9,y+100,170);
         }
         text(g,remove?"Inventory · click to remove / collect":"Inventory · click a supply to use it",x+9,y+124,300);
         for(int i=0;i<36;i++){int slot=i<27?i+9:i-27,px=x+8+(i%9)*18,py=y+137+(i/9)*18;g.fill(px,py,px+18,py+18,0xff373737);g.fill(px+1,py+1,px+18,py+18,0xffffffff);g.fill(px+1,py+1,px+17,py+17,0xff8b8b8b);var stack=minecraft.player.getInventory().getItem(slot);g.renderItem(stack,px+1,py+1);g.renderItemDecorations(font,stack,px+1,py+1);if(slot==placementSlot)g.fill(px,py,px+18,py+18,0x5544bb44);}
         text(g,d.heatLamp?"Heat lamp · 24–28°C":d.warm?"Warm 24–28°C":"Mild 18–24°C",x+184,y+140,126);text(g,d.residents().size()+"/48 residents",x+184,y+153,126);
         if(tab==0 && !d.residents().isEmpty())text(g,"Comfort "+(int)d.residents().stream().mapToInt(r->r.vigor).average().orElse(100)+"%",x+184,y+165,126);
-        if(tab==1){text(g,"Drag the 3D handles",x+184,y+169,126);text(g,"Rings rotate",x+184,y+181,126);}else if(tab==2){text(g,"No random deaths",x+184,y+168,126);text(g,"Collect colonies in",x+184,y+181,126);text(g,"Remove / collect mode.",x+184,y+194,126);}
+        if(tab==1){text(g,"Drag the 3D handles",x+184,y+169,126);text(g,"Rings rotate",x+184,y+181,126);}else if(tab==2){text(g,"No random deaths",x+184,y+168,126);text(g,"Collect residents in",x+184,y+181,126);text(g,"Remove / collect mode.",x+184,y+194,126);}
         text(g,!notice.isEmpty() && net.minecraft.Util.getMillis()<until?notice:tank.warning(),x+9,y+214,300);super.render(g,mx,my,partial);
         int slot=inventoryAt(mx,my);if(slot>=0){var stack=minecraft.player.getInventory().getItem(slot);if(!stack.isEmpty()){
             var lines=new java.util.ArrayList<Component>();lines.add(stack.getHoverName());

@@ -18,5 +18,5 @@ public final class AquariumClientEvents {
             return 0xFF000000|(fish==null?entry.getKey().color:fish.color());
         },entry.getValue().get());
     }
-    @SubscribeEvent public static void register(EntityRenderersEvent.RegisterRenderers event){event.registerBlockEntityRenderer(AquariumContent.TANK_ENTITY.get(),NeoForgeAquariumRenderer::new);}
+    @SubscribeEvent public static void register(EntityRenderersEvent.RegisterRenderers event){event.registerBlockEntityRenderer(AquariumContent.TANK_ENTITY.get(),NeoForgeAquariumRenderer::new);event.registerEntityRenderer(io.github.jakediscord.hobbymod.habitats.HabitatWildlife.CRITTER.get(),io.github.jakediscord.hobbymod.habitats.client.WildCritterRenderer::new);event.registerEntityRenderer(io.github.jakediscord.hobbymod.habitats.HabitatWildlife.FISH.get(),net.minecraft.client.renderer.entity.TropicalFishRenderer::new);}
 }

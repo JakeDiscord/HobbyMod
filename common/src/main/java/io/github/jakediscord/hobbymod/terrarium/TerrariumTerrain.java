@@ -37,9 +37,11 @@ public final class TerrariumTerrain {
     public static void fitDecor(AquariumData d){
         if(d.terrarium==null)return;var s=d.size;double ay=(s.blocksHigh()*.88-.24)/(s.height-2);
         for(var p:d.scape.pieces()){
-            var b=bounds(p,d);double floor=b.y()-p.y()*(s.height-2)*ay,room=Math.max(.05,(s.blocksHigh()*.88-.14-floor)/ay);
-            double tall=(b.Y()-b.y())/ay,factor=Math.min(1,room/tall),y=Math.max(0,Math.min(p.y(),(room-tall*factor)/(s.height-2)));
-            if(factor<1 || y<p.y())d.scape.transform(p.id(),s,p.x(),y,p.z(),p.rotation(),Math.max(.15,p.scaleX()*factor),Math.max(.15,p.scaleY()*factor),Math.max(.15,p.scaleZ()*factor));
+            var b=bounds(p,d);double floor=b.y()-p.y()*(s.height-2)*ay;
+            double minY=Math.max(-.45,(.105-floor)/((s.height-2)*ay));
+            double y=Math.max(minY,p.y()),room=Math.max(.05,(s.blocksHigh()*.88-.14-floor)/ay-y*(s.height-2));
+            double tall=(b.Y()-b.y())/ay,factor=Math.min(1,room/tall);
+            if(factor<1 || y!=p.y())d.scape.transform(p.id(),s,p.x(),y,p.z(),p.rotation(),Math.max(.15,p.scaleX()*factor),Math.max(.15,p.scaleY()*factor),Math.max(.15,p.scaleZ()*factor));
         }
     }
     public TerrariumTerrain(){}

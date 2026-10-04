@@ -23,6 +23,8 @@ survival, and successful misting/trimming wears the tool.
 | Leaf litter | Feed colonies; craft leaves plus dried kelp for four portions |
 | Springtail colony | Introduce three tiny inhabitants; craft litter, sugar and white dye |
 | Isopod colony | Introduce three tiny inhabitants; craft litter and gray dye |
+| Snail, tree frog or gecko | Introduce one animal; collect it in the wild with a habitat net |
+| Habitat collection net | Right-click wild animals; fish also need a water bucket |
 | Shears | Trim the most recently placed plant that still has height to trim |
 
 Use **Remove / collect** to return installed drainage, substrate, lamps or up to
@@ -33,6 +35,8 @@ speeds drying; closing it conserves moisture. Misting shows a brief spray, wet
 soil darkens, and very humid closed glass shows light condensation.
 
 ![Terrarium care with live moisture, humidity and colony counts](terrarium-care.png)
+
+![Live counts for the new animals](terrarium-animal-care.png)
 
 ## Layout and exact rotation
 
@@ -50,10 +54,11 @@ roll; hold Shift while dragging to snap the rotation change to 15° steps.
 Angles remain precise without typing into separate GUI fields. The server
 checks distance, permissions and bounds; tilted pieces shrink or move to fit
 inside the enclosure. Decoration orientation, scale and location are saved
-and carried with the tank. Reset size remains available; aquariums retain their
-existing 90° rotation shortcut.
+and carried with the tank. Reset size and **Reset rotation** remain available. Reset rotation clears all three angles while keeping position and scale; aquariums also have the button. Lower the green movement arrow to bury rocks, roots or blocks in the terrain. The tank floor limits burial depth.
 
 ![Curved rotation arrows alongside movement and scale handles](terrarium-precise-editor.png)
+
+![Reset rotation keeps size and clears all angles](terrarium-reset-rotation.png)
 
 ![Planted terrariums with native block models and cosmetic residents](terrarium-display.png)
 
@@ -107,12 +112,13 @@ future extensions.
 
 ## Validation
 
-Eight shared terrarium tests cover recoverable neglect, long-running capped breeding,
+Eleven shared terrarium tests cover recoverable neglect, long-running capped breeding,
 resident collection, save compatibility, 6,000 rotated layouts and bounded
-seeded motion. Five native GameTests exercise real land-kit placement,
+seeded motion. Eight native GameTests exercise real land-kit placement,
 survival supply consumption and refunds, colony identity round trips, arbitrary
-rotation and mining/replacement. These bring the suite to 48 shared tests and
-45 native GameTests. The normal release build excludes development GameTests.
+rotation, mining/replacement, wild capture without duplication, fish water vessels,
+native entity settings and biome spawn coverage. These bring the suite to 51 shared tests and
+48 native GameTests. The normal release build excludes development GameTests.
 
 Graphical NeoForge client testing used Java 21, Xvfb and Mesa software OpenGL.
 Screenshots were captured and opened with the image-viewing tool. Checks
@@ -126,3 +132,45 @@ lowering, smoothing, thicker sand/gravel, forward-facing crawlers over hills,
 and installing/removing a heat lamp in a sealed room. Additional tests cover
 model heading alignment, bounded relief, decoration grounding and carrying
 the shaped enclosure with its emitted lamp light. Compiled code and simulations alone do not establish visual correctness.
+
+## Living inhabitants and wild collection
+
+Springtails and isopods alternate exploration, resting, grooming and visits to
+food. Feet move with actual travel; feelers and heads inspect their surroundings.
+They steer gradually and avoid solid hardscape and the glass. Snails crawl slowly
+with moving feelers; geckos make quicker excursions; tree frogs hop and use the
+native Minecraft frog model and animations. Young animals are smaller. Closed
+enclosures still contain saved cosmetic residents rather than full entities.
+
+Craft a **Habitat Collection Net** using this pattern (S = string, N = iron
+nugget, I = stick, · = empty):
+
+```
+·SS
+·NS
+I··
+```
+
+Wild bugs, snails, frogs and geckos spawn in forests, plains, jungles and swamps.
+Aquarium fish spawn in rivers and warm/lukewarm oceans. Rivers provide cool-water
+species; warm oceans provide warm-water species. These use normal Minecraft
+spawn caps and spawning conditions, so sightings take exploration. Existing
+chunks can spawn inhabitants too; no new terrain generation is required.
+
+Right-click an animal with the net to collect that individual. To catch a fish,
+carry a water bucket: it becomes the fish's carrying vessel, and introducing the
+fish into an aquarium returns an empty bucket. Wild aquarium fish can also be
+caught directly with a water bucket. The net wears only on successful capture.
+Color variants and individual IDs survive capture, introduction and collection.
+Colony crafting remains an alternative for the original bugs.
+
+
+![Animated frogs, geckos, snails and crawling bugs behind glass](terrarium-living-residents.png)
+
+The wildlife update was checked again in a graphical client. Captured screenshots
+were opened and inspected at 854×480 and 1280×800, including successive movement
+frames, native frog colors, visible feet and feelers, live resident counts,
+rotation reset and Y-arrow burial. Survival mouse interactions captured a real
+wild gecko and fish; fish capture without a water bucket showed the recovery
+hint. Spawn biomes and complete fish species availability were checked by native
+GameTests, rather than waiting for random sightings in the flat QA world.

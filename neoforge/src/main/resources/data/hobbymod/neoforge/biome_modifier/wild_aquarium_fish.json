@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#hobbymod:wild_fish_habitats",
+  "spawners": [
+    {
+      "type": "hobbymod:wild_aquarium_fish",
+      "weight": 12,
+      "minCount": 2,
+      "maxCount": 4
+    }
+  ]
+}

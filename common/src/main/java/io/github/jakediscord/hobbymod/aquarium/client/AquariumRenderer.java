@@ -14,6 +14,10 @@ import net.minecraft.world.phys.Vec3;
 public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity> {
     private static final ResourceLocation WHITE=ResourceLocation.fromNamespaceAndPath("hobbymod","textures/entity/aquarium_white.png");
     private final AquariumFishRenderer fishModels=new AquariumFishRenderer();
+    private final io.github.jakediscord.hobbymod.terrarium.client.TerrariumAnimalRenderer animalModels=new io.github.jakediscord.hobbymod.terrarium.client.TerrariumAnimalRenderer();
+    private record AgentKey(net.minecraft.core.BlockPos position,java.util.UUID resident){}
+    private final java.util.Map<AgentKey,io.github.jakediscord.hobbymod.terrarium.TerrariumMotion.Agent> crawlers=new java.util.LinkedHashMap<>(256,.75f,true){protected boolean removeEldestEntry(java.util.Map.Entry<AgentKey,io.github.jakediscord.hobbymod.terrarium.TerrariumMotion.Agent> e){return size()>2048;}};
+    private net.minecraft.world.level.Level animalWorld;
     public AquariumRenderer(BlockEntityRendererProvider.Context context){}
     @Override public int getViewDistance(){return 48;}
     @Override public boolean shouldRenderOffScreen(AquariumBlockEntity tank){return true;}
@@ -134,20 +138,12 @@ public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity
                 box(hood,poses.last(),sprite("iron_block"),W*.72-.07,H-.12,D*.5-.065,W*.72+.07,H-.055,D*.5+.065,0xCDD0CB,light,overlay);
                 box(buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE)),poses.last(),null,W*.72-.055,H-.125,D*.5-.05,W*.72+.055,H-.11,D*.5+.05,0xFFCE78,0xF000F0,overlay);
             }
-            var agents=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));
-            int[] colors={0x899BA1,0xD8CBA4,0x5F789B,0x9F8678};int[] springColors={0xE0E4D3,0xF0EADB,0xD4DFE5,0xE8D6D0};
+            if(animalWorld!=tank.getLevel()){crawlers.clear();animalWorld=tank.getLevel();}
             for(var resident:land.residents()){
-                var p=io.github.jakediscord.hobbymod.terrarium.TerrariumMotion.pose(resident,distant?Math.floor(time/20)*20:time);
-                poses.pushPose();poses.translate(.08+p.x()*(W-.16),.10+land.terrain.sample(land,p.x(),p.z())*(H-.24)/(s.height-2)+.003+p.bob(),.08+p.z()*(D-.16));poses.mulPose(Axis.YP.rotationDegrees((float)io.github.jakediscord.hobbymod.terrarium.TerrariumMotion.modelYaw(p.yaw())));
+                var p=crawlers.computeIfAbsent(new AgentKey(tank.getBlockPos(),resident.id),id->new io.github.jakediscord.hobbymod.terrarium.TerrariumMotion.Agent(resident)).advance(resident,time,d);
+                poses.pushPose();poses.translate(.08+p.x()*(W-.16),.10+land.terrain.sample(land,p.x(),p.z())*(H-.24)/(s.height-2)+.003+p.bob(),.08+p.z()*(D-.16));
                 float size=resident.age<8?.6f:1;poses.scale(size,size,size);
-                boolean isopod=resident.species==io.github.jakediscord.hobbymod.terrarium.TerrariumData.Species.ISOPOD;
-                if(isopod){
-                    for(int segment=0;segment<5;segment++){double z=-.045+segment*.018,half=segment==0 || segment==4?.025:.035;
-                        box(agents,poses.last(),null,-half,.005,z,half,.028,z+.016,colors[resident.variant],light,overlay);
-                        if(!distant){box(agents,poses.last(),null,-half-.012,0,z,-half,.007,z+.004,0x343C36,light,overlay);box(agents,poses.last(),null,half,0,z,half+.012,.007,z+.004,0x343C36,light,overlay);}
-                    }
-                    box(agents,poses.last(),null,-.017,.016,-.052,-.012,.022,-.045,0x20251F,light,overlay);box(agents,poses.last(),null,.012,.016,-.052,.017,.022,-.045,0x20251F,light,overlay);
-                }else{box(agents,poses.last(),null,-.009,.002,-.022,.009,.012,.022,springColors[resident.variant],light,overlay);box(agents,poses.last(),null,-.012,.006,-.027,.012,.017,-.009,0xCFD8BD,light,overlay);}
+                animalModels.render(resident,p,tank.getLevel(),time,partial,poses,buffers,light,overlay,distant);
                 poses.popPose();
             }
             if(land.humidity>75 && !land.open){
@@ -176,7 +172,7 @@ public class AquariumRenderer implements BlockEntityRenderer<AquariumBlockEntity
 
         poses.popPose();
     }
-    private static void box(VertexConsumer out,PoseStack.Pose pose,TextureAtlasSprite sprite,double x,double y,double z,double X,double Y,double Z,int color,int light,int overlay){
+    public static void box(VertexConsumer out,PoseStack.Pose pose,TextureAtlasSprite sprite,double x,double y,double z,double X,double Y,double Z,int color,int light,int overlay){
         Vec3 a=new Vec3(x,y,z),b=new Vec3(X,y,z),c=new Vec3(X,Y,z),d=new Vec3(x,Y,z);
         Vec3 e=new Vec3(x,y,Z),f=new Vec3(X,y,Z),g=new Vec3(X,Y,Z),h=new Vec3(x,Y,Z);
         quad(out,pose,sprite,a,d,c,b,color,light,overlay);quad(out,pose,sprite,e,f,g,h,color,light,overlay);

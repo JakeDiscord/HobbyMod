@@ -28,26 +28,11 @@ public final class AquariumFishRenderer {
         var style=styles.get(resident.id);
         if(fish instanceof TropicalFish tropical && (style==null || style.species!=resident.species || style.colorA!=resident.colorA || style.colorB!=resident.colorB || style.formA!=resident.formA)){
             styles.put(resident.id,new Style(resident.species,resident.colorA,resident.colorB,resident.formA));
-            var pattern=switch(resident.species){
-                case BETTA->TropicalFish.Pattern.BETTY;case ANGELFISH->TropicalFish.Pattern.BLOCKFISH;
-                case GOLDFISH->TropicalFish.Pattern.FLOPPER;case NEON_TETRA,ZEBRA_DANIO->TropicalFish.Pattern.SUNSTREAK;
-                case CHERRY_BARB->TropicalFish.Pattern.BRINELY;default->resident.formA%2==0?TropicalFish.Pattern.KOB:TropicalFish.Pattern.SPOTTY;
-            };
-            DyeColor base=closest(resident.color());
-            DyeColor marking=switch(resident.species){case NEON_TETRA->DyeColor.LIGHT_BLUE;case ZEBRA_DANIO,ANGELFISH->DyeColor.BLACK;case GOLDFISH->DyeColor.YELLOW;default->DyeColor.byId((base.getId()+resident.colorB)%16);};
-            var tag=new CompoundTag();tag.putInt("Variant",new TropicalFish.Variant(pattern,base,marking).getPackedId());tropical.readAdditionalSaveData(tag);
+            var tag=new CompoundTag();tag.putInt("Variant",io.github.jakediscord.hobbymod.aquarium.AquariumFishAppearance.variant(resident));tropical.readAdditionalSaveData(tag);
         }
         float scale=(float)(resident.size()*(resident.species==AquariumData.Species.GOLDFISH?.7:.55));
         poses.pushPose();poses.scale(scale,scale,scale);
         Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(fish).render(fish,yaw,partial,poses,buffers,light);
         poses.popPose();
-    }
-    private static DyeColor closest(int rgb){
-        DyeColor best=DyeColor.WHITE;long distance=Long.MAX_VALUE;
-        for(var color:DyeColor.values()){
-            int c=color.getTextureDiffuseColor();long r=((rgb>>16)&255)-((c>>16)&255),g=((rgb>>8)&255)-((c>>8)&255),b=(rgb&255)-(c&255);
-            long d=r*r+g*g+b*b;if(d<distance){distance=d;best=color;}
-        }
-        return best;
     }
 }

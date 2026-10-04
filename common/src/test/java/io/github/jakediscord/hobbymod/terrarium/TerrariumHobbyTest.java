@@ -62,4 +62,33 @@ class TerrariumHobbyTest {
         var clock=new AquariumClock();for(int t=0;t<1190;t++)assertFalse(clock.poll(t));assertFalse(clock.poll(10000));for(int t=10001;t<11200;t++)assertFalse(clock.poll(t));assertTrue(clock.poll(11200));
         var d=new TerrariumData();d.moisture=60;d.humidity=70;d.advance(false,3,8,1);assertEquals(60,d.moisture);assertEquals(70,d.humidity);
     }
+    @Test void buriedDecorStaysAboveFloorAndResetPreservesPositionAndScale(){
+        var d=new AquariumData();d.size=AquariumData.Size.MEDIUM;d.terrarium=new TerrariumData();d.terrarium.substrate=TerrariumData.Substrate.SAND;d.terrarium.drainage=true;
+        var id=UUID.randomUUID();d.scape.add(new AquariumScape.Piece(AquariumScape.Material.BLOCK,.5,.5,0,0,1,1,1,id,"minecraft:stone"));
+        assertTrue(d.scape.transform(id,d.size,.5,-.1,.5,0,1,1,1));TerrariumTerrain.fitDecor(d);
+        var p=d.scape.pieces().getFirst();assertEquals(-.1,p.y(),1e-9);assertTrue(TerrariumTerrain.bounds(p,d).y()<.1+.42*.32);
+        assertTrue(d.scape.angles(id,d.size,34,20,-9));var tilted=d.scape.pieces().getFirst();assertTrue(d.scape.angles(id,d.size,0,0,0));p=d.scape.pieces().getFirst();assertEquals(tilted.x(),p.x());assertEquals(tilted.y(),p.y());assertEquals(tilted.scaleX(),p.scaleX());assertEquals(0,p.pitch());
+        var restored=new AquariumData();AquariumNbt.load(restored,AquariumNbt.save(d));assertEquals(p.y(),restored.scape.pieces().getFirst().y(),1e-9);
+        assertTrue(d.scape.transform(id,d.size,.5,-.45,.5,0,1,1,1));TerrariumTerrain.fitDecor(d);assertTrue(TerrariumTerrain.bounds(d.scape.pieces().getFirst(),d).y()>=.105-1e-9);
+        var aquatic=AquariumNbt.save(d);aquatic.remove("Terrarium");AquariumNbt.load(restored,aquatic);assertTrue(restored.scape.pieces().isEmpty());
+    }
+    @Test void allSpeciesExploreRestTurnGraduallyAndHandleClockJumps(){
+        for(var species:TerrariumData.Species.values()){
+            var r=new TerrariumData.Resident(new UUID(91,species.ordinal()+4),species,0);var agent=new TerrariumMotion.Agent(r);
+            var first=agent.advance(r,0,null);var prev=first;boolean moved=false,rested=false;
+            for(int t=1;t<4000;t++){
+                var p=agent.advance(r,t,null);assertTrue(p.x()>=.07 && p.x()<=.93 && p.z()>=.07 && p.z()<=.93);assertTrue(Math.hypot(p.x()-prev.x(),p.z()-prev.z())<.0041);
+                assertTrue(Math.abs(Math.atan2(Math.sin(p.yaw()-prev.yaw()),Math.cos(p.yaw()-prev.yaw())))<=.151);
+                moved|=Math.hypot(p.x()-first.x(),p.z()-first.z())>.025;rested|=p.activity()==TerrariumMotion.Activity.REST;prev=p;
+            }
+            assertTrue(moved,species.toString());assertTrue(rested);var jump=agent.advance(r,999999,null);assertEquals(prev.x(),jump.x());var rewind=agent.advance(r,-1,null);assertEquals(jump.z(),rewind.z());
+        }
+    }
+    @Test void newAnimalsKeepIdentityVariantsAndStarterCounts(){
+        var d=new TerrariumData();d.substrate=TerrariumData.Substrate.SOIL;
+        for(var species:TerrariumData.Species.values())assertTrue(d.introduce(species,51));assertEquals(9,d.residents().size());
+        var restored=TerrariumNbt.load(TerrariumNbt.save(d));assertEquals(9,restored.residents().size());
+        for(int i=0;i<9;i++){assertEquals(d.residents().get(i).id,restored.residents().get(i).id);assertEquals(d.residents().get(i).species,restored.residents().get(i).species);}
+    }
+
 }
