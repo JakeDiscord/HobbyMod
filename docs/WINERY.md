@@ -139,5 +139,5 @@ panel, clipped press hint, shelf intersection and rosé model selection. The
 screenshots above are direct game-window captures; rack color variations were
 prepared with development commands to check all three models.
 
-Validated: 82 unit tests, all 65 GameTests (10 Winery), and the NeoForge release
+Validated after integrating Astronomy: 90 unit tests, all 69 GameTests (10 Winery), and the NeoForge release
 build. The production jar contains no GameTests, test structure or JUnit classes.

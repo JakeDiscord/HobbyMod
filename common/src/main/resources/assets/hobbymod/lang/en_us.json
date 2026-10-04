@@ -47,5 +47,8 @@
   "item.hobbymod.wine_yeast": "Wine Yeast",
   "item.hobbymod.grape_must": "Grape Must",
   "item.hobbymod.portable_wine_cask": "Portable Wine Cask",
-  "item.hobbymod.wine_bottle": "Wine Bottle"
+  "item.hobbymod.wine_bottle": "Wine Bottle",
+  "block.hobbymod.telescope": "Tripod Telescope",
+  "block.hobbymod.observatory_telescope": "Observatory Telescope",
+  "item.hobbymod.astronomy_journal": "Astronomy Field Journal"
 }

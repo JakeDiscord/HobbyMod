@@ -12,6 +12,14 @@ and rewards good quality. Native inventory menus, animated pressing, and
 optional hopper/redstone automation keep the process straightforward.
 See [the Winery guide](docs/WINERY.md) for crafting and the full workflow.
 
+## Astronomy
+
+Craft a tripod telescope, then an observatory telescope with tracking. Explore
+recognizable constellations and planets alongside twenty generated deep-sky
+targets. Focus and align observations to build a persistent digital field
+journal across repeated nights. See [Astronomy](docs/ASTRONOMY.md) for crafting,
+controls, observing conditions and validation.
+
 ## DJ and music production
 
 Craft a **DJ Workstation** to compose and perform music in a Minecraft-style DAW.
@@ -113,7 +121,7 @@ You must remain within six blocks of the section you carve; moving the camera
 does not move your player or extend their reach.
 
 The models reuse vanilla calcite, quartz, iron, and wood textures. Natural
-marble deposits and astronomy are future work.
+marble deposits are future work.
 
 ## Marble blueprints
 
@@ -195,7 +203,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for 82 tests covering sculpting, pottery, blueprints, aquarium care/layout, painting, rendering caches, terrarium care/motion/terrain, DJ project/scheduling/audio and wine batches/aging/issuance. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for 90 tests covering sculpting, pottery, blueprints, aquarium care/layout, painting, rendering caches, terrarium care/motion/terrain, DJ project/scheduling/audio, wine batches/aging/issuance, and astronomy catalog/observations. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -210,8 +218,9 @@ Ten Winery GameTests cover processing costs, elapsed time, duplicate casks, inve
 Six DJ GameTests cover recording costs, project loading, edit authorization, transport, speaker range, pickup and one-shot completion.
 
 Nine terrarium GameTests cover land placement, survival care supplies, colony collection, precise rotation, carrying the planted enclosure, wild capture, biome spawn coverage and permanent death/body cleanup.
+Four astronomy GameTests cover survival telescope placement/headroom, saved optics/mining, observation permissions and journal/catalog persistence.
 Six painting GameTests cover supplies, strokes, signatures, canvas saves, wall support and the two-block easel.
-Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, nine `TERRARIUM_TEST_PASS`, six `DJ_TEST_PASS`, ten `WINERY_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
+Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, nine `TERRARIUM_TEST_PASS`, six `DJ_TEST_PASS`, ten `WINERY_TEST_PASS`, four `ASTRONOMY_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
 above. Do not rebuild without `-Pgametest` while these tests are starting: that
 removes test classes from the development output. If also launching a client,
