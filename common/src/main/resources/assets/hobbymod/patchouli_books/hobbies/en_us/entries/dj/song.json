@@ -1,0 +1,20 @@
+{
+  "name": "Layer Complete Patterns",
+  "icon": "hobbymod:blank_music_disc",
+  "category": "hobbymod:dj",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Song places full pattern clips into lane/bar cells. A clip plays every instrument in that pattern.$(br2)Put A and B on different lanes at the same bar to layer both complete patterns. Lanes are not instrument channels."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Click/drag places clips; right-click erases. Each song has eight lanes and up to 64 bars. Page switches four pages of 16 bars; Bars sets playback length.$(br2)Shift-click a bar to cue it."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Click a lane name to select it. Repeat L1-L8 fills only that lane with the chosen pattern. Clear song asks for confirmation.$(br2)Clip colors identify patterns, so layered sections are easy to follow."
+    }
+  ]
+}

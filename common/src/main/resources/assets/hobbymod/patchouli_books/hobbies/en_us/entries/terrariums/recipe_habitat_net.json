@@ -1,0 +1,12 @@
+{
+  "name": "Habitat Net",
+  "icon": "hobbymod:habitat_net",
+  "category": "hobbymod:terrariums",
+  "sortnum": 93,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:habitat_net"
+    }
+  ]
+}

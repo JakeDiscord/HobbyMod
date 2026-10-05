@@ -1,0 +1,24 @@
+{
+  "name": "Aquascaping & 3D Editing",
+  "icon": "hobbymod:aquarium_filter",
+  "category": "hobbymod:aquariums",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "In Aquascape, select a supply and click the top view to place it. Sand or gravel makes the bed. Seagrass, kelp, cobblestone, sticks and other blocks become decorations.$(br2)Scroll selects quarter-turn rotation."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Add mode places items; Remove mode recovers their exact material. Edit in 3D opens the world camera.$(br2)Select a piece. Red, green and blue arrows move along X, Y and Z; cube handles stretch those axes."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Right-drag orbits; wheel zooms. Drag a piece directly to move it across the floor; Shift-drag lifts it. Rotate turns it 90 degrees. Reset size and Reset rotation restore proportions or angles."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Moving and resizing stay inside the glass. Release a handle to save the edit. Layout and material types survive reloads and carrying.$(br2)Pieces have their own identities, so another player removing one cannot redirect your edit."
+    }
+  ]
+}

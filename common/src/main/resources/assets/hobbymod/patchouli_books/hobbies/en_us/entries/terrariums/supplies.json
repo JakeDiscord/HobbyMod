@@ -1,0 +1,20 @@
+{
+  "name": "Light, Heat & Supplies",
+  "icon": "hobbymod:terrarium_mister",
+  "category": "hobbymod:terrariums",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Terrarium mister: moisture and humidity.$(br)Glowstone dust: light strip.$(br)Heat lamp: warmth and real block light.$(br)Magma cream: warm conditions.$(br)Snowball: mild conditions.$(br)Leaf litter: colony food."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Light strips provide ecosystem light level 12. A heat lamp supplies level 14 and lights the room. Warm closed enclosures dry slightly faster.$(br2)Shears trim the most recently placed plant with height left to trim."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Remove / collect returns installed supplies. Substrate cannot be removed while inhabited. Swapping substrate returns the old material.$(br2)Held supplies also work on the enclosure; sneak chooses removal."
+    }
+  ]
+}

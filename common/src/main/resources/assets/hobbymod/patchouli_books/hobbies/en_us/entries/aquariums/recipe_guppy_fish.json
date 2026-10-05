@@ -1,0 +1,12 @@
+{
+  "name": "Guppy Fish",
+  "icon": "hobbymod:guppy_fish",
+  "category": "hobbymod:aquariums",
+  "sortnum": 96,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:guppy_fish"
+    }
+  ]
+}

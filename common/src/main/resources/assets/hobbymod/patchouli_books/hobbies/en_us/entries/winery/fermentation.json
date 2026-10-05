@@ -1,0 +1,24 @@
+{
+  "name": "Ferment & Rack",
+  "icon": "hobbymod:fermentation_barrel",
+  "category": "hobbymod:winery",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Put must and one wine yeast in a fermentation barrel. Click Start and take the returned empty bucket. Fermentation takes one minute.$(br2)Keep the barrel away from fire, lit campfires and lava."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "When fermented, click Rack to start aging in the same barrel. It represents removing sediment; no second machine is needed.$(br2)There is no destructive fermentation failure."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Rinse an empty used barrel with a water bucket in its must slot, then Rinse. Dirty barrels still ferment, but the next batch is cloudy and loses quality.$(br2)Rinsing returns the empty bucket."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Breaking an active barrel drops a portable wine cask. Put it into another barrel and Resume. Moving a cask does not create another empty bucket.$(br2)The batch keeps its identity."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Fish Food",
+  "icon": "hobbymod:fish_food",
+  "category": "hobbymod:aquariums",
+  "sortnum": 95,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:fish_food"
+    }
+  ]
+}

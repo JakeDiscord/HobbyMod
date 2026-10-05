@@ -1,0 +1,12 @@
+{
+  "name": "Polishing Rasp",
+  "icon": "hobbymod:polishing_rasp",
+  "category": "hobbymod:sculpting",
+  "sortnum": 94,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:polishing_rasp"
+    }
+  ]
+}

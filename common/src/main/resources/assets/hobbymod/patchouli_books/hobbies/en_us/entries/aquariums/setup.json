@@ -1,0 +1,24 @@
+{
+  "name": "Build a Healthy Tank",
+  "icon": "hobbymod:small_aquarium",
+  "category": "hobbymod:aquariums",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Craft a tank, then place it with enough room for its footprint. Small is 1 x 1 x 1; medium 2 x 1 x 1; large 4 x 2 x 2.$(br2)Placement follows your facing. Right-click any part to open the aquarium."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The care inventory shows your real supplies. Clicking a supply uses it only if the action succeeds.$(br2)Fill with water, lay sand or gravel, arrange plants, and install a filter before adding fish."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Cycle a filled, installed filter using Filter Bacteria Starter: moss, bone meal and a glass bottle. It returns the bottle. Without starter, natural cycling takes five loaded minutes."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Choose compatible fish for the water temperature. New fish need two minutes to acclimate. Feed, name, watch and rearrange your tank.$(br2)The Fish tab explains refusals and shows each resident's health, sex and age."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Prepared Clay",
+  "icon": "hobbymod:prepared_clay",
+  "category": "hobbymod:pottery",
+  "sortnum": 90,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:prepared_clay"
+    }
+  ]
+}

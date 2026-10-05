@@ -1,0 +1,20 @@
+{
+  "name": "Layout & Rotation",
+  "icon": "minecraft:fern",
+  "category": "hobbymod:terrariums",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "In Layout, choose a block and click the top view. Starter plants include moss, fern, azalea, poppy and oak sapling. Other permitted blocks make rocks, branches and ornaments. At most 28 pieces fit in an enclosure."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Edit in 3D: select a piece. Arrows move it and cubes resize it. Red is X, green Y, blue Z. Right-drag orbits and wheel zooms.$(br2)Use green movement to lift or bury decorations."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Curved rings rotate a selected piece: red pitch, green yaw, blue roll. Shift while dragging snaps changes to 15 degrees.$(br2)Reset size restores proportions. Reset rotation clears angles while keeping position and size."
+    }
+  ]
+}

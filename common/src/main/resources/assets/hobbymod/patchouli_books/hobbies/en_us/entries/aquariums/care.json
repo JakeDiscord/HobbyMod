@@ -1,0 +1,24 @@
+{
+  "name": "Feeding & Water Care",
+  "icon": "hobbymod:fish_food",
+  "category": "hobbymod:aquariums",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Fish food adds 20 reserve. Feeding at 80% reserve or above lowers water quality, so do not keep topping up a full tank.$(br2)The Fish tab estimates how long its reserve will last."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A water bucket fills or changes water: quality +25, algae -15. Shears clean glass: algae -30, quality +10, with tool wear.$(br2)Filters and plants reduce waste. Bright tanks grow more algae."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Select a resident, then use an empty bucket to move it or a renamed name tag to name it. Drain in remove mode only after moving all residents out. Water changes are safe with fish inside."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Poor water, hunger, incompatible fish or wrong temperature damages health. Healthy care restores it. At zero, fish die and remain as bodies. Remove bodies clears them; dead fish cannot be revived or captured as living fish."
+    }
+  ]
+}

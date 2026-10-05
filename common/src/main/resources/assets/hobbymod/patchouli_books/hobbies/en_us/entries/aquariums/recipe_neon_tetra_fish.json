@@ -1,0 +1,12 @@
+{
+  "name": "Neon Tetra Fish",
+  "icon": "hobbymod:neon_tetra_fish",
+  "category": "hobbymod:aquariums",
+  "sortnum": 97,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:neon_tetra_fish"
+    }
+  ]
+}

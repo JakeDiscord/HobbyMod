@@ -1,0 +1,12 @@
+{
+  "name": "Pottery Kiln",
+  "icon": "hobbymod:pottery_kiln",
+  "category": "hobbymod:pottery",
+  "sortnum": 96,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:pottery_kiln"
+    }
+  ]
+}

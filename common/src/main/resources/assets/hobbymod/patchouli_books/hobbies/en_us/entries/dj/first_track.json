@@ -1,0 +1,20 @@
+{
+  "name": "Build Your First Groove",
+  "icon": "hobbymod:dj_workstation",
+  "category": "hobbymod:dj",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Craft a DJ workstation and right-click its desk or monitor. Start in Patterns. Click or drag steps to add beats; right-click erases. Select a channel by clicking its name."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Each of eight patterns A-H holds all eight instrument channels. Assign sounds, add drums, and build melodies in Piano.$(br2)Files > Demo gives an editable starter groove after a confirming click."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Select Pat A-H to preview a pattern, or Song to play the arrangement. Play or Space starts/stops. An unarranged project automatically previews its selected pattern.$(br2)Tempo ranges from 60 to 200 BPM; Swing delays alternate steps."
+    }
+  ]
+}

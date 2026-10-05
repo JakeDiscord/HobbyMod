@@ -1,0 +1,12 @@
+{
+  "name": "Grape Press",
+  "icon": "hobbymod:grape_press",
+  "category": "hobbymod:winery",
+  "sortnum": 95,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:grape_press"
+    }
+  ]
+}

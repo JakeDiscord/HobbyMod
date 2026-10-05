@@ -1,0 +1,20 @@
+{
+  "name": "Drying & Foot Trimming",
+  "icon": "hobbymod:pottery_loop",
+  "category": "hobbymod:pottery",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Cut the pot off and place it to air-dry, or stop its wheel and leave it there. A spinning wheel pauses drying.$(br2)Wet clay becomes leather-hard after 60 loaded seconds, then bone dry after another 60."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "At leather-hard, return the pot to an empty wheel. Use the trimming loop to enter the camera and hold left-click near the bottom quarter. This removes clay from the foot.$(br2)Cut it off again and finish drying."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A moisture value of 0 does not mean the pot is already fired. Check its stage: bone-dry clay belongs in the kiln.$(br2)Inventory storage and unloaded chunks pause drying. Bone-dry clay cannot be thrown again."
+    }
+  ]
+}

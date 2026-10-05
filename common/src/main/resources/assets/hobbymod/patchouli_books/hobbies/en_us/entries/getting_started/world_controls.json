@@ -1,0 +1,20 @@
+{
+  "name": "Working in the World",
+  "icon": "minecraft:compass",
+  "category": "hobbymod:getting_started",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Marble and pottery use an orbit camera around the actual work. Pick tools from your hotbar, not buttons. Press E for your inventory and Escape to leave the camera."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Right/middle drag or Alt + left drag orbits. Ctrl + wheel zooms. Number keys and ordinary scrolling select your held tool. F reframes the work.$(br2)Marble also uses Shift + wheel to move up or down a pillar."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Read $(l:sculpting/controls)carving controls$(/l) and $(l:pottery/controls)wheel controls$(/l) before shaping. Cuts are permanent: marble and pottery have no undo.$(br2)Painting and music use their own editor controls."
+    }
+  ]
+}

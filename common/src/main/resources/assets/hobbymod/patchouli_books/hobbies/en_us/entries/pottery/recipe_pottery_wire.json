@@ -1,0 +1,12 @@
+{
+  "name": "Clay Cutting Wire",
+  "icon": "hobbymod:pottery_wire",
+  "category": "hobbymod:pottery",
+  "sortnum": 95,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:pottery_wire"
+    }
+  ]
+}

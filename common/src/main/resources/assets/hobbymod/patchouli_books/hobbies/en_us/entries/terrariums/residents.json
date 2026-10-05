@@ -1,0 +1,24 @@
+{
+  "name": "Residents & Wild Collection",
+  "icon": "hobbymod:habitat_net",
+  "category": "hobbymod:terrariums",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Springtail and isopod colony items each introduce three tiny residents. Feed with leaf litter.$(br2)Snails, tree frogs and geckos are collected in the wild using a habitat net."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Right-click a wild animal with the net. Fish additionally need a water bucket. Introduce captured residents into the appropriate enclosure.$(br2)Collection preserves individual identities instead of creating duplicate animals."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Remove / collect returns up to three selected colony residents. Comfortable closed planted colonies with two mature residents can produce young every eight loaded minutes, up to 48 residents."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Young grow and inherit color variants and parent identity. Captured colony items retain ages, traits and lineage. Poor conditions cost health; good care restores it.$(br2)Dead residents remain as bodies. Remove bodies cannot create living carriers."
+    }
+  ]
+}

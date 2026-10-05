@@ -1,0 +1,12 @@
+{
+  "name": "Painting Easel",
+  "icon": "hobbymod:painting_easel",
+  "category": "hobbymod:painting",
+  "sortnum": 90,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:painting_easel"
+    }
+  ]
+}

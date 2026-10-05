@@ -1,0 +1,12 @@
+{
+  "name": "Wine Yeast",
+  "icon": "hobbymod:wine_yeast",
+  "category": "hobbymod:winery",
+  "sortnum": 99,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:wine_yeast"
+    }
+  ]
+}

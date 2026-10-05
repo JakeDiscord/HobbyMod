@@ -1,0 +1,16 @@
+{
+  "name": "Cellar Automation",
+  "icon": "minecraft:hopper",
+  "category": "hobbymod:winery",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Hoppers feed machines from above or the sides. Output hoppers take must, wine and returned barrel buckets.$(br2)A powered barrel starts supplied must, racks when fermented, and bottles at recommended age."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Keep returned buckets extracted so the barrel can accept another must. Supply yeast and glass bottles. Rinsing is manual.$(br2)Tubs need grapes, an empty bucket and a player inside to press; hoppers can collect the finished must."
+    }
+  ]
+}

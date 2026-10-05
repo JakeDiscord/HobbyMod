@@ -1,0 +1,20 @@
+{
+  "name": "Wheel Tools & Controls",
+  "icon": "hobbymod:pottery_rib",
+  "category": "hobbymod:pottery",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Empty hands: open, widen/narrow and pull the rim.$(br2)Wooden rib or sponge: smooth wet clay.$(br2)Trimming loop: remove clay from the foot of leather-hard pottery."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Clay cutting wire: use on the wheel outside the camera to lift the pot. Its shape and stage become a carried pot.$(br2)A water bucket rehydrates wet or leather-hard clay, but cannot soften bone-dry or fired pottery."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Left-click/drag: shape with hands.$(br)Left-click/hold: smooth or trim.$(br)Right/middle drag, Alt + left drag: orbit.$(br)Ctrl + wheel: zoom.$(br)1-9/wheel: tools.$(br)E: inventory.$(br)F: frame.$(br)Escape: exit."
+    }
+  ]
+}

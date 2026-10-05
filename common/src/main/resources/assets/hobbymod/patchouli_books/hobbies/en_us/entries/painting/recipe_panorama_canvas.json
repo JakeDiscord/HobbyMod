@@ -1,0 +1,12 @@
+{
+  "name": "Panorama Canvas",
+  "icon": "hobbymod:panorama_canvas",
+  "category": "hobbymod:painting",
+  "sortnum": 96,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:panorama_canvas"
+    }
+  ]
+}

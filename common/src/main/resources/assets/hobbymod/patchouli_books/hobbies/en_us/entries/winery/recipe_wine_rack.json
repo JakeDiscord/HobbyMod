@@ -1,0 +1,12 @@
+{
+  "name": "Wine Rack",
+  "icon": "hobbymod:wine_rack",
+  "category": "hobbymod:winery",
+  "sortnum": 98,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:wine_rack"
+    }
+  ]
+}

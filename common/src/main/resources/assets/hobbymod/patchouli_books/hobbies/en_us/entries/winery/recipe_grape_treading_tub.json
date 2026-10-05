@@ -1,0 +1,12 @@
+{
+  "name": "Grape Treading Tub",
+  "icon": "hobbymod:grape_treading_tub",
+  "category": "hobbymod:winery",
+  "sortnum": 96,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:grape_treading_tub"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Zebra Danio Fish",
+  "icon": "hobbymod:zebra_danio_fish",
+  "category": "hobbymod:aquariums",
+  "sortnum": 98,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:zebra_danio_fish"
+    }
+  ]
+}

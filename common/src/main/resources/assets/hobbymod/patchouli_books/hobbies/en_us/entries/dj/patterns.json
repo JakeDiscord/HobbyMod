@@ -1,0 +1,20 @@
+{
+  "name": "Patterns & Piano Roll",
+  "icon": "minecraft:note_block",
+  "category": "hobbymod:dj",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Each pattern is one bar. Click the channel's instrument button for the paged sound picker; choosing previews it. Copy > copies all channels into the next pattern. Clear confirms before clearing the whole pattern."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "In Piano, draw a note and drag to choose duration. Drag a note to move it; Shift-drag resizes it. Right-click deletes. Scroll a note for velocity, or the keyboard for pitch range. Oct shifts by an octave."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Chords are supported. Notes span C2-C6, with at most 48 notes per channel per pattern. A note can last the full bar.$(br2)The channel and pattern buttons cycle what you edit."
+    }
+  ]
+}

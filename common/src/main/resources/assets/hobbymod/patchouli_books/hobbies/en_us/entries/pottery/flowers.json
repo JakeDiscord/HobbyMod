@@ -1,0 +1,20 @@
+{
+  "name": "Display, Water & Flowers",
+  "icon": "minecraft:poppy",
+  "category": "hobbymod:pottery",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Place a finished pot at the point you click on a supporting block. It does not have to sit in the middle.$(br2)Use a water bucket on its open center before adding a small flower."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Empty-hand right-click or shears removes the flower. Removing it leaves the stored water. An empty bucket then recovers the water; a planted pot refuses draining."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Sneak-right-click with an empty hand picks up the whole pot; mining also preserves it. Shape, glaze, stage, flower and water travel together.$(br2)Flower water is separate from the moisture used when shaping wet clay."
+    }
+  ]
+}

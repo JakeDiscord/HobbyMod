@@ -1,0 +1,20 @@
+{
+  "name": "Palette & Dye Mixing",
+  "icon": "hobbymod:paint_palette",
+  "category": "hobbymod:painting",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Click an empty dye swatch to load matching dye from your inventory and select it. Right-click loads another dye.$(br2)One dye provides 512 paint; each color holds up to 4,096."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Shift-click a swatch to select a second mixing color. Mix cycles 0%, 25%, 50%, 75% and 100%. The large swatch previews the result.$(br2)Mix with white or black for lighter or darker shades."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Mixed strokes use both pigments. Pick selects a color already on the artwork, but still needs loaded paint. One paint unit covers up to 64 changed pixels in a submitted stroke batch. Identical repainting is free."
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Breeding & Moving Tanks",
+  "icon": "hobbymod:neon_tetra_fish",
+  "category": "hobbymod:aquariums",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Healthy, fed, acclimated adult pairs of the same species can breed at water quality 75% or higher. There is a six-minute cooldown and at most four fry per update. Capacity and compatibility still apply."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Fry inherit traits and parent identity, and mature over eight minutes. Fish care advances once per loaded minute; unloaded chunks pause it.$(br2)Keep room for young and watch food use as your community grows."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Mine any aquarium part to dismantle the tank and receive one kit carrying its water, residents, care and layout. Place it again to restore them in your new facing.$(br2)Do not break neighboring blocks to move a tank."
+    }
+  ]
+}

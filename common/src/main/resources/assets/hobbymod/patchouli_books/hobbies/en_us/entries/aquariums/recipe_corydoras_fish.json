@@ -1,0 +1,12 @@
+{
+  "name": "Corydoras Fish",
+  "icon": "hobbymod:corydoras_fish",
+  "category": "hobbymod:aquariums",
+  "sortnum": 100,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:corydoras_fish"
+    }
+  ]
+}

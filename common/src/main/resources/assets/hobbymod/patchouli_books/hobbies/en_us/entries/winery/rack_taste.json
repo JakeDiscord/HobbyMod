@@ -1,0 +1,20 @@
+{
+  "name": "Display & Taste",
+  "icon": "hobbymod:wine_rack",
+  "category": "hobbymod:winery",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A rack holds four bottles. Use a bottle on a particular slot to display it; empty-hand right-click that slot takes it back.$(br2)Stack racks without gaps. New racks align to the neighboring rack's facing."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Hold right-click with a wine bottle to drink. Survival returns its glass. Short tasting traits appear one at a time above the hotbar with a gentle movement, such as Dark berries... then Oaky..."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Quality 80 or above grants 30 seconds of Haste. Taste depends on the vintage's fruit, aging, oak and barrel cleanliness.$(br2)Wine moved to another world keeps its label/appearance, but original tasting data belongs to its source world."
+    }
+  ]
+}

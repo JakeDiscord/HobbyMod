@@ -20,6 +20,8 @@ repositories {
 dependencies {
     neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
     modImplementation "dev.architectury:architectury-neoforge:${rootProject.architectury_version}"
+    // The universal handbook is data-driven; shared gameplay needs no Patchouli classes.
+    modRuntimeOnly "vazkii.patchouli:Patchouli:${rootProject.patchouli_version}"
     // Compile against the recommended API, without making Sable mandatory or bundling its physics engine.
     modCompileOnly('dev.ryanhcode.sable-companion:sable-companion-common-1.21.1:1.6.0') { transitive = false }
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
@@ -27,6 +29,12 @@ dependencies {
 }
 
 processResources {
+    // Patchouli discovers book definitions in the owning mod's resource roots.
+    // Loom loads common as a separate generated mod during development, so copy
+    // the portable definition into NeoForge's resources for normal run tasks.
+    from(project(':common').file('src/main/resources')) {
+        include 'data/hobbymod/patchouli_books/**/book.json'
+    }
     inputs.property 'version', project.version
     filesMatching('META-INF/neoforge.mods.toml') { expand version: project.version }
 }
@@ -36,6 +44,9 @@ shadowJar {
     archiveClassifier = 'dev-shadow'
     exclude 'architectury.common.json'
     exclude 'fabric.mod.json'
+    filesMatching('data/hobbymod/patchouli_books/**/book.json') {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
 }
 
 remapJar {

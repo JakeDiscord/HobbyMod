@@ -1,0 +1,20 @@
+{
+  "name": "Build a Terrarium",
+  "icon": "hobbymod:terrarium",
+  "category": "hobbymod:terrariums",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Craft eight glass around a copper ingot. The starter enclosure is 2 x 1 x 1. Place it on a solid surface and open Ecosystem or Layout.$(br2)It contains land rather than aquarium water."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Add gravel drainage and choose dirt, sand or moss as the substrate. Arrange plants and ornaments. Use a mister to raise moisture and humidity; feed residents with leaf litter."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Opening the lid improves ventilation and speeds drying. Closing it conserves moisture. Mist only as needed; the care screen shows moisture, humidity, light, food and comfort."
+    }
+  ]
+}

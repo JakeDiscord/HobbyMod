@@ -1,0 +1,12 @@
+{
+  "name": "Point Chisel",
+  "icon": "hobbymod:point_chisel",
+  "category": "hobbymod:sculpting",
+  "sortnum": 92,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:point_chisel"
+    }
+  ]
+}

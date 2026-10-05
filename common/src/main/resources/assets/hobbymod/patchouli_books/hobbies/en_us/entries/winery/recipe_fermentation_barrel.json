@@ -1,0 +1,12 @@
+{
+  "name": "Fermentation Barrel",
+  "icon": "hobbymod:fermentation_barrel",
+  "category": "hobbymod:winery",
+  "sortnum": 97,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:fermentation_barrel"
+    }
+  ]
+}

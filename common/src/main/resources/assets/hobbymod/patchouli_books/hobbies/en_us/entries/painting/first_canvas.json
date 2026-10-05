@@ -1,0 +1,20 @@
+{
+  "name": "Start a Canvas",
+  "icon": "hobbymod:painting_easel",
+  "category": "hobbymod:painting",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Craft an easel, a canvas, a palette and a paintbrush. Place the easel on a solid floor with two blocks of headroom. Right-click either easel section with the canvas to mount it."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A fresh canvas asks for resolution first. Carry your palette and paintbrush; the palette also works in the offhand.$(br2)Select a dye swatch and paint by holding and dragging the mouse across the canvas."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The canvas and Palette & tools are separate panels. Drag their headers to move them. Palette hides/shows tools without closing your canvas.$(br2)The world remains visible behind the editor."
+    }
+  ]
+}

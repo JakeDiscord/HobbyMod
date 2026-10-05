@@ -1,0 +1,20 @@
+{
+  "name": "Mechanical Press & Blends",
+  "icon": "hobbymod:grape_press",
+  "category": "hobbymod:winery",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Open a grape press and add eight grapes plus an empty bucket. Two grape slots let you blend harvests and colors. Click Press, then collect the must after three seconds."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Mostly red makes red wine; mostly white makes white wine. Middle blends make rose. Ripeness and sun exposure carry into the batch.$(br2)The vintage is the world day when pressing starts."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A redstone signal starts a supplied mechanical press automatically. Hoppers supply ingredients from above/sides and collect output below.$(br2)Breaking a press refunds its reserved fruit and bucket."
+    }
+  ]
+}

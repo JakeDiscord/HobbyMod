@@ -1,0 +1,20 @@
+{
+  "name": "Canvas Shapes & Pixels",
+  "icon": "hobbymod:round_canvas",
+  "category": "hobbymod:painting",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Square: 1:1.$(br)Landscape: 3:2.$(br)Portrait: 2:3.$(br)Panoramic: 2:1.$(br)Round: circular 1:1.$(br2)Shape, wall size and pixel resolution are independent choices."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Pixels cycles the short edge through 16, 32, 64 and 128. Landscape at 64 is 96 x 64; panoramic at 128 is 256 x 128.$(br2)Round canvases clip to a circle, including fills and PNG exports."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Changing resolution resamples existing pixels instead of clearing them. Reducing resolution loses detail; a marked canvas asks for confirmation before shrinking.$(br2)Choose higher resolution before adding fine detail."
+    }
+  ]
+}

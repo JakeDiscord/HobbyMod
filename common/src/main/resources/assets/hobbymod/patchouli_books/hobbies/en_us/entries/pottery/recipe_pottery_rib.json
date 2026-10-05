@@ -1,0 +1,12 @@
+{
+  "name": "Wooden Pottery Rib",
+  "icon": "hobbymod:pottery_rib",
+  "category": "hobbymod:pottery",
+  "sortnum": 92,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:pottery_rib"
+    }
+  ]
+}

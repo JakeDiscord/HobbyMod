@@ -1,0 +1,24 @@
+{
+  "name": "Water, Soil & Roots",
+  "icon": "minecraft:water_bucket",
+  "category": "hobbymod:bonsai",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Aim at the pot to see water, health and age. Sneak for soil and root ages. Empty-hand right-click inspects care.$(br2)Water with a water bucket; survival returns its empty bucket."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Water from 15% to 85% is healthy. Watering a tree already above 75% causes stress. Fresh soil lasts about 40 care intervals; roots crowd after 60.$(br2)Light, moderate water and fresh soil support recovery."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Right-click with dirt to repot; it refreshes soil and sets water to 55%. Sneak-use shears to prune roots. These are different actions, each with a 12-interval cooldown.$(br2)Pruning roots does not replace soil."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Neglect, overwatering, pruning and excessive bending cost health. Good care can restore even a tree at zero health. New branches need health 35 or higher.$(br2)Avoid repeated intervention while a tree is stressed."
+    }
+  ]
+}

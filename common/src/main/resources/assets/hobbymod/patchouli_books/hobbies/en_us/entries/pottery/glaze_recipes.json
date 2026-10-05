@@ -1,0 +1,48 @@
+{
+  "name": "All Sixteen Glazes",
+  "icon": "hobbymod:white_pottery_glaze",
+  "category": "hobbymod:pottery",
+  "sortnum": 110,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:white_pottery_glaze",
+      "recipe2": "hobbymod:orange_pottery_glaze"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:magenta_pottery_glaze",
+      "recipe2": "hobbymod:light_blue_pottery_glaze"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:yellow_pottery_glaze",
+      "recipe2": "hobbymod:lime_pottery_glaze"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:pink_pottery_glaze",
+      "recipe2": "hobbymod:gray_pottery_glaze"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:light_gray_pottery_glaze",
+      "recipe2": "hobbymod:cyan_pottery_glaze"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:purple_pottery_glaze",
+      "recipe2": "hobbymod:blue_pottery_glaze"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:brown_pottery_glaze",
+      "recipe2": "hobbymod:green_pottery_glaze"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:red_pottery_glaze",
+      "recipe2": "hobbymod:black_pottery_glaze"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "Age, Label & Bottle",
+  "icon": "hobbymod:wine_rack",
+  "category": "hobbymod:winery",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Age wine in a cool dark cellar. White wine's recommended age is one minute; rose 90 seconds; red two minutes. The barrel shows age, quality and conditions."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "You can bottle early. Leaving it past three times its recommended age lowers quality.$(br2)Add glass bottles, optionally type a label, then Bottle. A batch fills four bottles, using one glass bottle each."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "You can bottle part now and the rest later. The first bottling fixes that vintage's label and tasting record. Different batches never stack together.$(br2)Labels do not erase the batch identity."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Fermentation and aging catch up by elapsed world time when chunks load again. A stopped server does not add real-world hours. Unloaded periods use the last sampled cellar conditions."
+    }
+  ]
+}

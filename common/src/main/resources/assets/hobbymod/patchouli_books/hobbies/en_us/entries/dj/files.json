@@ -1,0 +1,24 @@
+{
+  "name": "Save, Discs & Files",
+  "icon": "hobbymod:blank_music_disc",
+  "category": "hobbymod:dj",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Edits save automatically. Ctrl+S flushes changes. Ctrl+Z undoes music edits; Ctrl+Shift+Z or Ctrl+Y redoes them. This editor history is separate from permanent carving."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Carry a blank music disc and choose Disc or Files > Write music disc. Survival uses one blank and returns an editable project disc.$(br2)Hold a recorded disc in either hand and Load disc into a deck. It is not a vanilla jukebox disc."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Files > Export project writes .hobbytrack into hobbymod/music in your Minecraft instance. Put received files there, then Import project.$(br2)Export WAV renders the composed arrangement as stereo audio."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "WAV exports the song, not live crossfader gestures. Each workstation keeps both deck projects through pickup and replacement.$(br2)One nearby player edits at a time; others hear public playback."
+    }
+  ]
+}

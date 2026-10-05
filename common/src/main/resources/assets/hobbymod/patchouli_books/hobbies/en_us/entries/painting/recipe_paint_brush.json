@@ -1,0 +1,12 @@
+{
+  "name": "Paint Brush",
+  "icon": "hobbymod:paint_brush",
+  "category": "hobbymod:painting",
+  "sortnum": 91,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:paint_brush"
+    }
+  ]
+}

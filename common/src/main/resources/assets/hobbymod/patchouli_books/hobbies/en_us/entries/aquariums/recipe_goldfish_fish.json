@@ -1,0 +1,12 @@
+{
+  "name": "Goldfish Fish",
+  "icon": "hobbymod:goldfish_fish",
+  "category": "hobbymod:aquariums",
+  "sortnum": 99,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:goldfish_fish"
+    }
+  ]
+}

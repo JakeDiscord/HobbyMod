@@ -1,0 +1,12 @@
+{
+  "name": "Angelfish Fish",
+  "icon": "hobbymod:angelfish_fish",
+  "category": "hobbymod:aquariums",
+  "sortnum": 102,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:angelfish_fish"
+    }
+  ]
+}
