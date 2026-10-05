@@ -1,0 +1,20 @@
+{
+  "name": "Brushes & Studio Controls",
+  "icon": "hobbymod:paint_brush",
+  "category": "hobbymod:painting",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Brush: round; sizes 1, 2, 4, 8, 16.$(br)Box: square brush.$(br)Pen: one-pixel precision.$(br)Fill: connected color region.$(br)Soft: graded brush edges.$(br)Pick: sample an existing color."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Paint percentage cycles opacity: 25%, 50%, 75%, 100%.$(br2)Hover previews the actual brush shape, size, opacity and softness. Continuous strokes connect fast mouse movements without gaps."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Wheel over the canvas: zoom 1x-8x around the pointer.$(br2)Middle drag: pan.$(br2)Returning to 1x recenters the canvas. Changes save to the easel; closing waits for queued strokes. Painting has no automatic undo."
+    }
+  ]
+}

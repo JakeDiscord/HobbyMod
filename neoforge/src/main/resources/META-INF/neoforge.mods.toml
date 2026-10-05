@@ -36,6 +36,13 @@ side="BOTH"
 config="hobbymod.mixins.json"
 
 [[dependencies.hobbymod]]
+modId="patchouli"
+type="required"
+versionRange="[1.21.1-93-NEOFORGE,1.21.2)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.hobbymod]]
 modId="sable"
 type="optional"
 versionRange="[2.0.6,2.1)"

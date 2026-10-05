@@ -1,0 +1,12 @@
+{
+  "name": "Bonsai Pot",
+  "icon": "hobbymod:bonsai_pot",
+  "category": "hobbymod:bonsai",
+  "sortnum": 90,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:bonsai_pot"
+    }
+  ]
+}

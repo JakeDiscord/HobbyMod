@@ -1,0 +1,24 @@
+{
+  "name": "Your Handbook",
+  "icon": "minecraft:book",
+  "category": "hobbymod:getting_started",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Craft this handbook with a book and green dye. Right-click to read it. The same book contains every hobby; you do not need separate manuals.$(br2)It is also in the HobbyMod creative tab."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Use the index to choose a hobby, or search for an entry by name. Recipe pages show the real crafting ingredients. Click linked entries to jump to related help. Bookmark useful entries for your next session."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "For a first project, try $(l:pottery/first_pot)a clay pot$(/l), $(l:painting/first_canvas)a small painting$(/l), or $(l:bonsai/planting)a bonsai$(/l). For care-focused hobbies, start with $(l:aquariums/setup)an aquarium$(/l) or $(l:terrariums/setup)a terrarium$(/l)."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Project shapes and care belong to the world. Taking or mining a finished project usually preserves it; read its hobby chapter before moving it.$(br2)In-world cameras do not pause danger. Stay close to your work and choose a safe place."
+    }
+  ]
+}

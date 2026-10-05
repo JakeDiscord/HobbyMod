@@ -1,0 +1,12 @@
+{
+  "name": "Aquarium Filter Starter",
+  "icon": "hobbymod:aquarium_filter_starter",
+  "category": "hobbymod:aquariums",
+  "sortnum": 94,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:aquarium_filter_starter"
+    }
+  ]
+}

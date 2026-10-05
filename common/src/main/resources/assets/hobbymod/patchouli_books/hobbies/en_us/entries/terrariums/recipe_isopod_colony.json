@@ -1,0 +1,12 @@
+{
+  "name": "Isopod Colony",
+  "icon": "hobbymod:isopod_colony",
+  "category": "hobbymod:terrariums",
+  "sortnum": 96,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:isopod_colony"
+    }
+  ]
+}

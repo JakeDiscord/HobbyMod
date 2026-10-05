@@ -1,0 +1,24 @@
+{
+  "name": "Your First Sculpture",
+  "icon": "hobbymod:marble",
+  "category": "hobbymod:sculpting",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Craft four marble from calcite and quartz. Place a block, then right-click it with a carving tool to enter the world camera. Opening the camera keeps the whole blank; it does not turn into a preset statue.$(br2)A stonecutter also converts marble into a carving blank."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Choose a tool in your hotbar. Hold left-click and drag across the surface to cut. Rotate often to check the shape from several sides.$(br2)Start with broad removal, switch to a smaller chisel, then finish with the polishing rasp."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Stack marble vertically for a taller blank. Opening carving joins the column; placing marble on an existing sculpture adds another section. Shift + wheel moves the camera along the height."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Cuts can cross section boundaries. Only connected marble rooted in the surviving base stays attached. Severed pieces break away; thin unsupported arms and floating pieces cannot remain.$(br2)There is no undo."
+    }
+  ]
+}

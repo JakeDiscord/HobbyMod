@@ -1,0 +1,12 @@
+{
+  "name": "Cherry Barb Fish",
+  "icon": "hobbymod:cherry_barb_fish",
+  "category": "hobbymod:aquariums",
+  "sortnum": 103,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:cherry_barb_fish"
+    }
+  ]
+}

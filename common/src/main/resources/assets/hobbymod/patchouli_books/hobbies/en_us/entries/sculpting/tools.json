@@ -1,0 +1,20 @@
+{
+  "name": "Chisels & Smoothing",
+  "icon": "hobbymod:polishing_rasp",
+  "category": "hobbymod:sculpting",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Detail chisel$(/bold): small recesses and fine cuts.$(br2)$(bold)Point chisel$(/bold): medium cuts.$(br2)$(bold)Roughing mallet$(/bold): broad removal to establish the silhouette."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Polishing rasp$(/bold): hold and drag over high spots to smooth the surface. It removes marble rather than adding it back.$(br2)Successful strokes wear your actual held tool in survival. Creative preserves durability."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Work is saved with the sculpture. Mine it with a suitable pickaxe to move a carved section. Replacing it preserves the shape.$(br2)The overlay shows the held tool and the percentage of marble remaining."
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "The Two Firings",
+  "icon": "hobbymod:pottery_kiln",
+  "category": "hobbymod:pottery",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Open the kiln's furnace-style screen. Put a bone-dry pot in the upper-left input and coal or charcoal in the lower-left fuel slot. Wet and leather-hard clay are refused."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Firing takes 30 seconds, followed by 10 seconds cooling. The pot stays locked while hot. Take the bisque pot from the output on the right.$(br2)Shift-click transfers pottery and fuel."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Place the bisque pot and apply a pottery glaze. Pick it up and fire/cool it again to finish. Unglazed bisque does not undergo the second firing.$(br2)Glaze recipes support all sixteen dye colors."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Both firings preserve your design with slight shrinkage. One coal or charcoal can heat both firings of one pot. Firing and cooling require loaded server ticks.$(br2)Breaking a kiln returns its pot and unconsumed fuel."
+    }
+  ]
+}

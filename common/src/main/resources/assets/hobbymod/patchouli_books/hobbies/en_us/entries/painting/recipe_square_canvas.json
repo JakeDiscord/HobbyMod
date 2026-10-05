@@ -1,0 +1,12 @@
+{
+  "name": "Square Canvas",
+  "icon": "hobbymod:square_canvas",
+  "category": "hobbymod:painting",
+  "sortnum": 93,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:square_canvas"
+    }
+  ]
+}

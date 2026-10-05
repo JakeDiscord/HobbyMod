@@ -100,8 +100,8 @@ count only loaded server ticks; they do not run in your inventory or offline.
 | Escape | Stop working and leave the camera |
 
 The overlay shows your held tool, the pottery stage, and wet-clay moisture.
-There is no tool palette or undo. Further in-game instructions are intended
-for the future hobbies guidebook. Tools wear in survival; creative does not
+There is no tool palette or undo. Further in-game instructions are
+in The Hobby Handbook. Tools wear in survival; creative does not
 consume clay, glaze, water, flowers, or durability. Shape data is saved with the
 block and item. Pot items share an inventory icon; placed pots show their own
 geometry. Player reach and world protections are validated by the server.

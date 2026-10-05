@@ -1,0 +1,12 @@
+{
+  "name": "Red Grape Cutting",
+  "icon": "hobbymod:red_grape_cutting",
+  "category": "hobbymod:winery",
+  "sortnum": 93,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:red_grape_cutting_from_grapes"
+    }
+  ]
+}

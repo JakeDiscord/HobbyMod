@@ -1,0 +1,20 @@
+{
+  "name": "The Sound Library",
+  "icon": "hobbymod:dj_headphones",
+  "category": "hobbymod:dj",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Drums: kick, snare, hi-hat, clap, tom, rim, shaker, cowbell, crash and ride.$(br2)Bass/synth: bass, sub bass, acid bass, lead, pluck and pad."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Keys/tuned percussion: keys, piano, electric piano, organ, bell, vibraphone, marimba and glockenspiel.$(br2)Acoustic-style: guitar, strings, choir, flute and brass."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "These 29 instruments are synthesized sounds. Choose from the native paged picker in Patterns. Each channel gets one instrument, but a whole pattern can use all eight channels."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Keep & Share Your Work",
+  "icon": "minecraft:chest",
+  "category": "hobbymod:getting_started",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Marble blueprints copy a structure and share as files. Paintings export PNG images; their physical canvases can be traded. DJ projects share as editable files or recorded project discs."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(l:sculpting/blueprints)Marble blueprints$(/l) require enough real marble when applying. $(l:painting/display)Painted canvases$(/l) preserve pixels and signatures. $(l:dj/files)Music files$(/l) stay in the Minecraft instance that exports them."
+    }
+  ]
+}

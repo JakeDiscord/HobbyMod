@@ -1,0 +1,24 @@
+{
+  "name": "Grow a Vineyard",
+  "icon": "hobbymod:grape_trellis",
+  "category": "hobbymod:winery",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Place a trellis on dirt, grass or farmland. Plant a red or white cutting and give the vine light.$(br2)Stack trellises for a taller vineyard. One cutting plants connected empty sections of the column."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Each planted section grows its own fruit. Bone meal ripens the section you click up to the ripe stage.$(br2)Only the bottom of a connected trellis column needs soil; newly stacked sections inherit its cultivar."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Right-click fruit to harvest. Firm fruit gives three grapes; ripe, late and overripe give four. Harvested sections return to an early growth stage and regrow.$(br2)Outdoor sun-grown grapes gain a small quality bonus."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Firm green grapes are tart and lower quality. Ripe red/pale fruit is reliable. Dark red/golden late harvest is sweeter. Brown overripe fruit is sweet but lower quality.$(br2)Harvest timing changes your wine."
+    }
+  ]
+}

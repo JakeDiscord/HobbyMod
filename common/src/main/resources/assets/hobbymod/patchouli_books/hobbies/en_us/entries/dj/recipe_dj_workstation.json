@@ -1,0 +1,12 @@
+{
+  "name": "Dj Workstation",
+  "icon": "hobbymod:dj_workstation",
+  "category": "hobbymod:dj",
+  "sortnum": 90,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:dj_workstation"
+    }
+  ]
+}

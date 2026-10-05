@@ -1,0 +1,20 @@
+{
+  "name": "Carving Controls",
+  "icon": "hobbymod:point_chisel",
+  "category": "hobbymod:sculpting",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Left-click/drag: carve or smooth.$(br)Right/middle drag: orbit.$(br)Alt + left drag: orbit.$(br)Ctrl + wheel: zoom.$(br)Shift + wheel: move up/down the pillar."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "1-9 or ordinary wheel: hotbar.$(br)E: inventory, then resume.$(br)M: X symmetry on/off.$(br)F: reset camera.$(br)Escape: exit.$(br2)Changing tools, orbiting or releasing left-click ends the current stroke."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "You must stay within six blocks of the section being carved. The orbit camera does not move your player or extend reach. Damage, leaving reach or losing the block ends the session. Nearby walls limit the camera."
+    }
+  ]
+}

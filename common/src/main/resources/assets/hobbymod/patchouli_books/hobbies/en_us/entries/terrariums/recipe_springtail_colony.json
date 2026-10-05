@@ -1,0 +1,12 @@
+{
+  "name": "Springtail Colony",
+  "icon": "hobbymod:springtail_colony",
+  "category": "hobbymod:terrariums",
+  "sortnum": 95,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:springtail_colony"
+    }
+  ]
+}

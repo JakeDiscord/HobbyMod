@@ -1,0 +1,24 @@
+{
+  "name": "Fish & Compatibility",
+  "icon": "hobbymod:guppy_fish",
+  "category": "hobbymod:aquariums",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Warm water: guppy (load 1), neon tetra (1), corydoras (2), betta (2), angelfish (3), cherry barb (1).$(br2)Cool water: zebra danio (1), goldfish (3)."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Small tank capacity: 12 load.$(br)Medium: 30 load.$(br)Large: 84 load, at most 32 residents.$(br2)Each fish addition checks capacity, quality, cycling, temperature and compatibility."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Avoid two male bettas together. Bettas cannot share with guppies; angelfish cannot share with neon tetras.$(br2)Use magma cream for warm water or a snowball for cool water."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Starter bags are crafted from paper, raw fish and dye. See the recipe pages for each species.$(br2)You can also capture wild fish with a habitat net while carrying a water bucket. Captured fish keep their identity."
+    }
+  ]
+}

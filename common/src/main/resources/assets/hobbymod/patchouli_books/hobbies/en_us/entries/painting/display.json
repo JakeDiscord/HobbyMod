@@ -1,0 +1,24 @@
+{
+  "name": "Sign, Hang & Export",
+  "icon": "hobbymod:landscape_canvas",
+  "category": "hobbymod:painting",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Enter a title and choose Sign to record your name and lock the painting. Edit on the easel reopens it. Signing is optional for display.$(br2)Take returns the exact canvas and frees the easel for another."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Use a canvas against a solid wall. Required area: square/round 1 x 1; landscape 3 x 2; portrait 2 x 3; panoramic 4 x 2.$(br2)The area must be fully supported and free of other paintings."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Right-click a hanging painting for its title and artist. Shift-right-click with an empty hand recovers it. Punching follows normal painting drops; creative punching removes it without a drop."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "PNG exports the chosen pixel resolution to hobbymod-paintings inside the Minecraft game directory. Round corners are transparent. There is no PNG import.$(br2)Physical canvases keep their pixels and signature when traded or stored."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Landscape Canvas",
+  "icon": "hobbymod:landscape_canvas",
+  "category": "hobbymod:painting",
+  "sortnum": 94,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:landscape_canvas"
+    }
+  ]
+}

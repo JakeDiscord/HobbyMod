@@ -1,0 +1,24 @@
+{
+  "name": "Marble Blueprints",
+  "icon": "hobbymod:marble_blueprint",
+  "category": "hobbymod:sculpting",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Craft a blueprint from paper and lapis. Use a blank on marble to capture the connected structure. The clicked block is its anchor. Sneak-use a filled blueprint to capture a replacement design."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "To apply, place real marble at every saved offset, then use the filled blueprint on the anchor. Missing marble or protected blocks reject the whole application.$(br2)Applying replaces existing cuts permanently. Capture them first if you want to keep them."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Blueprints are reusable. They capture up to 64 face-connected blocks within 15 blocks of the anchor in each direction. World-axis orientation stays fixed. Separate a sculpture from neighboring marble before capture."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Use the blueprint in the air for its file screen. Choose a name and Export file or Import file. Open folder shows the location.$(br2)Share .marble.json files from hobbymod/blueprints inside your Minecraft game directory."
+    }
+  ]
+}

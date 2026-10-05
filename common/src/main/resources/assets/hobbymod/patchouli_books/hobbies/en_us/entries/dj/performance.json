@@ -1,0 +1,20 @@
+{
+  "name": "Perform a Two-Deck Set",
+  "icon": "hobbymod:dj_headphones",
+  "category": "hobbymod:dj",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Deck A and Deck B keep independent projects. The top A/B buttons choose the deck to edit. DJ offers play/stop, cue-to-start, sync, loop, disc loading and headphone monitoring for each."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Sync matches the other deck's tempo and beat clock. If it is playing, the synced deck starts too. Drag the crossfader to blend both, or choose A, Center or B."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Carry Studio Headphones for Monitor: a private stream for cueing while the public deck is faded out. Monitor again or close the studio to stop it.$(br2)Hearing a deck publicly and privately adds both signals."
+    }
+  ]
+}

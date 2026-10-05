@@ -1,0 +1,12 @@
+{
+  "name": "Medium Aquarium",
+  "icon": "hobbymod:medium_aquarium",
+  "category": "hobbymod:aquariums",
+  "sortnum": 91,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:medium_aquarium"
+    }
+  ]
+}

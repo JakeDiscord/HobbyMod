@@ -1,0 +1,12 @@
+{
+  "name": "Potter's Wheel",
+  "icon": "hobbymod:pottery_wheel",
+  "category": "hobbymod:pottery",
+  "sortnum": 91,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:pottery_wheel"
+    }
+  ]
+}

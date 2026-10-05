@@ -1,0 +1,20 @@
+{
+  "name": "Shape the Landscape",
+  "icon": "minecraft:moss_block",
+  "category": "hobbymod:terrariums",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "In the 3D editor choose Edit terrain, then Raise, Lower or Smooth. Hold or drag on the substrate to form hills and valleys. Shift temporarily lowers; Shift + wheel changes brush size."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Choose Edit objects to return to decoration handles. Dirt, sand and moss all support terrain shaping. Valleys keep a minimum layer above drainage.$(br2)Decorations and crawling residents stay grounded on the shaped terrain."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Mining the enclosure returns one kit with care, inhabitants, angles and terrain saved. Carrying or unloading pauses the simulation; it does not punish the colony with offline neglect."
+    }
+  ]
+}

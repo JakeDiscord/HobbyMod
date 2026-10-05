@@ -1,0 +1,20 @@
+{
+  "name": "Mixer & Speakers",
+  "icon": "hobbymod:dj_speaker",
+  "category": "hobbymod:dj",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Mixer has eight channel strips. Drag volume for gain. M mutes; S solos. Multiple solos can play together.$(br2)P sets pan, F filter, D timed delay and R reverb send. Scroll parameters for finer changes."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Files > Master changes overall output. Minecraft's Jukebox/Note Blocks sound slider controls this music.$(br2)A desk reaches 24 blocks. A speaker within two blocks horizontally and one vertically extends it to 48."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "More speakers do not multiply volume. Closing the editor does not stop public playback. Breaking or unloading the desk stops sound; loading it preserves songs but starts with playback stopped."
+    }
+  ]
+}

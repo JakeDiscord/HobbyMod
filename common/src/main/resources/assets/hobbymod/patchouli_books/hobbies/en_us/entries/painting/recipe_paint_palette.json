@@ -1,0 +1,12 @@
+{
+  "name": "Paint Palette",
+  "icon": "hobbymod:paint_palette",
+  "category": "hobbymod:painting",
+  "sortnum": 92,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:paint_palette"
+    }
+  ]
+}

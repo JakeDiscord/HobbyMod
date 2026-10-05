@@ -1,0 +1,12 @@
+{
+  "name": "Round Canvas",
+  "icon": "hobbymod:round_canvas",
+  "category": "hobbymod:painting",
+  "sortnum": 97,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:round_canvas"
+    }
+  ]
+}

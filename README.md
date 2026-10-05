@@ -3,6 +3,14 @@
 A Minecraft **1.21.1 / NeoForge** mod combining marble sculpture, astronomy,
 vineries, painting, cameras, woodworking, and other creative hobbies.
 
+## Universal guidebook
+
+Craft **The Hobby Handbook** from a book and green dye. Its Patchouli chapters
+cover sculpture, pottery, painting, aquariums, terrariums, bonsai, DJ/music and
+Winery, with controls and live recipe pages. Astronomy is an empty chapter.
+Install Patchouli **1.21.1-93-NEOFORGE** alongside HobbyMod and Architectury;
+Gradle downloads it for development. See [guidebook maintenance](docs/GUIDEBOOK.md).
+
 ## Winery
 
 Grow red and white grapes on wooden trellises, choose their ripeness, and press
@@ -63,8 +71,7 @@ can also produce a blank. Stack marble vertically to make one taller carving
 surface. Opening it joins the stack; adding marble to an existing sculpture
 joins the new section automatically. Shift + wheel moves the camera up or down.
 The overlay shows only your held tool and the percentage of marble remaining
-in the pillar. Controls and tool instructions belong in the planned hobbies
-guidebook.
+in the pillar. Controls and tool instructions are in The Hobby Handbook.
 
 ![Smooth marble carving in the world](docs/marble-carving-world.png)
 
@@ -180,7 +187,7 @@ not the mod's initialization or release jar.
 
 Distribute `neoforge/build/libs/hobbymod-neoforge-0.1.0.jar`, together with the
 Minecraft 1.21.1 with **NeoForge 21.1.255** and the NeoForge edition of
-**Architectury API 13.0.11**. The `dev` and
+**Architectury API 13.0.11**, plus **Patchouli 1.21.1-93-NEOFORGE**. The `dev` and
 `dev-shadow` jars are development artifacts, not installable releases.
 No credentials are required to resolve public dependencies.
 

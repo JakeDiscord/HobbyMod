@@ -1,0 +1,24 @@
+{
+  "name": "Tread Grapes by Foot",
+  "icon": "hobbymod:grape_treading_tub",
+  "category": "hobbymod:winery",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Craft a treading tub from five planks. Right-click it with eight grapes; red and white can be mixed.$(br2)Right-click with an empty bucket before treading. The tub needs a bucket to begin pressing."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Step over the shallow rim and stand inside. Six seconds of treading presses the grapes. Stepping out pauses progress.$(br2)Your feet power the tub; redstone cannot replace a player."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "When pressing finishes, empty-hand right-click to take the filled must bucket. Finished output waits until collected.$(br2)Crouch and empty-hand click to retrieve supplies that have not been reserved for pressing."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Hoppers can supply grapes and an empty bucket, and collect the finished must below. A player must still stand inside to tread.$(br2)Breaking unfinished machinery refunds its reserved supplies."
+    }
+  ]
+}

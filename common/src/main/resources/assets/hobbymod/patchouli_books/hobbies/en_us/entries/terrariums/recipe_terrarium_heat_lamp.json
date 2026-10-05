@@ -1,0 +1,12 @@
+{
+  "name": "Terrarium Heat Lamp",
+  "icon": "hobbymod:terrarium_heat_lamp",
+  "category": "hobbymod:terrariums",
+  "sortnum": 92,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:terrarium_heat_lamp"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "Throw Your First Pot",
+  "icon": "hobbymod:prepared_clay",
+  "category": "hobbymod:pottery",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Craft prepared clay and a potter's wheel. Place the wheel and use prepared clay on it. Select an empty hand and right-click the loaded wheel to start spinning and enter its camera."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "With empty hands, left-click the lump's top to open its center. Drag the sides left to narrow a ring or right to widen it. Start near the rim and drag up to pull taller, or down to lower the pot."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Your shape goes all the way around the spinning pot. Pulling and widening redistribute its clay; there is no free extra clay. If a move fails, try a gentler change or a thicker wall."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Switch to a rib or sponge and hold left-click over a ring to smooth it. Watch moisture. If too dry to shape, leave the camera and use a water bucket on the wheel, then return."
+    }
+  ]
+}

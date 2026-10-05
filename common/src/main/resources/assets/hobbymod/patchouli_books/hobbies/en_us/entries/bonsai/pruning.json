@@ -1,0 +1,20 @@
+{
+  "name": "Leaves, Branches & Wiring",
+  "icon": "minecraft:shears",
+  "category": "hobbymod:bonsai",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Aim shears at a branch. First click removes its foliage and its twigs' foliage; the second cuts the branch and its descendants. The base trunk cannot be cut, although its leaves can be removed."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Aim at a branch and use a copper ingot to wire/bend it. Each operation uses one ingot and adds 12 degrees of bend. Sneak reverses both the turn and outward bend.$(br2)A seventh bend breaks that subtree."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Branch pruning costs health for each removed segment. Shears wear in survival. Leaf removal is gentler than cutting; healthy new buds can restore foliage.$(br2)Watch the actual branch you target before clicking again."
+    }
+  ]
+}

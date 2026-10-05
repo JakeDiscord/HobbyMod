@@ -1,0 +1,12 @@
+{
+  "name": "Dj Headphones",
+  "icon": "hobbymod:dj_headphones",
+  "category": "hobbymod:dj",
+  "sortnum": 92,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:dj_headphones"
+    }
+  ]
+}

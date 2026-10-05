@@ -1,0 +1,20 @@
+{
+  "name": "Plant a Miniature Tree",
+  "icon": "hobbymod:bonsai_pot",
+  "category": "hobbymod:bonsai",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Craft a bonsai pot from five bricks and dirt. Place it and use an oak, birch or cherry sapling to plant a tree.$(br2)Each tree has its own age, health, branches and wiring."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Choose a spot with light level 9 or greater above the pot. Growth and care update each loaded minute. Healthy trees bud about every two intervals, up to 28 branch segments."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "New branches unfold over one loaded minute rather than appearing at full size. Carrying or unloading pauses growth.$(br2)Mine the pot to carry its whole tree; replacing it preserves age, health and shape."
+    }
+  ]
+}

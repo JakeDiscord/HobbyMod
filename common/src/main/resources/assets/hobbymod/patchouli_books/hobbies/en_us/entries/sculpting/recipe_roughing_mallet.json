@@ -1,0 +1,12 @@
+{
+  "name": "Roughing Mallet",
+  "icon": "hobbymod:roughing_mallet",
+  "category": "hobbymod:sculpting",
+  "sortnum": 93,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hobbymod:roughing_mallet"
+    }
+  ]
+}
