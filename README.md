@@ -16,8 +16,10 @@ See [the Winery guide](docs/WINERY.md) for crafting and the full workflow.
 
 Craft a tripod telescope, then an observatory telescope with tracking. Explore
 recognizable constellations and planets alongside twenty generated deep-sky
-targets. Focus and align observations to build a persistent digital field
-journal across repeated nights. See [Astronomy](docs/ASTRONOMY.md) for crafting,
+targets. Use the telescope target finder, focus and align observations, and collect
+planetary records and constellation charts in a persistent digital journal
+across repeated nights. The journal records discoveries without changing the
+camera. Planets appear as textured celestial cubes. See [Astronomy](docs/ASTRONOMY.md) for crafting,
 controls, observing conditions and validation.
 
 ## DJ and music production
