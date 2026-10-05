@@ -51,5 +51,7 @@
   "block.hobbymod.telescope": "Tripod Telescope",
   "block.hobbymod.observatory_telescope": "Observatory Telescope",
   "item.hobbymod.astronomy_journal": "Astronomy Field Journal",
-  "block.hobbymod.grape_treading_tub": "Grape Treading Tub"
+  "block.hobbymod.grape_treading_tub": "Grape Treading Tub",
+  "item.hobbymod.prototype_ship": "Prototype Spacecraft",
+  "entity.hobbymod.prototype_ship": "Prototype Spacecraft"
 }

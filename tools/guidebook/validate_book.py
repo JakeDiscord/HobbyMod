@@ -39,7 +39,7 @@ for key, entry in entries.items():
 
 assert categories['astronomy']['description'] == ''
 assert not any(e['category'] == 'hobbymod:astronomy' for e in entries.values())
-expected = set(recipes) - {'astronomy_journal', 'observatory_telescope', 'telescope', 'marble_sculpture'}
+expected = set(recipes) - {'astronomy_journal', 'observatory_telescope', 'telescope', 'prototype_ship', 'marble_sculpture'}
 missing = expected - refs
 if missing:
     errors.append(f'Crafting recipes absent from book: {sorted(missing)}')

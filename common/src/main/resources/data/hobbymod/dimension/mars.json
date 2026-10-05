@@ -1,0 +1,11 @@
+{
+  "type": "hobbymod:planet",
+  "generator": {
+    "type": "minecraft:noise",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "hobbymod:mars"
+    },
+    "settings": "hobbymod:mars"
+  }
+}
