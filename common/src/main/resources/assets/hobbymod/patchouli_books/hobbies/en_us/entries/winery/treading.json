@@ -6,19 +6,19 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "Craft a treading tub from five planks. Right-click it with eight grapes; red and white can be mixed.$(br2)Right-click with an empty bucket before treading. The tub needs a bucket to begin pressing."
+      "text": "Craft a treading tub from five planks. Right-click with eight grapes; red and white can be mixed.$(br2)Walk inside. The shallow floor allows entry from any side; you do not need to stand exactly in the center."
     },
     {
       "type": "patchouli:text",
-      "text": "Step over the shallow rim and stand inside. Six seconds of treading presses the grapes. Stepping out pauses progress.$(br2)Your feet power the tub; redstone cannot replace a player."
+      "text": "Six seconds inside presses the grapes. Stepping out pauses it. The front indicator fills amber as you work. When ready, it turns green, mashed fruit becomes juice, and small green sparkles appear."
     },
     {
       "type": "patchouli:text",
-      "text": "When pressing finishes, empty-hand right-click to take the filled must bucket. Finished output waits until collected.$(br2)Crouch and empty-hand click to retrieve supplies that have not been reserved for pressing."
+      "text": "Right-click finished juice with an empty bucket to collect must. The bucket is only needed after treading. Completed juice waits until collected.$(br2)Crouch and empty-hand click to retrieve unpressed supplies."
     },
     {
       "type": "patchouli:text",
-      "text": "Hoppers can supply grapes and an empty bucket, and collect the finished must below. A player must still stand inside to tread.$(br2)Breaking unfinished machinery refunds its reserved supplies."
+      "text": "Older tubs that already contain a bucket return their finished bucket without spending another. A hopper can supply a bucket to collect finished juice into the output.$(br2)Redstone cannot replace feet in a treading tub."
     }
   ]
 }

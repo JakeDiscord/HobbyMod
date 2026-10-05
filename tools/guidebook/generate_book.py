@@ -259,16 +259,16 @@ entry('dj', 'files', 'Save, Discs & Files', 'hobbymod:blank_music_disc', [
 ], 6)
 
 entry('winery', 'vineyard', 'Grow a Vineyard', 'hobbymod:grape_trellis', [
-    'Place a trellis on dirt, grass or farmland. Plant a red or white cutting and give the vine light.$(br2)Stack trellises for a taller vineyard. One cutting plants connected empty sections of the column.',
-    'Each planted section grows its own fruit. Bone meal ripens the section you click up to the ripe stage.$(br2)Only the bottom of a connected trellis column needs soil; newly stacked sections inherit its cultivar.',
-    'Right-click fruit to harvest. Firm fruit gives three grapes; ripe, late and overripe give four. Harvested sections return to an early growth stage and regrow.$(br2)Outdoor sun-grown grapes gain a small quality bonus.',
+    'Place a trellis on dirt, grass or farmland. Plant a red or white cutting at the bottom. Give the vine light.$(br2)Stack more trellises above: the stem gradually climbs into them, one section at a time.',
+    'New upper trellises stay empty until the growing tip reaches them. Bone meal at the base helps that tip, then ripens grapes. Mature sections can grow their own fruit.$(br2)Only the bottom needs soil.',
+    'Right-click fruit to harvest. Firm fruit gives three grapes; ripe, late and overripe give four. The full supporting stem stays, and grapes regrow.$(br2)Outdoor sun-grown grapes gain a small quality bonus.',
     'Firm green grapes are tart and lower quality. Ripe red/pale fruit is reliable. Dark red/golden late harvest is sweeter. Brown overripe fruit is sweet but lower quality.$(br2)Harvest timing changes your wine.',
 ])
 entry('winery', 'treading', 'Tread Grapes by Foot', 'hobbymod:grape_treading_tub', [
-    'Craft a treading tub from five planks. Right-click it with eight grapes; red and white can be mixed.$(br2)Right-click with an empty bucket before treading. The tub needs a bucket to begin pressing.',
-    'Step over the shallow rim and stand inside. Six seconds of treading presses the grapes. Stepping out pauses progress.$(br2)Your feet power the tub; redstone cannot replace a player.',
-    'When pressing finishes, empty-hand right-click to take the filled must bucket. Finished output waits until collected.$(br2)Crouch and empty-hand click to retrieve supplies that have not been reserved for pressing.',
-    'Hoppers can supply grapes and an empty bucket, and collect the finished must below. A player must still stand inside to tread.$(br2)Breaking unfinished machinery refunds its reserved supplies.',
+    'Craft a treading tub from five planks. Right-click with eight grapes; red and white can be mixed.$(br2)Walk inside. The shallow floor allows entry from any side; you do not need to stand exactly in the center.',
+    'Six seconds inside presses the grapes. Stepping out pauses it. The front indicator fills amber as you work. When ready, it turns green, mashed fruit becomes juice, and small green sparkles appear.',
+    'Right-click finished juice with an empty bucket to collect must. The bucket is only needed after treading. Completed juice waits until collected.$(br2)Crouch and empty-hand click to retrieve unpressed supplies.',
+    'Older tubs that already contain a bucket return their finished bucket without spending another. A hopper can supply a bucket to collect finished juice into the output.$(br2)Redstone cannot replace feet in a treading tub.',
 ], 1)
 entry('winery', 'pressing', 'Mechanical Press & Blends', 'hobbymod:grape_press', [
     'Open a grape press and add eight grapes plus an empty bucket. Two grape slots let you blend harvests and colors. Click Press, then collect the must after three seconds.',
@@ -294,7 +294,7 @@ entry('winery', 'rack_taste', 'Display & Taste', 'hobbymod:wine_rack', [
 ], 5)
 entry('winery', 'automation', 'Cellar Automation', 'minecraft:hopper', [
     'Hoppers feed machines from above or the sides. Output hoppers take must, wine and returned barrel buckets.$(br2)A powered barrel starts supplied must, racks when fermented, and bottles at recommended age.',
-    'Keep returned buckets extracted so the barrel can accept another must. Supply yeast and glass bottles. Rinsing is manual.$(br2)Tubs need grapes, an empty bucket and a player inside to press; hoppers can collect the finished must.',
+    'Keep returned buckets extracted so the barrel can accept another must. Supply yeast and glass bottles. Rinsing is manual.$(br2)Tubs still need a player inside; supplying a bucket only collects already-trodden juice.',
 ], 6)
 
 # Recipe pages use live recipe IDs, so ingredients and outputs follow the game.

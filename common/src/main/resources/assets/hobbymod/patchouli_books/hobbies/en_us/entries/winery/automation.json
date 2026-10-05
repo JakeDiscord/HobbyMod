@@ -10,7 +10,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Keep returned buckets extracted so the barrel can accept another must. Supply yeast and glass bottles. Rinsing is manual.$(br2)Tubs need grapes, an empty bucket and a player inside to press; hoppers can collect the finished must."
+      "text": "Keep returned buckets extracted so the barrel can accept another must. Supply yeast and glass bottles. Rinsing is manual.$(br2)Tubs still need a player inside; supplying a bucket only collects already-trodden juice."
     }
   ]
 }

@@ -53,11 +53,11 @@ The authoring generator and validator were recovered from the original
 "Set up HobbyMod - Janoc" conversation's command history. This restores its
 book structure and text rather than recreating them from memory.
 
-The Winery chapter describes the gameplay in this checkout: load an empty
-bucket before treading, then collect the finished must with an empty hand.
-Connected trellis sections grow their fruit separately. The original book
-also described unpublished Winery changes that are absent from this checkout;
-those gameplay changes have not been restored as part of the handbook work.
+The subsequent Winery recovery restores the original tub and vine refinements:
+tread eight grapes without a bucket, then collect the finished juice with an
+empty bucket. A progress strip, juice surface and green completion sparks show
+when it is ready. Vines grow upward one trellis at a time; bone meal at the base
+helps the developing tip. Older bucketed tub saves remain supported.
 
 Restoration validation: the normal Gradle build passed, with 95 JUnit tests
 passing and zero skips. The generator check and validator passed. The release

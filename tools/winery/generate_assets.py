@@ -19,6 +19,10 @@ def tile(name,base,kind='wood'):
  save(name,im)
  return im
 for name,base in [('grape_mash_red',(105,56,119)),('grape_mash_white',(145,160,74)),('grape_mash_rose',(154,84,105)),('wine_band',(66,55,46)),('grape_press_metal',(104,109,112)),('wine_cork',(151,111,63))]:tile(name,base,'metal' if 'metal' in name or 'band' in name else 'wood')
+for kind,base in [('red',(119,42,86)),('white',(180,163,76)),('rose',(172,78,103))]:
+ im=Image.new('RGBA',(16,16),base+(255,));d=ImageDraw.Draw(im)
+ for y in (3,9,14):d.line((2,y,6,y),fill=tuple(min(255,c+20) for c in base)+(255,))
+ save('grape_juice_'+kind,im)
 for name,base in [('wine_red',(65,36,57)),('wine_white',(95,116,51)),('wine_rose',(127,71,64))]:
  im=Image.new('RGBA',(16,16));d=ImageDraw.Draw(im)
  for x in range(16):
@@ -62,7 +66,7 @@ for color in ('red','white'):
   for x,y in [(4,2),(8,6),(3,10),(10,10)][:1 if age==0 else 2 if age==1 else 4]:
    es.append(box([x,y,6.4],[x+4,min(16,y+4),6.4],'leaf',[0,0,16,16],['north','south']))
   grape_tex='grape_green' if age<4 else 'grape_'+color if age==4 else 'grape_late_'+color if age==5 else 'grape_overripe'
-  if age>=2:
+  if age>=3:
    for x,y in [(4,5),(10,8),(5,11)]:
     es.extend([box([x,y,5.1],[x+2,y+2,7.1],'fruit',[4,5,8,9]),box([x+1.4,y-1.4,5.5],[x+3.4,y+.6,7.5],'fruit',[4,5,8,9]),box([x-.2,y-2.8,5.3],[x+1.8,y-.8,7.3],'fruit',[4,5,8,9])])
   name=f'grape_vine_{color}_{age}';model(name,es,{'wood':WOOD,'stem':'minecraft:block/oak_log','leaf':'hobbymod:block/grape_leaf','fruit':'hobbymod:block/'+grape_tex})
@@ -78,7 +82,7 @@ for y in (2,12):
  barrel.extend([box([.9,y,1.9],[15.1,y+1,14.1],'band'),box([1.9,y,.9],[14.1,y+1,15.1],'band')])
 model('fermentation_barrel',barrel,{'wood':DARK,'band':'hobbymod:block/wine_band','tap':'minecraft:block/copper_block','glass':'minecraft:block/glass'});facing_variants('fermentation_barrel');block_item('fermentation_barrel')
 tub=[box([0,0,0],[16,2,16]),box([0,2,0],[1,6,16]),box([15,2,0],[16,6,16]),box([1,2,0],[15,6,1]),box([1,2,15],[15,6,16])]
-model('grape_treading_tub',tub,{'wood':DARK,**{'mash_'+kind:'hobbymod:block/grape_mash_'+kind for kind in ('red','white','rose')}});facing_variants('grape_treading_tub');block_item('grape_treading_tub')
+model('grape_treading_tub',tub,{'wood':DARK,'progress':'minecraft:block/white_concrete',**{'juice_'+kind:'hobbymod:block/grape_juice_'+kind for kind in ('red','white','rose')},**{'mash_'+kind:'hobbymod:block/grape_mash_'+kind for kind in ('red','white','rose')}});facing_variants('grape_treading_tub');block_item('grape_treading_tub')
 rack=[]
 for y in (0,8,15):rack.append(box([1,y,2],[15,y+1,14]))
 for x in (1,7.5,14):rack.append(box([x,0,2],[x+1,16,14]))

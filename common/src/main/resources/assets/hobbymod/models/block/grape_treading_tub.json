@@ -3,6 +3,10 @@
   "textures": {
     "particle": "minecraft:block/spruce_planks",
     "wood": "minecraft:block/spruce_planks",
+    "progress": "minecraft:block/white_concrete",
+    "juice_red": "hobbymod:block/grape_juice_red",
+    "juice_white": "hobbymod:block/grape_juice_white",
+    "juice_rose": "hobbymod:block/grape_juice_rose",
     "mash_red": "hobbymod:block/grape_mash_red",
     "mash_white": "hobbymod:block/grape_mash_white",
     "mash_rose": "hobbymod:block/grape_mash_rose"
