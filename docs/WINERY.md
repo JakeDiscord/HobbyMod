@@ -12,18 +12,24 @@ batches rather than supplied as a blank decorative bottle.
 1. Place a **grape trellis** on dirt, grass or farmland. Right-click it with a
    red or white grape cutting. The vine needs light to grow. Bone meal brings
    it to ripe grapes; later ripeness happens naturally. Stack trellises to make
-   taller vines: one cutting plants the connected column, and each section
-   grows and can be harvested independently. Only the bottom needs soil.
+   taller vines: plant a cutting at the bottom. Its stem grows upward into
+   each available trellis, one section at a time. Bone meal on the base helps
+   the growing tip; each developed section grows its own grapes. Only the
+   bottom needs soil. Harvesting leaves the supporting stem intact.
 2. Right-click a vine to harvest. Firm grapes give three fruit; ripe and later
    stages give four. The vine stays planted and regrows. Outdoor, sun-grown
    grapes have a small quality bonus.
 3. Put **eight grapes and an empty bucket** in a grape press. The two grape
    slots let you blend colors and harvests. Click **Press**. Its wooden plate
    moves while it works; after three seconds, collect the bucket of must.
-   Alternatively, right-click a **grape treading tub** with eight grapes and
-   an empty bucket, then walk into its center. Six seconds inside presses the
-   grapes; stepping out pauses the work. Right-click with an empty hand to
-   collect the must. Crouch and empty-hand click to retrieve unpressed supplies.
+   Alternatively, right-click a **grape treading tub** with eight grapes, then walk inside. Six seconds inside presses the
+   grapes; stepping out pauses the work. The shallow floor permits entry from
+   all four sides and does not require standing exactly in the center. The
+   front strip fills amber while pressing; at completion it turns green, the
+   mash becomes juice, and small green sparkles appear. Right-click with an
+   **empty bucket** to collect one bucket of must. No bucket is needed before
+   pressing. Crouch and empty-hand click to retrieve unpressed supplies.
+   Older saves that already include a bucket return it without charging another.
 4. Put must and **one wine yeast** in a fermentation barrel and click **Start**.
    Collect the returned empty bucket. Fermentation takes one minute. Keep the
    barrel away from fire, lit campfires and lava for better quality.
@@ -141,11 +147,12 @@ Run `./gradlew --no-daemon :common:test` for the shared regression suite. Winery
 elapsed time, clock rollback, malformed saves, UUIDs and duplicate issuance.
 
 Run `./gradlew --no-daemon -Pgametest :neoforge:runServer`, then `test runall`.
-Fourteen Winery GameTests cover vine planting/harvest permissions, powered barrel automation, pressing costs and interrupted-work refunds, full batches,
+Fifteen Winery GameTests cover vine planting/harvest permissions, powered barrel automation, pressing costs and interrupted-work refunds, full batches,
 unloaded/restored casks, duplicate casks, rinsing and server reach checks, powered
 pressing with a real output hopper, rack saves/stack identity, and tasting/glass
 returns. Additional checks cover clearing stale inventory snapshots, targeted
-rack removal and stacking, tall vine growth, and tub pause/reload/collection. Keep `-Pgametest` on simultaneous client runs. See the root README for
+rack removal and stacking, progressive climbing and added trellises, tub pause/reload/bucket collection,
+rim clearance, and older bucketed saves. Keep `-Pgametest` on simultaneous client runs. See the root README for
 safe server shutdown. Normal release builds exclude the tests and test structure.
 
 
@@ -163,5 +170,38 @@ insert/remove updates on stacked racks, tub pressing and collection, and the
 short tasting overlay. New screenshots show the three-block vine, filled tub,
 and the same rack slot before and after removal.
 
-Validated with the Winery revisions: 91 unit tests, all 73 GameTests (14 Winery), and the NeoForge release
-build. The production jar contains no GameTests, test structure or JUnit classes.
+The earlier rack/tub revisions passed 91 unit tests, all 73 GameTests
+(14 Winery), and the NeoForge release build. The production jar contains no GameTests, test structure or JUnit classes.
+
+
+## Recovery of the remaining Winery fixes
+
+The later unpublished edits were recovered from the original conversation and
+integrated with the current handbook and Astronomy code. Existing racks,
+tasting, mechanical pressing, barrel processing and automation remain covered
+by their regression tests. Tub collection supports both ready unbucketed juice
+and older saves with a reserved bucket or a completed must bucket.
+
+Current validation: 95 unit tests and all 76 Minecraft GameTests passed,
+including 15 Winery tests. The recovered tests check gradual vine growth,
+newly added trellises, root soil, off-center feet, collision clearance, paused
+and reloaded tub progress, exact bucket consumption and older bucketed saves.
+The normal release build and book generator/validator also pass.
+
+The graphical survival check walked into the tub from the ground, pressed
+without loading a bucket, stepped out to pause, and collected exactly one must
+bucket. The progress strip rendered amber, then green with juice and sparkles;
+collection cleared the tub. Planting affected only the bottom of a three-block
+trellis, and repeated bone meal at its base grew the tip through the upper
+sections. Random ticks were temporarily disabled only in the disposable visual
+world to capture those stages, then restored to 3; natural upward growth is
+covered by the GameTest.
+
+Screenshots from this recovery:
+
+- [Paused progress](winery-tub-progress-restored.png)
+- [Ready juice](winery-tub-ready-restored.png)
+- [Collected bucket](winery-tub-collected-restored.png)
+- [Initial stem](winery-vine-base-restored.png)
+- [Climbing tip](winery-vine-climbing-restored.png)
+- [Full-height stem](winery-vine-grown-restored.png)

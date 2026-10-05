@@ -6,15 +6,15 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "Place a trellis on dirt, grass or farmland. Plant a red or white cutting and give the vine light.$(br2)Stack trellises for a taller vineyard. One cutting plants connected empty sections of the column."
+      "text": "Place a trellis on dirt, grass or farmland. Plant a red or white cutting at the bottom. Give the vine light.$(br2)Stack more trellises above: the stem gradually climbs into them, one section at a time."
     },
     {
       "type": "patchouli:text",
-      "text": "Each planted section grows its own fruit. Bone meal ripens the section you click up to the ripe stage.$(br2)Only the bottom of a connected trellis column needs soil; newly stacked sections inherit its cultivar."
+      "text": "New upper trellises stay empty until the growing tip reaches them. Bone meal at the base helps that tip, then ripens grapes. Mature sections can grow their own fruit.$(br2)Only the bottom needs soil."
     },
     {
       "type": "patchouli:text",
-      "text": "Right-click fruit to harvest. Firm fruit gives three grapes; ripe, late and overripe give four. Harvested sections return to an early growth stage and regrow.$(br2)Outdoor sun-grown grapes gain a small quality bonus."
+      "text": "Right-click fruit to harvest. Firm fruit gives three grapes; ripe, late and overripe give four. The full supporting stem stays, and grapes regrow.$(br2)Outdoor sun-grown grapes gain a small quality bonus."
     },
     {
       "type": "patchouli:text",
