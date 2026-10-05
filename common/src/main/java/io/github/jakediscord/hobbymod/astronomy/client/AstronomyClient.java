@@ -20,7 +20,7 @@ public final class AstronomyClient {
         dev.architectury.event.events.client.ClientLifecycleEvent.CLIENT_SETUP.register(c->dev.architectury.registry.client.rendering.BlockEntityRendererRegistry.register(AstronomyContent.ENTITY.get(),TelescopeRenderer::new));
         dev.architectury.event.events.client.ClientTickEvent.CLIENT_POST.register(mc->{if(mc.level==null){catalog=null;state=null;lastSky=Long.MIN_VALUE;journal=new ObservationJournal();}else{long current=mc.level.getDayTime();skyAdvancing=lastSky!=Long.MIN_VALUE && current==lastSky+1;lastSky=current;if(scope()!=null)scope().heartbeat();}});
         NetworkManager.registerReceiver(NetworkManager.Side.S2C,AstronomyNetworking.State.TYPE,AstronomyNetworking.State.CODEC,(p,c)->c.queue(()->{
-            var mc=Minecraft.getInstance();if(mc.level==null)return;if(catalog==null || seed!=p.seed()){seed=p.seed();catalog=new SkyCatalog(seed);}sky=p.sky();tick=mc.level.getGameTime();state=p;journal=AstronomyData.decode(p.journal());
+            var mc=Minecraft.getInstance();if(mc.level==null)return;if(catalog==null || seed!=p.seed()){seed=p.seed();catalog=new SkyCatalog(seed);}sky=p.sky();tick=mc.level.getGameTime();state=p;journal=AstronomyData.decode(p.journal());if(scope()!=null && scope().pos.equals(p.pos()))scope().receiveTracking(p.tracking());
             if(p.kind()==AstronomyNetworking.JOURNAL)mc.setScreen(new FieldJournalScreen());
             else if(p.kind()==AstronomyNetworking.SCOPE)mc.setScreen(new EyepieceScreen(p.pos(),p.kind()==AstronomyNetworking.NAKED));
             else if(p.kind()==AstronomyNetworking.CLOSE && active())mc.setScreen(null);

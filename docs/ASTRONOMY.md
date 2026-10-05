@@ -19,12 +19,14 @@ respectively. The journal uses paper, iron nuggets, glass and redstone. The
 tripod telescope uses a spyglass, iron/copper ingots and sticks; the larger
 instrument uses a telescope, iron blocks, quartz and a redstone block.
 
-Right-click a telescope to use its eyepiece. The target finder lists planets,
-reference stars and deep-sky targets above the horizon. Click a row to point the
-mount and select a useful starting magnification, then adjust focus and hold
-steady. Drag to aim manually; hold Shift for finer movement. Arrow keys fine-slew. Wheel adjusts focus and Shift-wheel changes
-magnification. Sharp targets and higher quality indicate good focus. **T** on
-the observatory telescope locks onto the nearest target in its field; drag or
+Right-click a telescope to use its eyepiece. The known-target list contains only
+objects you have recorded and that are above the horizon. Discover new objects
+by aiming manually: drag to slew, right-drag to sweep more quickly, or hold Shift
+for fine adjustments. Arrow keys fine-slew. The wheel changes zoom; Shift-wheel
+makes smaller adjustments. Focus is automatic, with no manual focus control.
+Click a recorded target to point the mount. **T** on the observatory telescope
+tracks a previously discovered planet; unknown planets and stars cannot be
+tracked. The server checks discovery, mount type and proximity. Dragging or
 arrow-key movement releases tracking. **J** opens the journal; Esc exits.
 The barrel and cradle turn with the optical view. The field journal is strictly
 a record: opening it never moves the camera, magnifies the sky or starts an
@@ -32,12 +34,12 @@ observation. Its Collections page tracks seven planets, four complete
 constellation charts, twenty deep-sky discoveries and fully detailed records.
 
 A GLFW-compatible gamepad provides left-stick slew, right-stick fine slew and
-trigger focus adjustment, with a dead zone. Hardware gamepad testing remains
+trigger zoom adjustment, with a dead zone. Hardware gamepad testing remains
 separate from mouse/keyboard testing.
 
 ## Observations and knowledge
 
-Keep a target aligned and in focus for twelve continuous seconds. The server
+Keep a target aligned for twelve continuous seconds. The server
 checks the target from the shared catalog and actual direction, instead of
 accepting a client-supplied discovery or progress value. Weather, moonlight,
 altitude, local block light, aperture, excessive magnification and solid
@@ -53,7 +55,7 @@ therefore takes repeated observations across at least two nights. The eyepiece
 shows cooldown, nightly-limit and completed-entry status. The journal retains
 observation counts, best quality and a small field sketch, plus current azimuth,
 altitude and apparent magnitude. Constellation charts count observed reference
-stars. Planet entries show the same pixel textures as their celestial cubes. Successful
+stars. Planet entries show stylized pixel previews of the celestial bodies. Successful
 recordings produce a named notification.
 
 Stars cycle through a simplified thirty-two-day observing season so all the
@@ -67,7 +69,7 @@ and celestial clock on every client.
 One overworld SavedData record holds the astronomy seed and journals keyed by
 player UUID. Entries contain object IDs and observation records; they do not
 duplicate star catalogs. Player death and equipment changes do not erase the
-journal. Telescopes save pointing, focus and magnification in their block entity.
+journal. Telescopes save pointing and magnification in their block entity.
 Only a nearby player with building permission can operate an existing mount;
 active mounts reject a second observer. Packet values are finite and bounded,
 commands are rate limited and sessions require regular heartbeats.
@@ -86,7 +88,7 @@ solar-system display reference; its published platform is 1.19.2 Quilt.
 [ATMOSPHERICS](https://modrinth.com/mod/atmospherics) provides a modern sky-effects
 reference. HobbyMod uses its own catalog, sky rendering and observation logic.
 
-Space travel, observatory domes, a physical planetarium display, exported
+Spaceship launch, landing, planetary dimensions, observatory domes, a physical planetarium display, exported
 astrophotographs, radio astronomy and Create machinery are future extensions.
 No additional animation or sky library is required for this implementation.
 Shader packs, alternate sky/weather renderers and physical gamepad hardware
@@ -95,12 +97,12 @@ establish support for every replacement renderer.
 
 ## Validation
 
-Eight shared astronomy tests cover deterministic catalogs, unit directions,
+Twelve shared astronomy tests cover deterministic catalogs, unit directions,
 seasonal visibility, moving planets, time jumps and frozen time, continuous
 exposures, repeated-night limits, invalid quality, observing conditions and
-rare synchronized meteor windows. Four native GameTests cover survival item
+rare synchronized meteor windows, discovery-gated mount controls, closed three-dimensional cube meshes, planetary ephemerides and charted routes. Six native GameTests cover survival item
 consumption and headroom, saved optics and mining drops, distance/existing-mount
-permissions, inventory journals, journal serialization and shared catalog seeds.
+permissions, inventory journals, journal serialization, shared catalog seeds, server-side discovery restrictions and saved ship routes.
 The astronomy implementation and polish passed the 80 shared tests and 59
 native tests available before Winery integration. README tracks the current
 full-suite totals.
@@ -135,3 +137,42 @@ inspected during testing.
 ![Textured Mars with a polar cap](images/astronomy/mars.png)
 
 ![Simple bright reference-star cube](images/astronomy/star.png)
+
+## Three-dimensional bodies and future navigation
+
+Planets now have six individually textured faces on a true cube mesh. Their
+spin and axial tilt use celestial coordinates, independent of the viewing
+camera. Saturn has a tilted ring plane. Named reference stars use simpler
+three-dimensional cubes; faint background stars remain inexpensive sprites.
+
+The optional [RyanHCode Sable](https://github.com/RyanHcode/sable) integration
+uses its recommended Sable Companion API 1.6.0. HobbyMod runs without Sable;
+when Sable 2.0.6 is installed, navigation can read the ship under a player,
+its stable UUID, position, orientation and velocity. Install the official Sable
+NeoForge 1.21.1 release in the instance's `mods` directory for integration testing;
+its bundled dependencies must remain present. HobbyMod does not bundle Sable.
+
+Operator-only development commands are `/astronomy navigation status`,
+`/astronomy navigation chart <planet>` and `/astronomy navigation cancel`.
+Charting requires boarding a Sable ship and discovering the destination first.
+Routes persist by ship UUID and captain, with a bounded saved-data store.
+Planet definitions provide stable keys, shared orbital positions, gravity,
+pressure and reserved orbit/surface dimension IDs. These IDs are not registered
+worlds: propulsion, dimension transfer, planetary terrain, launch and landing
+are future work. Charting a route does not move a ship or create a dimension.
+
+The discovery/spaceflight revision was checked in the real client with
+NeoForge 21.1.255, Architectury 13.0.11 and Sable 2.0.6: wheel zoom, changing
+planet faces at different celestial times, recorded-Jupiter tracking,
+unrecorded-Mars refusal, a twelve-second Mars discovery followed by tracking,
+and navigation on an assembled nine-block Sable ship. Charting recorded Mars
+succeeded; unrecorded Venus was rejected. All captures below were opened for
+inspection. This verifies the adapter and route setup, not future space travel.
+
+![Recorded Jupiter tracking with a rotating three-dimensional mesh](images/astronomy/known-tracking.png)
+
+![Mars tracked after its first server-earned discovery](images/astronomy/discovered-mars.png)
+
+![Sable ship navigation accepts Mars and rejects undiscovered Venus](images/astronomy/sable-navigation.png)
+
+The full revision passed **95 shared tests** and **75 native GameTests**, including the server suite with Sable installed. The normal clean release build excludes GameTest classes, structures, JUnit and Sable libraries.

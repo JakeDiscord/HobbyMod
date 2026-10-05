@@ -38,9 +38,8 @@ public final class SkyCatalog {
         named(t,"Caph",.15,59.1,2.3,0xFFE9BE);named(t,"Schedar",.68,56.5,2.2,0xFFC58B);named(t,"Gamma Cassiopeiae",.95,60.7,2.5,0xADCFFF);named(t,"Ruchbah",1.43,60.2,2.7,0xDAEAFF);named(t,"Segin",1.91,63.7,3.3,0xADCFFF);
         named(t,"Vega",18.62,38.8,0.0,0xBCD7FF);named(t,"Sheliak",18.83,33.4,3.5,0xDAEAFF);named(t,"Sulafat",18.98,32.7,3.2,0xDAEAFF);
         constellations=List.of(new Constellation("Orion",new int[]{0,1,2,3,4,5,6},new int[][]{{0,1},{0,2},{1,4},{2,3},{3,4},{2,6},{4,5},{5,6}}),new Constellation("Ursa Major",new int[]{7,8,9,10,11,12,13},new int[][]{{7,8},{8,9},{9,10},{10,7},{10,11},{11,12},{12,13}}),new Constellation("Cassiopeia",new int[]{14,15,16,17,18},new int[][]{{14,15},{15,16},{16,17},{17,18}}),new Constellation("Lyra",new int[]{19,20,21},new int[][]{{19,20},{20,21},{21,19}}));
-        String[] planets={"Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune"};double[] periods={8,12,24,60,100,160,220};
         int[] colors={0xC7BBB0,0xFFF0B0,0xE68E63,0xD9B181,0xD6C091,0x94D5D0,0x7294DE};
-        for(int i=0;i<7;i++)t.add(new Object(t.size(),planets[i],Kind.PLANET,i*.83,-.1,-2+i*.65,colors[i],periods[i],i*.59,.1+i*.018));
+        for(int i=0;i<CelestialBodies.PLANETS.size();i++){var planet=CelestialBodies.PLANETS.get(i);t.add(new Object(planet.target(),planet.name(),Kind.PLANET,i*.83,-.1,-2+i*.65,colors[i],planet.period(),i*.59,.1+i*.018));}
         var random=new Random(seed^0x4A5354524F4E4F4DL);
         for(int i=0;i<20;i++){var kind=Kind.values()[2+i%3];t.add(new Object(t.size(),switch(kind){case NEBULA->"Nebula ";case GALAXY->"Galaxy ";default->"Cluster ";}+String.format(Locale.ROOT,"%03d",100+random.nextInt(900)),kind,random.nextDouble()*Math.PI*2,Math.asin(random.nextDouble()*1.6-.8),5+random.nextDouble()*3,new int[]{0xC792D2,0x9CBFE0,0xCDE1FF}[i%3],0,0,.3+random.nextDouble()*.5));}
         targets=List.copyOf(t);var field=new ArrayList<Object>(t);

@@ -13,9 +13,15 @@ configurations {
     developmentNeoForge.extendsFrom common
 }
 
+repositories {
+    maven { url = 'https://maven.ryanhcode.dev/releases'; content { includeGroup 'dev.ryanhcode.sable-companion' } }
+}
+
 dependencies {
     neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
     modImplementation "dev.architectury:architectury-neoforge:${rootProject.architectury_version}"
+    // Compile against the recommended API, without making Sable mandatory or bundling its physics engine.
+    modCompileOnly('dev.ryanhcode.sable-companion:sable-companion-common-1.21.1:1.6.0') { transitive = false }
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowCommon(project(path: ':common', configuration: 'transformProductionNeoForge')) { transitive = false }
 }

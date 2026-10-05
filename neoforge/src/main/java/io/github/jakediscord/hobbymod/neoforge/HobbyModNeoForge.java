@@ -7,5 +7,6 @@ import net.neoforged.fml.common.Mod;
 public final class HobbyModNeoForge {
     public HobbyModNeoForge() {
         HobbyMod.init();
+        if(net.neoforged.fml.ModList.get().isLoaded("sable"))io.github.jakediscord.hobbymod.neoforge.astronomy.space.SableNavigation.install();
     }
 }

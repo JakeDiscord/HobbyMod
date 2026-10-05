@@ -14,7 +14,7 @@ Creative hobbies in Minecraft: marble sculpture, astronomy, vineries, painting, 
 [[dependencies.hobbymod]]
 modId="neoforge"
 type="required"
-versionRange="[21.1.172,21.2)"
+versionRange="[21.1.255,21.2)"
 ordering="NONE"
 side="BOTH"
 
@@ -28,9 +28,16 @@ side="BOTH"
 [[dependencies.hobbymod]]
 modId="architectury"
 type="required"
-versionRange="[13.0.8,14)"
+versionRange="[13.0.11,14)"
 ordering="AFTER"
 side="BOTH"
 
 [[mixins]]
 config="hobbymod.mixins.json"
+
+[[dependencies.hobbymod]]
+modId="sable"
+type="optional"
+versionRange="[2.0.6,2.1)"
+ordering="AFTER"
+side="BOTH"

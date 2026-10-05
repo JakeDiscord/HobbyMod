@@ -179,7 +179,8 @@ can leave that child process behind. This affects the development launcher,
 not the mod's initialization or release jar.
 
 Distribute `neoforge/build/libs/hobbymod-neoforge-0.1.0.jar`, together with the
-Minecraft 1.21.1 NeoForge edition of **Architectury API 13.0.8**. The `dev` and
+Minecraft 1.21.1 with **NeoForge 21.1.255** and the NeoForge edition of
+**Architectury API 13.0.11**. The `dev` and
 `dev-shadow` jars are development artifacts, not installable releases.
 No credentials are required to resolve public dependencies.
 
@@ -205,7 +206,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for 91 tests covering sculpting, pottery, blueprints, aquarium care/layout, painting, rendering caches, terrarium care/motion/terrain, DJ project/scheduling/audio, wine batches/aging/issuance, and astronomy catalog/observations. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for 95 tests covering sculpting, pottery, blueprints, aquarium care/layout, painting, rendering caches, terrarium care/motion/terrain, DJ project/scheduling/audio, wine batches/aging/issuance, and astronomy catalog/observations. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -220,9 +221,9 @@ Fourteen Winery GameTests cover processing costs, elapsed time, duplicate casks,
 Six DJ GameTests cover recording costs, project loading, edit authorization, transport, speaker range, pickup and one-shot completion.
 
 Nine terrarium GameTests cover land placement, survival care supplies, colony collection, precise rotation, carrying the planted enclosure, wild capture, biome spawn coverage and permanent death/body cleanup.
-Four astronomy GameTests cover survival telescope placement/headroom, saved optics/mining, observation permissions and journal/catalog persistence.
+Six astronomy GameTests cover survival telescope placement/headroom, saved optics/mining, observation permissions, discovery-gated motors, journal/catalog persistence and saved ship routes.
 Six painting GameTests cover supplies, strokes, signatures, canvas saves, wall support and the two-block easel.
-Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, nine `TERRARIUM_TEST_PASS`, six `DJ_TEST_PASS`, ten `WINERY_TEST_PASS`, four `ASTRONOMY_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
+Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, nine `TERRARIUM_TEST_PASS`, six `DJ_TEST_PASS`, fourteen `WINERY_TEST_PASS`, six `ASTRONOMY_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
 above. Do not rebuild without `-Pgametest` while these tests are starting: that
 removes test classes from the development output. If also launching a client,
