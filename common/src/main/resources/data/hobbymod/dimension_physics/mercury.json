@@ -1,0 +1,10 @@
+{
+  "dimension": "hobbymod:mercury",
+  "base_gravity": [
+    0,
+    -3.7,
+    0
+  ],
+  "base_pressure": 0,
+  "universal_drag": 0.02
+}

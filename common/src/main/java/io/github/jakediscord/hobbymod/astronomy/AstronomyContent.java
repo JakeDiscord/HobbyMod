@@ -22,7 +22,7 @@ public final class AstronomyContent {
     public static final RegistrySupplier<Item> JOURNAL=ITEMS.register("astronomy_journal",()->new Item(new Item.Properties().stacksTo(1)){
         @Override public InteractionResultHolder<ItemStack> use(net.minecraft.world.level.Level l,net.minecraft.world.entity.player.Player p,InteractionHand h){if(p instanceof net.minecraft.server.level.ServerPlayer s)AstronomyNetworking.openJournal(s);return InteractionResultHolder.sidedSuccess(p.getItemInHand(h),l.isClientSide);}
     });
-    public static final RegistrySupplier<CreativeModeTab> TAB=TABS.register("astronomy",()->CreativeTabRegistry.create(b->b.title(Component.literal("HobbyMod: Astronomy")).icon(()->new ItemStack(SMALL_ITEM.get())).displayItems((p,o)->{o.accept(JOURNAL.get());o.accept(Items.SPYGLASS);o.accept(SMALL_ITEM.get());o.accept(LARGE_ITEM.get());})));
+    public static final RegistrySupplier<CreativeModeTab> TAB=TABS.register("astronomy",()->CreativeTabRegistry.create(b->b.title(Component.literal("HobbyMod: Astronomy")).icon(()->new ItemStack(SMALL_ITEM.get())).displayItems((p,o)->{o.accept(JOURNAL.get());o.accept(Items.SPYGLASS);o.accept(SMALL_ITEM.get());o.accept(LARGE_ITEM.get());o.accept(io.github.jakediscord.hobbymod.astronomy.space.FlightContent.ITEM.get());})));
     public static void register(){BLOCKS.register();ITEMS.register();ENTITIES.register();TABS.register();}
     private AstronomyContent(){}
 }

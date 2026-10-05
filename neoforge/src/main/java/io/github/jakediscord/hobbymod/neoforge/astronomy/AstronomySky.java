@@ -38,8 +38,8 @@ public final class AstronomySky {
             texturedFace(b,m,vertices,new int[]{0,1,2,3},7,0,200,alpha);
         }
     }
-    private static void cube(BufferBuilder b,Matrix4f m,SkyCatalog.Object planet,SkyCatalog.Vector d,double size,int alpha,double time){
-        var frame=CelestialGeometry.frame(planet.id(),time);var vertices=CelestialGeometry.cube(d,size,frame);
+    public static void cube(BufferBuilder b,Matrix4f m,SkyCatalog.Object planet,SkyCatalog.Vector d,double size,int alpha,double time){
+        var frame=CelestialGeometry.frame(planet.name().equals("Earth")?-1:planet.id(),time);var vertices=CelestialGeometry.cube(d,size,frame);
         if(planet.name().equals("Saturn"))rings(b,m,d,frame,size,alpha,false);
         var light=CelestialGeometry.observer(new SkyCatalog.Vector(.4,.5,-.7).unit(),time);
         for(int face=0;face<6;face++)if(CelestialGeometry.front(face,frame,d)){

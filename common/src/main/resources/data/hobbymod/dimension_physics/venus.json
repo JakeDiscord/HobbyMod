@@ -1,0 +1,10 @@
+{
+  "dimension": "hobbymod:venus",
+  "base_gravity": [
+    0,
+    -8.87,
+    0
+  ],
+  "base_pressure": 92,
+  "universal_drag": 0.02
+}

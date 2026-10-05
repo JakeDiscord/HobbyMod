@@ -7,8 +7,8 @@ public final class CelestialGeometry {
         public SkyCatalog.Vector local(double X,double Y,double Z){return new SkyCatalog.Vector(x.x()*X+y.x()*Y+z.x()*Z,x.y()*X+y.y()*Y+z.y()*Z,x.z()*X+y.z()*Y+z.z()*Z);}
     }
     public static Frame frame(int id,double time){
-        var planet=CelestialBodies.target(id);double spin=time/24000/(planet==null?8:planet.rotationDays())*Math.PI*2+id*.47;
-        double tilt=Math.toRadians(planet==null?15+Math.floorMod(id,45):planet.tilt());
+        var planet=CelestialBodies.target(id);double spin=time/24000/(planet==null?(id==-1?1:8):planet.rotationDays())*Math.PI*2+id*.47;
+        double tilt=Math.toRadians(planet==null?(id==-1?23.4:15+Math.floorMod(id,45)):planet.tilt());
         double cs=Math.cos(spin),sn=Math.sin(spin),ct=Math.cos(tilt),st=Math.sin(tilt);
         return new Frame(observer(new SkyCatalog.Vector(cs,sn*st,sn*ct),time),observer(new SkyCatalog.Vector(0,ct,-st),time),observer(new SkyCatalog.Vector(-sn,cs*st,cs*ct),time));
     }

@@ -138,7 +138,7 @@ inspected during testing.
 
 ![Simple bright reference-star cube](images/astronomy/star.png)
 
-## Three-dimensional bodies and future navigation
+## Three-dimensional bodies and navigation
 
 Planets now have six individually textured faces on a true cube mesh. Their
 spin and axial tilt use celestial coordinates, independent of the viewing
@@ -154,12 +154,15 @@ its bundled dependencies must remain present. HobbyMod does not bundle Sable.
 
 Operator-only development commands are `/astronomy navigation status`,
 `/astronomy navigation chart <planet>` and `/astronomy navigation cancel`.
-Charting requires boarding a Sable ship and discovering the destination first.
+Charting requires boarding a prototype shuttle or Sable ship and discovering the destination first.
 Routes persist by ship UUID and captain, with a bounded saved-data store.
 Planet definitions provide stable keys, shared orbital positions, gravity,
-pressure and reserved orbit/surface dimension IDs. These IDs are not registered
-worlds: propulsion, dimension transfer, planetary terrain, launch and landing
-are future work. Charting a route does not move a ship or create a dimension.
+pressure and stable orbit/surface dimension IDs. The prototype shuttle now flies
+through a registered transfer-space world to Mercury, Venus and Mars terrain or
+gas-giant orbital docks. See [Spaceflight](SPACEFLIGHT.md) for its crafting,
+flight controls and return journey. Charting sets a course; pilots still have to
+fly it. Assembled Sable rockets and transferring their block structures remain
+future work.
 
 The discovery/spaceflight revision was checked in the real client with
 NeoForge 21.1.255, Architectury 13.0.11 and Sable 2.0.6: wheel zoom, changing

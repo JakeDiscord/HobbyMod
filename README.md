@@ -24,11 +24,16 @@ See [the Winery guide](docs/WINERY.md) for crafting and the full workflow.
 
 Craft a tripod telescope, then an observatory telescope with tracking. Explore
 recognizable constellations and planets alongside twenty generated deep-sky
-targets. Use the telescope target finder, focus and align observations, and collect
+targets. Zoom and align the telescope, identify objects, and collect
 planetary records and constellation charts in a persistent digital journal
 across repeated nights. The journal records discoveries without changing the
 camera. Planets appear as textured celestial cubes. See [Astronomy](docs/ASTRONOMY.md) for crafting,
 controls, observing conditions and validation.
+
+Craft a prototype shuttle and actually pilot it to discovered planets. Launch
+into transfer space, steer and brake at the destination, then land on rocky
+worlds or dock above gas giants. See [Spaceflight](docs/SPACEFLIGHT.md) for the
+recipe, controls and return journey.
 
 ## DJ and music production
 
@@ -213,7 +218,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for 95 tests covering sculpting, pottery, blueprints, aquarium care/layout, painting, rendering caches, terrarium care/motion/terrain, DJ project/scheduling/audio, wine batches/aging/issuance, and astronomy catalog/observations. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for 98 tests covering sculpting, pottery, blueprints, aquarium care/layout, painting, rendering caches, terrarium care/motion/terrain, DJ project/scheduling/audio, wine batches/aging/issuance, astronomy catalog/observations, and flight dynamics/arrival gates. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -229,8 +234,9 @@ Six DJ GameTests cover recording costs, project loading, edit authorization, tra
 
 Nine terrarium GameTests cover land placement, survival care supplies, colony collection, precise rotation, carrying the planted enclosure, wild capture, biome spawn coverage and permanent death/body cleanup.
 Six astronomy GameTests cover survival telescope placement/headroom, saved optics/mining, observation permissions, discovery-gated motors, journal/catalog persistence and saved ship routes.
+Five spaceflight GameTests cover deployment costs and obstruction, discovered destinations and expired controls, packing identity, dimension transfer, and clear terrain/orbital arrivals. See [Spaceflight](docs/SPACEFLIGHT.md) for the prototype shuttle and piloting controls.
 Six painting GameTests cover supplies, strokes, signatures, canvas saves, wall support and the two-block easel.
-Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, nine `TERRARIUM_TEST_PASS`, six `DJ_TEST_PASS`, fifteen `WINERY_TEST_PASS`, six `ASTRONOMY_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
+Verify fourteen distinct `SCULPTING_TEST_PASS`, nine `POTTERY_TEST_PASS`, two `BLUEPRINT_TEST_PASS`, nine `AQUARIUM_TEST_PASS`, nine `TERRARIUM_TEST_PASS`, six `DJ_TEST_PASS`, fifteen `WINERY_TEST_PASS`, six `ASTRONOMY_TEST_PASS`, five `FLIGHT_TEST_PASS`, and six `PAINTING_TEST_PASS` entries in the server log; the vanilla
 summary goes to in-game players. Use a disposable world and stop as described
 above. Do not rebuild without `-Pgametest` while these tests are starting: that
 removes test classes from the development output. If also launching a client,

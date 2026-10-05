@@ -1,0 +1,10 @@
+{
+  "dimension": "hobbymod:mars",
+  "base_gravity": [
+    0,
+    -3.71,
+    0
+  ],
+  "base_pressure": 0.006,
+  "universal_drag": 0.02
+}
