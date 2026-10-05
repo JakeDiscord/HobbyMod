@@ -26,8 +26,9 @@ public final class WineryBlockEntity extends BlockEntity implements WorldlyConta
     public WineryBlockEntity(BlockPos p,BlockState s){super(WineryContent.MACHINE.get(),p,s);}
     public WineryBlock.Machine machine(){return ((WineryBlock)getBlockState().getBlock()).machine;}
     public boolean fruit(ItemStack s){return s.is(WineryContent.RED.get()) || s.is(WineryContent.WHITE.get()) || s.is(WineryContent.GRAPES);}
+    private boolean pressSupplies(){return items.get(3).isEmpty() && items.get(2).is(Items.BUCKET) && (fruit(items.get(0))?items.get(0).getCount():0)+(fruit(items.get(1))?items.get(1).getCount():0)>=8;}
     public boolean startPress(){
-        if(machine()!=WineryBlock.Machine.PRESS || batch!=null || !items.get(3).isEmpty() || !items.get(2).is(Items.BUCKET))return false;
+        if(machine()==WineryBlock.Machine.BARREL || batch!=null || !items.get(3).isEmpty() || !items.get(2).is(Items.BUCKET))return false;
         int available=(fruit(items.get(0))?items.get(0).getCount():0)+(fruit(items.get(1))?items.get(1).getCount():0);if(available<8)return false;
         var grapes=new ArrayList<WineBatch.Fruit>();int left=8;
         for(int i=0;i<2;i++){var s=items.get(i);int n=fruit(s)?Math.min(left,s.getCount()):0;for(int j=0;j<n;j++)grapes.add(GrapeItem.fruit(s));reserved.set(i,n>0?s.split(n):ItemStack.EMPTY);left-=n;}
@@ -56,15 +57,36 @@ public final class WineryBlockEntity extends BlockEntity implements WorldlyConta
         items.get(2).shrink(n);if(output.isEmpty())items.set(3,WineBottleItem.create(wine,n));else output.grow(n);batch.remaining=ledger.remaining(batch.id);data.setDirty();if(batch.remaining==0)batch=null;
         changed();sound(net.minecraft.sounds.SoundEvents.BOTTLE_FILL);return true;
     }
+    /** Direct hand loading; the small tub needs no screen or piston. */
+    public boolean useTub(Player player,ItemStack held){
+        if(machine()!=WineryBlock.Machine.TUB)return false;
+        if(held.isEmpty()){
+            if(!items.get(3).isEmpty()){var out=removeItem(3,1);if(!player.addItem(out))player.drop(out,false);return true;}
+            if(player.isShiftKeyDown()){for(int i=0;i<3;i++){var out=removeItem(i,64);if(!out.isEmpty() && !player.addItem(out))player.drop(out,false);}return true;}
+            return false;
+        }
+        if(batch!=null)return false;
+        if(held.is(Items.BUCKET) && items.get(2).isEmpty()){items.set(2,held.copyWithCount(1));if(!player.getAbilities().instabuild)held.shrink(1);changed();return true;}
+        if(!fruit(held))return false;int total=(fruit(items.get(0))?items.get(0).getCount():0)+(fruit(items.get(1))?items.get(1).getCount():0);
+        int n=Math.min(8-total,held.getCount());if(n<=0)return false;
+        for(int i=0;i<2;i++){var slot=items.get(i);if(slot.isEmpty() || ItemStack.isSameItemSameComponents(slot,held)){if(slot.isEmpty())items.set(i,held.copyWithCount(n));else slot.grow(n);if(!player.getAbilities().instabuild)held.shrink(n);changed();return true;}}return false;
+    }
+    public Player treader(){
+        if(level==null)return null;
+        for(var p:level.getEntitiesOfClass(Player.class,new net.minecraft.world.phys.AABB(worldPosition).inflate(0,.25,0),p->!p.isSpectator() && p.isAlive())){
+            double x=p.getX()-worldPosition.getX(),z=p.getZ()-worldPosition.getZ(),y=p.getY()-worldPosition.getY();
+            if(x>.3 && x<.7 && z>.3 && z<.7 && y>=.1 && y<.3 && GrapeTrellisBlock.permitted(p,worldPosition))return p;
+        }return null;
+    }
     private void sound(net.minecraft.sounds.SoundEvent sound){if(level!=null)level.playSound(null,worldPosition,sound,net.minecraft.sounds.SoundSource.BLOCKS,.6F,1);}
     public void advance(){if(batch!=null && machine()==WineryBlock.Machine.BARREL && level!=null && !level.isClientSide){batch.advance(level.getGameTime(),hot,dark);sample();}}
     private void sample(){dark=level.getMaxLocalRawBrightness(worldPosition.above())<=7;hot=false;for(var direction:Direction.values()){var s=level.getBlockState(worldPosition.relative(direction));if(s.is(Blocks.LAVA) || s.is(Blocks.FIRE) || s.getBlock() instanceof CampfireBlock && s.getValue(CampfireBlock.LIT)){hot=true;break;}}}
-    public List<ItemStack> contentsForDrop(){var out=new ArrayList<ItemStack>();for(var item:items)if(!item.isEmpty())out.add(item.copy());if(machine()==WineryBlock.Machine.PRESS){for(var item:reserved)if(!item.isEmpty())out.add(item.copy());}else if(batch!=null)out.add(MustBucketItem.portable(batch));return out;}
+    public List<ItemStack> contentsForDrop(){var out=new ArrayList<ItemStack>();for(var item:items)if(!item.isEmpty())out.add(item.copy());if(machine()!=WineryBlock.Machine.BARREL){for(var item:reserved)if(!item.isEmpty())out.add(item.copy());}else if(batch!=null)out.add(MustBucketItem.portable(batch));return out;}
     public static void tick(Level level,BlockPos pos,BlockState state,WineryBlockEntity b){
-        if(b.machine()==WineryBlock.Machine.PRESS){if(b.batch!=null){b.pressing++;if(b.pressing>=60 && b.items.get(3).isEmpty()){b.items.set(3,MustBucketItem.create(b.batch));b.batch=null;b.pressing=0;for(int i=0;i<3;i++)b.reserved.set(i,ItemStack.EMPTY);b.sound(net.minecraft.sounds.SoundEvents.BOTTLE_FILL);b.changed();}else if(b.pressing%10==0)b.changed();}else if(level.getGameTime()%20==0 && level.hasNeighborSignal(pos))b.startPress();}
+        if(b.machine()!=WineryBlock.Machine.BARREL){boolean tub=b.machine()==WineryBlock.Machine.TUB;boolean feet=tub && (b.batch!=null || b.pressSupplies()) && b.treader()!=null;if(b.batch!=null){if(tub && !feet)return;b.pressing++;if(tub && b.pressing%20==0)b.sound(net.minecraft.sounds.SoundEvents.MUD_STEP);if(b.pressing>=(tub?120:60) && b.items.get(3).isEmpty()){b.items.set(3,MustBucketItem.create(b.batch));b.batch=null;b.pressing=0;for(int i=0;i<3;i++)b.reserved.set(i,ItemStack.EMPTY);b.sound(net.minecraft.sounds.SoundEvents.BOTTLE_FILL);b.changed();}else if(b.pressing%10==0)b.changed();}else if(tub?feet:level.getGameTime()%20==0 && level.hasNeighborSignal(pos))b.startPress();}
         else if(level.getGameTime()%20==0){b.advance();if(level.hasNeighborSignal(pos)){if(b.batch==null)b.startBarrel();else if(b.batch.stage==WineBatch.Stage.READY_TO_RACK)b.rack();else if(b.batch.stage==WineBatch.Stage.BOTTLED || b.batch.stage==WineBatch.Stage.AGING && b.batch.aged>=b.batch.idealAge())b.bottle();}if(b.batch!=null)b.changed();}
     }
-    public ContainerData progress(){return new ContainerData(){public int getCount(){return 10;}public void set(int i,int value){}public int get(int i){return switch(i){case 0->batch==null?0:batch.stage.ordinal()+1;case 1->machine()==WineryBlock.Machine.PRESS?Math.min(100,pressing*100/60):batch==null?0:batch.fermentation();case 2->batch==null?0:batch.quality();case 3->batch==null?0:(int)Math.min(999,batch.aged/20);case 4->batch==null?0:batch.remaining;case 5->clean?1:0;case 6->batch==null?0:batch.kind().ordinal();case 7->batch==null?0:(int)(batch.idealAge()/20);case 8->hot?2:dark?0:1;case 9->batch==null?0:batch.sugar;default->0;};}};}
+    public ContainerData progress(){return new ContainerData(){public int getCount(){return 10;}public void set(int i,int value){}public int get(int i){return switch(i){case 0->batch==null?0:batch.stage.ordinal()+1;case 1->machine()!=WineryBlock.Machine.BARREL?Math.min(100,pressing*100/(machine()==WineryBlock.Machine.TUB?120:60)):batch==null?0:batch.fermentation();case 2->batch==null?0:batch.quality();case 3->batch==null?0:(int)Math.min(999,batch.aged/20);case 4->batch==null?0:batch.remaining;case 5->clean?1:0;case 6->batch==null?0:batch.kind().ordinal();case 7->batch==null?0:(int)(batch.idealAge()/20);case 8->hot?2:dark?0:1;case 9->batch==null?0:batch.sugar;default->0;};}};}
     public void changed(){setChanged();if(level!=null)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
     @Override public int getContainerSize(){return 4;}
     @Override public boolean isEmpty(){return items.stream().allMatch(ItemStack::isEmpty);}
@@ -74,12 +96,12 @@ public final class WineryBlockEntity extends BlockEntity implements WorldlyConta
     @Override public void setItem(int i,ItemStack s){items.set(i,s);s.setCount(Math.min(s.getCount(),s.getMaxStackSize()));changed();}
     @Override public void clearContent(){items.clear();changed();}
     @Override public boolean stillValid(Player player){return level!=null && level.getBlockEntity(worldPosition)==this && GrapeTrellisBlock.permitted(player,worldPosition);}
-    @Override public boolean canPlaceItem(int i,ItemStack s){if(machine()==WineryBlock.Machine.PRESS)return i<2?fruit(s):i==2 && s.is(Items.BUCKET);return switch(i){case 0->batch==null && (MustBucketItem.batch(s)!=null || s.is(Items.WATER_BUCKET));case 1->s.is(WineryContent.YEAST.get());case 2->s.is(Items.GLASS_BOTTLE);default->false;};}
+    @Override public boolean canPlaceItem(int i,ItemStack s){if(machine()!=WineryBlock.Machine.BARREL)return i<2?fruit(s):i==2 && s.is(Items.BUCKET);return switch(i){case 0->batch==null && (MustBucketItem.batch(s)!=null || s.is(Items.WATER_BUCKET));case 1->s.is(WineryContent.YEAST.get());case 2->s.is(Items.GLASS_BOTTLE);default->false;};}
     @Override public int[] getSlotsForFace(Direction d){return d==Direction.DOWN?machine()==WineryBlock.Machine.BARREL?new int[]{3,0}:new int[]{3}:new int[]{0,1,2};}
     @Override public boolean canPlaceItemThroughFace(int i,ItemStack s,Direction d){return canPlaceItem(i,s);}
     @Override public boolean canTakeItemThroughFace(int i,ItemStack s,Direction d){return i==3 || machine()==WineryBlock.Machine.BARREL && i==0 && s.is(Items.BUCKET);}
     @Override protected void saveAdditional(CompoundTag t,HolderLookup.Provider r){super.saveAdditional(t,r);ContainerHelper.saveAllItems(t,items,r);var held=new CompoundTag();ContainerHelper.saveAllItems(held,reserved,r);t.put("Reserved",held);if(batch!=null)t.putByteArray("Batch",batch.encode());t.putInt("Pressing",pressing);t.putBoolean("Clean",clean);t.putString("Label",WineBatch.clean(bottleLabel));t.putBoolean("Hot",hot);t.putBoolean("Dark",dark);}
-    @Override protected void loadAdditional(CompoundTag t,HolderLookup.Provider r){super.loadAdditional(t,r);ContainerHelper.loadAllItems(t,items,r);ContainerHelper.loadAllItems(t.getCompound("Reserved"),reserved,r);batch=null;if(t.contains("Batch"))try{batch=WineBatch.decode(t.getByteArray("Batch"));}catch(java.io.IOException ignored){}pressing=Math.clamp(t.getInt("Pressing"),0,60);pressSyncTime=level==null?0:level.getGameTime();clean=!t.contains("Clean") || t.getBoolean("Clean");bottleLabel=WineBatch.clean(t.getString("Label"));hot=t.getBoolean("Hot");dark=t.getBoolean("Dark");}
+    @Override protected void loadAdditional(CompoundTag t,HolderLookup.Provider r){super.loadAdditional(t,r);items.clear();reserved.clear();ContainerHelper.loadAllItems(t,items,r);ContainerHelper.loadAllItems(t.getCompound("Reserved"),reserved,r);batch=null;if(t.contains("Batch"))try{batch=WineBatch.decode(t.getByteArray("Batch"));}catch(java.io.IOException ignored){}pressing=Math.clamp(t.getInt("Pressing"),0,machine()==WineryBlock.Machine.TUB?120:60);pressSyncTime=level==null?0:level.getGameTime();clean=!t.contains("Clean") || t.getBoolean("Clean");bottleLabel=WineBatch.clean(t.getString("Label"));hot=t.getBoolean("Hot");dark=t.getBoolean("Dark");}
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider r){return saveWithoutMetadata(r);}
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket(){return ClientboundBlockEntityDataPacket.create(this);}
 }

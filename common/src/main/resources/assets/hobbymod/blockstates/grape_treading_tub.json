@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "hobbymod:block/grape_treading_tub",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "hobbymod:block/grape_treading_tub",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "hobbymod:block/grape_treading_tub",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "hobbymod:block/grape_treading_tub",
+      "y": 270
+    }
+  }
+}

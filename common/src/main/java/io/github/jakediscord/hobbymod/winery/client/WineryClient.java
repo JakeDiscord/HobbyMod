@@ -8,9 +8,11 @@ import net.minecraft.resources.ResourceLocation;
 
 public final class WineryClient {
     public static void init(){
+        dev.architectury.networking.NetworkManager.registerReceiver(dev.architectury.networking.NetworkManager.Side.S2C,WineryNetworking.Tasting.TYPE,WineryNetworking.Tasting.CODEC,(p,c)->c.queue(()->TastingOverlay.begin(p.notes())));
+        dev.architectury.event.events.client.ClientTickEvent.CLIENT_POST.register(mc->{if(mc.level==null)TastingOverlay.clear();});
         WineryContent.PRESS_MENU.listen(type->MenuRegistry.registerScreenFactory(type,WineryScreen::new));WineryContent.BARREL_MENU.listen(type->MenuRegistry.registerScreenFactory(type,WineryScreen::new));
         ClientLifecycleEvent.CLIENT_SETUP.register(client->{
-            dev.architectury.registry.client.rendering.RenderTypeRegistry.register(RenderType.cutout(),WineryContent.TRELLIS.get(),WineryContent.PRESS.get(),WineryContent.BARREL.get(),WineryContent.RACK.get());
+            dev.architectury.registry.client.rendering.RenderTypeRegistry.register(RenderType.cutout(),WineryContent.TRELLIS.get(),WineryContent.PRESS.get(),WineryContent.BARREL.get(),WineryContent.RACK.get(),WineryContent.TUB.get());
             dev.architectury.registry.client.rendering.BlockEntityRendererRegistry.register(WineryContent.MACHINE.get(),PressRenderer::new);dev.architectury.registry.client.rendering.BlockEntityRendererRegistry.register(WineryContent.RACK_ENTITY.get(),WineRackRenderer::new);
             dev.architectury.registry.item.ItemPropertiesRegistry.register(WineryContent.BOTTLE.get(),ResourceLocation.fromNamespaceAndPath("hobbymod","wine_color"),(s,l,e,seed)->WineBottleItem.color(s)/2F);
         });

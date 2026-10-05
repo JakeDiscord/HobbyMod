@@ -29,6 +29,12 @@ public final class WineBatch {
     }
     public String ageLabel(){return aged<idealAge()?"Young":aged<=idealAge()*3?"Balanced":"Past its peak";}
     public String tastingNotes(){String notes=kind()==Kind.WHITE?"Citrus and orchard fruit":kind()==Kind.ROSE?"Fresh berries and blossom":"Dark berries and gentle tannins";if(sugar>=80)notes+=" · sweet finish";else if(acidity>=60)notes+=" · bright acidity";if(oak()>=25)notes+=" · oak";if(cloudy)notes+=" · cloudy";if(aged>idealAge()*3)notes+=" · tired finish";return notes;}
+    public List<String> tastingTraits(){
+        var notes=new ArrayList<String>();
+        switch(kind()){case RED->{notes.add("Dark berries");notes.add("Soft tannins");}case WHITE->{notes.add("Citrus");notes.add("Orchard fruit");}case ROSE->{notes.add("Fresh berries");notes.add("Floral");}}
+        if(sugar>=80)notes.add("Sweet");else if(acidity>=60)notes.add("Tart");
+        if(oak()>=25)notes.add("Oaky");if(cloudy)notes.add("Cloudy");if(aged>idealAge()*3)notes.add("Fading");return List.copyOf(notes);
+    }
     public static WineBatch press(List<Fruit> fruit,int vintage){
         if(fruit.size()!=FRUIT_PER_BATCH)throw new IllegalArgumentException("Eight grapes required");var b=new WineBatch();b.vintage=Math.max(0,vintage);
         int r=0,s=0,a=0,q=0;for(var f:fruit){r+=f.red?1:0;s+=switch(f.ripeness){case 3->52;case 4->72;case 5->86;default->92;};a+=switch(f.ripeness){case 3->72;case 4->45;case 5->32;default->24;};q+=(switch(f.ripeness){case 3->60;case 4->82;case 5->85;default->56;})+(f.sunlit?5:0);}

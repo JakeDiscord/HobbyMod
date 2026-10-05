@@ -11,13 +11,19 @@ batches rather than supplied as a blank decorative bottle.
 
 1. Place a **grape trellis** on dirt, grass or farmland. Right-click it with a
    red or white grape cutting. The vine needs light to grow. Bone meal brings
-   it to ripe grapes; later ripeness happens naturally.
+   it to ripe grapes; later ripeness happens naturally. Stack trellises to make
+   taller vines: one cutting plants the connected column, and each section
+   grows and can be harvested independently. Only the bottom needs soil.
 2. Right-click a vine to harvest. Firm grapes give three fruit; ripe and later
    stages give four. The vine stays planted and regrows. Outdoor, sun-grown
    grapes have a small quality bonus.
 3. Put **eight grapes and an empty bucket** in a grape press. The two grape
    slots let you blend colors and harvests. Click **Press**. Its wooden plate
    moves while it works; after three seconds, collect the bucket of must.
+   Alternatively, right-click a **grape treading tub** with eight grapes and
+   an empty bucket, then walk into its center. Six seconds inside presses the
+   grapes; stepping out pauses the work. Right-click with an empty hand to
+   collect the must. Crouch and empty-hand click to retrieve unpressed supplies.
 4. Put must and **one wine yeast** in a fermentation barrel and click **Start**.
    Collect the returned empty bucket. Fermentation takes one minute. Keep the
    barrel away from fire, lit campfires and lava for better quality.
@@ -34,9 +40,11 @@ batches rather than supplied as a blank decorative bottle.
    now and the rest later; the first bottling fixes that vintage's name and
    tasting record. Bottle stacks contain only one batch.
 8. Right-click a wine rack with a bottle to display it. Right-click with an
-   empty hand to take a bottle back. Each rack holds four. Hold right-click to
+   empty hand on that bottle’s slot to take it back. Each rack holds four.
+   Racks stack without gaps and inherit the neighboring rack’s facing. Hold right-click to
    taste a bottle; it returns the glass. Good-quality wine gives 30 seconds of
-   Haste, alongside a short tasting note.
+   Haste. Short traits appear one at a time above the hotbar, with a gentle
+   drift: for example, “Dark berries…” followed by “Oaky…”. Each lasts 2.2 seconds.
 
 Rinse an empty, used barrel by putting a water bucket in its must slot and
 clicking **Rinse**. Dirty barrels still work, but the next batch is cloudy and
@@ -47,6 +55,14 @@ loses some quality. There is no destructive fermentation failure.
 ![A labeled batch in the fermentation barrel](winery-fermentation.png)
 
 ![Wine bottles displayed in a rack](winery-rack.png)
+
+![A grape treading tub, before collecting the must](winery-treading-tub.png)
+
+![A three-block climbing grape vine](winery-tall-vines.png)
+
+![Bottle inserted in a stacked rack](winery-rack-insert.png)
+
+![The same slot after taking the bottle](winery-rack-remove.png)
 
 ## Harvest choices
 
@@ -70,6 +86,7 @@ The vintage is the world's day when pressing starts.
 | Two red cuttings | Sweet berries + stick, or red grapes + stick |
 | Two white cuttings | Glow berries + stick, or white grapes + stick |
 | Grape press | Iron ingot / three planks / wooden slab, piston, wooden slab |
+| Grape treading tub | Five planks (`P P / PPP`) |
 | Fermentation barrel | Vanilla barrel + copper ingot + glass bottle |
 | Wine rack | Three planks, three sticks, three planks in rows |
 | Four yeast | Bread + sugar |
@@ -86,7 +103,8 @@ Breaking racks returns their bottles.
 
 Supply ingredients through hoppers from above or the sides. A hopper below
 extracts finished must or wine and a barrel's returned empty buckets. A redstone
-signal enables automatic pressing. Powered barrels automatically start supplied
+signal enables automatic mechanical pressing. The treading tub needs a player
+inside, even when supplied by hoppers. Powered barrels automatically start supplied
 must, rack after fermentation, and bottle at the recommended age. Keep empty
 buckets extracted so the must slot can receive the next batch. Rinsing is manual.
 Automation uses ordinary item inventories, which can also be supplied by mods
@@ -119,14 +137,15 @@ clock with `/time` changes the vintage but does not speed up fermentation.
 ## Development checks
 
 Run `./gradlew --no-daemon :common:test` for the shared regression suite. Winery's
-10 pure-Java tests cover ripeness/blending, fermentation/racking/aging, unloaded
+11 pure-Java tests cover ripeness/blending, fermentation/racking/aging, unloaded
 elapsed time, clock rollback, malformed saves, UUIDs and duplicate issuance.
 
 Run `./gradlew --no-daemon -Pgametest :neoforge:runServer`, then `test runall`.
-Ten Winery GameTests cover vine planting/harvest permissions, powered barrel automation, pressing costs and interrupted-work refunds, full batches,
+Fourteen Winery GameTests cover vine planting/harvest permissions, powered barrel automation, pressing costs and interrupted-work refunds, full batches,
 unloaded/restored casks, duplicate casks, rinsing and server reach checks, powered
 pressing with a real output hopper, rack saves/stack identity, and tasting/glass
-returns. Keep `-Pgametest` on simultaneous client runs. See the root README for
+returns. Additional checks cover clearing stale inventory snapshots, targeted
+rack removal and stacking, tall vine growth, and tub pause/reload/collection. Keep `-Pgametest` on simultaneous client runs. See the root README for
 safe server shutdown. Normal release builds exclude the tests and test structure.
 
 
@@ -139,5 +158,10 @@ panel, clipped press hint, shelf intersection and rosé model selection. The
 screenshots above are direct game-window captures; rack color variations were
 prepared with development commands to check all three models.
 
-Validated after integrating Astronomy: 90 unit tests, all 69 GameTests (10 Winery), and the NeoForge release
+The revisions were also checked in the live client: stacked trellis rendering,
+insert/remove updates on stacked racks, tub pressing and collection, and the
+short tasting overlay. New screenshots show the three-block vine, filled tub,
+and the same rack slot before and after removal.
+
+Validated with the Winery revisions: 91 unit tests, all 73 GameTests (14 Winery), and the NeoForge release
 build. The production jar contains no GameTests, test structure or JUnit classes.

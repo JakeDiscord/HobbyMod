@@ -18,7 +18,7 @@ def tile(name,base,kind='wood'):
    pix[x,y]=tuple(max(0,min(255,c+offset)) for c in base)+(255,)
  save(name,im)
  return im
-for name,base in [('wine_band',(66,55,46)),('grape_press_metal',(104,109,112)),('wine_cork',(151,111,63))]:tile(name,base,'metal' if 'metal' in name or 'band' in name else 'wood')
+for name,base in [('grape_mash_red',(105,56,119)),('grape_mash_white',(145,160,74)),('grape_mash_rose',(154,84,105)),('wine_band',(66,55,46)),('grape_press_metal',(104,109,112)),('wine_cork',(151,111,63))]:tile(name,base,'metal' if 'metal' in name or 'band' in name else 'wood')
 for name,base in [('wine_red',(65,36,57)),('wine_white',(95,116,51)),('wine_rose',(127,71,64))]:
  im=Image.new('RGBA',(16,16));d=ImageDraw.Draw(im)
  for x in range(16):
@@ -57,7 +57,7 @@ variants={}
 for facing,rot in [('north',0),('east',90),('south',180),('west',270)]:variants[f'vine=empty,facing={facing}']={'model':'hobbymod:block/grape_trellis','y':rot}
 for color in ('red','white'):
  for age in range(7):
-  stem_height=3 if age==0 else 8 if age==1 else 15
+  stem_height=3 if age==0 else 8 if age==1 else 16
   es=frame+[box([7.25,0,6.5],[8.25,stem_height,7.5],'stem')]
   for x,y in [(4,2),(8,6),(3,10),(10,10)][:1 if age==0 else 2 if age==1 else 4]:
    es.append(box([x,y,6.4],[x+4,min(16,y+4),6.4],'leaf',[0,0,16,16],['north','south']))
@@ -77,9 +77,11 @@ barrel=[box([2,0,2],[14,16,14]),box([1,2,2],[15,14,14]),box([2,2,1],[14,14,15]),
 for y in (2,12):
  barrel.extend([box([.9,y,1.9],[15.1,y+1,14.1],'band'),box([1.9,y,.9],[14.1,y+1,15.1],'band')])
 model('fermentation_barrel',barrel,{'wood':DARK,'band':'hobbymod:block/wine_band','tap':'minecraft:block/copper_block','glass':'minecraft:block/glass'});facing_variants('fermentation_barrel');block_item('fermentation_barrel')
+tub=[box([0,0,0],[16,2,16]),box([0,2,0],[1,6,16]),box([15,2,0],[16,6,16]),box([1,2,0],[15,6,1]),box([1,2,15],[15,6,16])]
+model('grape_treading_tub',tub,{'wood':DARK,**{'mash_'+kind:'hobbymod:block/grape_mash_'+kind for kind in ('red','white','rose')}});facing_variants('grape_treading_tub');block_item('grape_treading_tub')
 rack=[]
-for y in (0,5,10):rack.append(box([1,y,2],[15,y+1,14]))
-for x in (1,7.5,14):rack.append(box([x,0,2],[x+1,11,14]))
+for y in (0,8,15):rack.append(box([1,y,2],[15,y+1,14]))
+for x in (1,7.5,14):rack.append(box([x,0,2],[x+1,16,14]))
 model('wine_rack',rack,{'wood':DARK});facing_variants('wine_rack');block_item('wine_rack');block_item('portable_wine_cask','fermentation_barrel')
 for color in ('red','white','rose'):
  bottle=[box([5,1,5],[11,10,11],'wine',[0,0,16,16]),box([6,10,6],[10,11,10],'wine'),box([7,11,7],[9,15,9],'wine',[0,0,16,16]),box([7,15,7],[9,16,9],'cork'),box([5.25,4,4.98],[10.75,8,4.98],'label',[0,0,16,16],['north']),box([5.25,4,11.02],[10.75,8,11.02],'label',[0,0,16,16],['south'])]
@@ -91,6 +93,7 @@ def ingredient(id):return {'tag':id[1:]} if id.startswith('#') else {'item':id}
 def recipe(name,pattern,keys,result,count=1):write(DATA/f'hobbymod/recipe/{name}.json',{'type':'minecraft:crafting_shaped','category':'misc','pattern':pattern,'key':{k:ingredient(v) for k,v in keys.items()},'result':{'id':result,'count':count}})
 def shapeless(name,ingredients,result,count=1):write(DATA/f'hobbymod/recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[ingredient(i) for i in ingredients],'result':{'id':result,'count':count}})
 recipe('grape_trellis',['S S','SPS','S S'],{'S':'minecraft:stick','P':'#minecraft:planks'},'hobbymod:grape_trellis',2)
+recipe('grape_treading_tub',['P P','PPP'],{'P':'#minecraft:planks'},'hobbymod:grape_treading_tub')
 recipe('grape_press',[' I ','PPP','SBS'],{'I':'minecraft:iron_ingot','P':'#minecraft:planks','S':'#minecraft:wooden_slabs','B':'minecraft:piston'},'hobbymod:grape_press')
 shapeless('fermentation_barrel',['minecraft:barrel','minecraft:copper_ingot','minecraft:glass_bottle'],'hobbymod:fermentation_barrel')
 recipe('wine_rack',['PPP','SSS','PPP'],{'P':'#minecraft:planks','S':'minecraft:stick'},'hobbymod:wine_rack')
@@ -98,24 +101,24 @@ shapeless('wine_yeast',['minecraft:bread','minecraft:sugar'],'hobbymod:wine_yeas
 for color,fruit in [('red','minecraft:sweet_berries'),('white','minecraft:glow_berries')]:
  shapeless(color+'_grape_cutting',[fruit,'minecraft:stick'],'hobbymod:'+color+'_grape_cutting',2)
  shapeless(color+'_grape_cutting_from_grapes',['hobbymod:'+color+'_grapes','minecraft:stick'],'hobbymod:'+color+'_grape_cutting',2)
-for name in ('grape_press','fermentation_barrel','wine_rack'):
+for name in ('grape_press','grape_treading_tub','fermentation_barrel','wine_rack'):
  write(DATA/f'hobbymod/loot_table/blocks/{name}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'hobbymod:'+name}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
 for color in ('red','white'):
  write(DATA/f'c/tags/item/fruits/{color}_grapes.json',{'replace':False,'values':['hobbymod:'+color+'_grapes',{'id':'vinery:'+color+'_grape','required':False}]})
 write(DATA/'c/tags/item/fruits/grapes.json',{'replace':False,'values':['#c:fruits/red_grapes','#c:fruits/white_grapes']})
 write(DATA/'c/tags/item/drinks/wine.json',{'replace':False,'values':['hobbymod:wine_bottle']})
 p=DATA/'minecraft/tags/block/mineable/axe.json';tag=json.loads(p.read_text()) if p.exists() else {'replace':False,'values':[]}
-for name in ('grape_trellis','grape_press','fermentation_barrel','wine_rack'):
+for name in ('grape_trellis','grape_press','grape_treading_tub','fermentation_barrel','wine_rack'):
  if 'hobbymod:'+name not in tag['values']:tag['values'].append('hobbymod:'+name)
 write(p,tag)
 p=ASSET/'lang/en_us.json';lang=json.loads(p.read_text()) if p.exists() else {}
-for id,name in [('grape_trellis','Vineyard Trellis'),('grape_press','Grape Press'),('fermentation_barrel','Fermentation Barrel'),('wine_rack','Wine Rack')]:lang['block.hobbymod.'+id]=name
+for id,name in [('grape_treading_tub','Grape Treading Tub'),('grape_trellis','Vineyard Trellis'),('grape_press','Grape Press'),('fermentation_barrel','Fermentation Barrel'),('wine_rack','Wine Rack')]:lang['block.hobbymod.'+id]=name
 for id,name in [('red_grapes','Red Grapes'),('white_grapes','White Grapes'),('red_grape_cutting','Red Grape Cutting'),('white_grape_cutting','White Grape Cutting'),('wine_yeast','Wine Yeast'),('grape_must','Grape Must'),('portable_wine_cask','Portable Wine Cask'),('wine_bottle','Wine Bottle')]:lang['item.hobbymod.'+id]=name
 write(p,lang)
 print('Generated winery models, original pixel textures, recipes and tags.')
 # Unlock the small crafting family from its first supplies in the vanilla recipe book.
 for recipe_id,material in {
- 'grape_trellis':'minecraft:stick','red_grape_cutting':'minecraft:sweet_berries',
+ 'grape_treading_tub':'minecraft:stick','grape_trellis':'minecraft:stick','red_grape_cutting':'minecraft:sweet_berries',
  'white_grape_cutting':'minecraft:glow_berries','red_grape_cutting_from_grapes':'hobbymod:red_grapes',
  'white_grape_cutting_from_grapes':'hobbymod:white_grapes','grape_press':'hobbymod:red_grapes',
  'fermentation_barrel':'minecraft:barrel','wine_rack':'hobbymod:wine_bottle','wine_yeast':'minecraft:bread'

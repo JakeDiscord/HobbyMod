@@ -12,10 +12,12 @@ public final class WineRackBlockEntity extends BlockEntity {
     public final NonNullList<ItemStack> bottles=NonNullList.withSize(4,ItemStack.EMPTY);
     public WineRackBlockEntity(BlockPos p,BlockState s){super(WineryContent.RACK_ENTITY.get(),p,s);}
     public boolean insert(ItemStack s){if(!s.is(WineryContent.BOTTLE.get()) || WineBottleItem.batchId(s)==null)return false;for(int i=0;i<4;i++)if(bottles.get(i).isEmpty()){bottles.set(i,s.copyWithCount(1));changed();return true;}return false;}
+    public boolean insert(ItemStack s,int slot){if(slot<0 || slot>=4 || !bottles.get(slot).isEmpty() || !s.is(WineryContent.BOTTLE.get()) || WineBottleItem.batchId(s)==null)return false;bottles.set(slot,s.copyWithCount(1));changed();return true;}
+    public ItemStack take(int slot){if(slot<0 || slot>=4)return ItemStack.EMPTY;var s=bottles.set(slot,ItemStack.EMPTY);if(!s.isEmpty())changed();return s;}
     public ItemStack take(){for(int i=3;i>=0;i--)if(!bottles.get(i).isEmpty()){var s=bottles.set(i,ItemStack.EMPTY);changed();return s;}return ItemStack.EMPTY;}
     public void changed(){setChanged();if(level!=null)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
     @Override protected void saveAdditional(CompoundTag t,HolderLookup.Provider r){super.saveAdditional(t,r);ContainerHelper.saveAllItems(t,bottles,r);}
-    @Override protected void loadAdditional(CompoundTag t,HolderLookup.Provider r){super.loadAdditional(t,r);ContainerHelper.loadAllItems(t,bottles,r);for(int i=0;i<4;i++)if(!bottles.get(i).isEmpty()){if(!bottles.get(i).is(WineryContent.BOTTLE.get()) || WineBottleItem.batchId(bottles.get(i))==null)bottles.set(i,ItemStack.EMPTY);else bottles.get(i).setCount(1);}}
+    @Override protected void loadAdditional(CompoundTag t,HolderLookup.Provider r){super.loadAdditional(t,r);bottles.clear();ContainerHelper.loadAllItems(t,bottles,r);for(int i=0;i<4;i++)if(!bottles.get(i).isEmpty()){if(!bottles.get(i).is(WineryContent.BOTTLE.get()) || WineBottleItem.batchId(bottles.get(i))==null)bottles.set(i,ItemStack.EMPTY);else bottles.get(i).setCount(1);}}
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider r){return saveWithoutMetadata(r);}
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket(){return ClientboundBlockEntityDataPacket.create(this);}
 }

@@ -203,7 +203,7 @@ use concrete versions rather than snapshot versions.
 
 ## Tests
 
-Run `./gradlew --no-daemon :common:test` for 90 tests covering sculpting, pottery, blueprints, aquarium care/layout, painting, rendering caches, terrarium care/motion/terrain, DJ project/scheduling/audio, wine batches/aging/issuance, and astronomy catalog/observations. Sculpting checks cover curved
+Run `./gradlew --no-daemon :common:test` for 91 tests covering sculpting, pottery, blueprints, aquarium care/layout, painting, rendering caches, terrarium care/motion/terrain, DJ project/scheduling/audio, wine batches/aging/issuance, and astronomy catalog/observations. Sculpting checks cover curved
 sub-grid cuts and exact mesh picking, tool sizes and subtractive smoothing, overlapping mirrored cuts,
 serialization, malformed coordinates/data, closed meshes and winding,
 detached-island removal, severing a narrow connection, legacy migration, closed pillar seams, cross-section connectivity, seam brushes, and connections supported through another section.
@@ -214,7 +214,7 @@ blank, survival and symmetry, creative and smoothing, stale revisions and perman
 coordinates and tool breakage, held-tool selection, severed fragments, unrelated stone, cuts across stacked blocks, interpolated drag strokes, automatic joining of placed marble, and a severed pillar.
 Nine additional pottery GameTests cover the full crafting process, pickup, fuel, cooling, glazing, and persistence.
 Nine aquarium GameTests cover placement, item returns, care, aquascaping and persistence.
-Ten Winery GameTests cover processing costs, elapsed time, duplicate casks, inventory guards, hopper automation, racks and tasting.
+Fourteen Winery GameTests cover processing costs, elapsed time, duplicate casks, inventory guards, hopper automation, racks, targeted removal, stacked vines, foot treading and tasting.
 Six DJ GameTests cover recording costs, project loading, edit authorization, transport, speaker range, pickup and one-shot completion.
 
 Nine terrarium GameTests cover land placement, survival care supplies, colony collection, precise rotation, carrying the planted enclosure, wild capture, biome spawn coverage and permanent death/body cleanup.
